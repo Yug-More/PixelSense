@@ -15,12 +15,10 @@ The goal of PixelSense is to make photo editing easier by allowing users to desc
 ## Team
 
 **Yug Amol More**  
-Computer Science  
-San José State University
+Computer Science, San Jose State University
 
 **Tejas**  
-Computer Science  
-San José State University
+Computer Science, San Jose State University  
 
 ## Project Overview
 
