@@ -1,29 +1,49 @@
 # PixelSense
 
-PixelSense is an AI-based photo enhancement application that makes photo editing easier using natural language and semantic image understanding.
+PixelSense is an AI-based semantic photo enhancement application developed as a final project for **CS 152: Programming Paradigms** at **San José State University**.
 
-Instead of manually adjusting settings such as brightness, contrast, saturation, warmth, and color balance, users can describe how they want their photo to look.
+The goal of PixelSense is to make photo editing easier by allowing users to describe how they want an image to look using natural language. Instead of applying the same filter to the entire image, PixelSense identifies different regions of a photo and applies adjustments based on the content of each region.
 
-For example:
+## Course Information
+
+**Course:** CS 152 - Programming Paradigms  
+**University:** San José State University  
+**Department:** Computer Science  
+**Semester:** Fall 2026  
+**Instructor:** Dr. Saptarshi Sengupta
+
+## Team
+
+**Yug Amol More**  
+Computer Science  
+San José State University
+
+**Tejas**  
+Computer Science  
+San José State University
+
+## Project Overview
+
+Traditional photo filters usually apply the same brightness, contrast, saturation, or color adjustments to an entire image. However, different parts of an image may require different changes.
+
+For example, increasing the brightness of a dark background may also overexpose a person's face. Similarly, changing the warmth of an image may improve the background while making the subject look unnatural.
+
+PixelSense addresses this by combining semantic image understanding with prompt-based editing. The application identifies regions such as the subject, sky, and background and determines which adjustments should be applied to each region.
+
+A user could provide a prompt such as:
 
 > "Make the image warmer and more aesthetic."
 
+or
+
 > "Give the photo a cinematic look."
 
-PixelSense analyzes different regions of the image, such as people, the sky, and the background, and applies appropriate adjustments to each region.
+PixelSense then interprets the request and applies appropriate color and tone adjustments to the existing image.
 
-## Motivation
-
-Traditional photo filters usually apply the same changes to an entire image. This can sometimes create unwanted results. For example, increasing the brightness of a dark background may also overexpose a person's face.
-
-PixelSense aims to make photo enhancement more context-aware by understanding different parts of an image before applying changes.
-
-The project focuses on enhancing the original photo rather than generating a new image. All modifications are applied to the existing pixels so that the original content of the image is preserved.
-
-## Features
+## Key Features
 
 - Semantic image segmentation
-- Natural language editing instructions
+- Natural language editing prompts
 - Region-aware image adjustments
 - Automatic photo enhancement
 - Style presets
@@ -33,40 +53,41 @@ The project focuses on enhancing the original photo rather than generating a new
 
 ## How It Works
 
-1. The user uploads a photo.
-2. The image is segmented into meaningful regions such as the subject, sky, and background.
-3. The user describes the desired appearance using a text prompt.
-4. PixelSense interprets the prompt and determines the appropriate adjustments.
-5. Different adjustments are applied to different regions of the image.
-6. The user can preview and compare the enhanced image with the original.
+1. The user uploads an image.
+2. PixelSense analyzes and segments the image into meaningful regions.
+3. The user enters a natural language description of the desired appearance.
+4. The prompt is interpreted to determine suitable image adjustments.
+5. Different adjustments are applied to the appropriate regions.
+6. The enhanced image is displayed for comparison with the original.
 
-## Programming Concepts
+## Programming Paradigms
 
-PixelSense is being developed as part of our CS 152 project and incorporates multiple programming paradigms.
+A major goal of this project is to apply concepts covered in CS 152 by using multiple programming paradigms where they are appropriate.
 
 ### Object-Oriented Programming
 
-Object-oriented programming is used to organize the major components of the application.
+Object-oriented programming is used to organize the major components of the application. Different responsibilities, such as image processing, segmentation, prompt interpretation, and enhancement, can be separated into organized components.
 
 ### Functional Programming
 
-Functional programming is used for image transformations and processing operations.
+Functional programming concepts are used for image transformations. Operations such as brightness, contrast, saturation, and color adjustments can be represented as transformations that take image data as input and return modified image data.
 
 ### Rule-Based Logic
 
-Rule-based logic is used to determine which adjustments should be applied to specific regions of an image.
+Rule-based logic is used to determine which transformations should be applied to different regions of an image based on the detected content and the user's requested style.
 
-## Project Goal
+## Project Goals
 
-Our goal is to create a photo enhancement tool that allows users without professional photo editing experience to improve their images using simple natural language instructions.
+The main goals of PixelSense are to:
 
-Rather than generating a completely new image, PixelSense focuses on intelligently enhancing the original photo while preserving its content.
+- Make basic photo enhancement accessible to users without professional editing experience.
+- Apply different enhancements based on the semantic content of an image.
+- Allow users to control photo enhancement using simple natural language.
+- Preserve the original image instead of generating a completely new image.
+- Explore how different programming paradigms can be combined within one application.
 
-## Authors
+## Project Status
 
-**Yug Amol More**  
-**Tejas**
+PixelSense is currently under development as part of the CS 152 final project.
 
-San José State University  
-Department of Computer Science  
-CS 152
+Additional implementation details, setup instructions, dependencies, and examples will be added as development progresses.
