@@ -1,8 +1,8 @@
 # PixelSense
 
-PixelSense is an AI-based semantic photo enhancement application developed as a final project for **CS 152: Programming Paradigms** at **San José State University**.
+PixelSense is a prompt-driven photo enhancement application developed as a final project for **CS 152: Programming Paradigms** at **San José State University**.
 
-The goal of PixelSense is to make photo editing easier by allowing users to describe how they want an image to look using natural language. Instead of applying the same filter to the entire image, PixelSense identifies different regions of a photo and applies adjustments based on the content of each region.
+The goal is to help users achieve a desired color and tone by adjusting controls such as exposure, contrast, saturation, and warmth. A user can describe the look they want in natural language, then refine the resulting settings manually. PixelSense edits the appearance of the original photograph; it does not generate or replace image content.
 
 ## Course Information
 
@@ -15,48 +15,55 @@ The goal of PixelSense is to make photo editing easier by allowing users to desc
 ## Team
 
 **Yug Amol More**  
-Computer Science, San Jose State University
+Computer Science, San José State University
 
 **Tejas**  
-Computer Science, San Jose State University  
+Computer Science, San José State University
 
 ## Project Overview
 
-Traditional photo filters usually apply the same brightness, contrast, saturation, or color adjustments to an entire image. However, different parts of an image may require different changes.
+PixelSense treats photo enhancement as a set of editable color and tone settings. Similar to the adjustment controls in a photo editor, these settings change how an existing photo looks without changing what it depicts. The original photo remains untouched, and the settings can be revised or reset.
 
-For example, increasing the brightness of a dark background may also overexpose a person's face. Similarly, changing the warmth of an image may improve the background while making the subject look unnatural.
+A user might request:
 
-PixelSense addresses this by combining semantic image understanding with prompt-based editing. The application identifies regions such as the subject, sky, and background and determines which adjustments should be applied to each region.
-
-A user could provide a prompt such as:
-
-> "Make the image warmer and more aesthetic."
+> "Make the image warmer without overexposing the person."
 
 or
 
-> "Give the photo a cinematic look."
+> "Give the photo a cinematic color grade."
 
-PixelSense then interprets the request and applies appropriate color and tone adjustments to the existing image.
+PixelSense interprets the request as adjustment values, previews their effect on the original photo, and lets the user fine-tune them. When appropriate, it can apply different values to regions such as the subject, sky, and background. Region detection only determines **where** color and tone settings apply; it does not change the regions' shapes or contents.
+
+## Scope
+
+PixelSense focuses on adjustments such as exposure, brightness, contrast, highlights, shadows, saturation, and warmth. The exact controls supported by the application will be defined during implementation.
+
+PixelSense will not:
+
+- Generate a new scene or add, remove, or replace objects.
+- Change the shape, position, or geometry of objects or regions.
+- Crop, warp, or otherwise reconstruct image content as part of prompt-based enhancement.
+
+Adjusting color or tone necessarily changes pixel values in the displayed result. PixelSense preserves the source photo and stores the adjustment settings separately so the edit remains reversible. Exporting produces an adjusted copy of the same photo, not a newly generated image.
 
 ## Key Features
 
-- Semantic image segmentation
-- Natural language editing prompts
-- Region-aware image adjustments
-- Automatic photo enhancement
-- Style presets
-- Manual adjustment controls
-- Before-and-after image comparison
-- Preservation of the original image content
+- Natural language requests mapped to color and tone settings
+- Reversible, non-destructive adjustments with the original photo preserved
+- Region-aware adjustments for subjects, skies, and backgrounds where useful
+- Style presets expressed through the same adjustable settings
+- Manual controls for refining the result
+- Before-and-after comparison
+- Export of the adjusted photo
 
 ## How It Works
 
-1. The user uploads an image.
-2. PixelSense analyzes and segments the image into meaningful regions.
-3. The user enters a natural language description of the desired appearance.
-4. The prompt is interpreted to determine suitable image adjustments.
-5. Different adjustments are applied to the appropriate regions.
-6. The enhanced image is displayed for comparison with the original.
+1. The user uploads a photo, which PixelSense keeps as the untouched original.
+2. The user describes the desired look, selects a preset, or changes settings manually.
+3. PixelSense translates the request or preset into adjustment values.
+4. If a request targets part of the photo, PixelSense identifies the relevant region and applies the color and tone adjustments there.
+5. The user compares the preview with the original and refines the settings.
+6. The user exports the adjusted photo while retaining the original and editable settings.
 
 ## Programming Paradigms
 
@@ -64,28 +71,24 @@ A major goal of this project is to apply concepts covered in CS 152 by using mul
 
 ### Object-Oriented Programming
 
-Object-oriented programming is used to organize the major components of the application. Different responsibilities, such as image processing, segmentation, prompt interpretation, and enhancement, can be separated into organized components.
+Object-oriented programming organizes responsibilities such as photo loading, region detection, prompt interpretation, adjustment settings, and export.
 
 ### Functional Programming
 
-Functional programming concepts are used for image transformations. Operations such as brightness, contrast, saturation, and color adjustments can be represented as transformations that take image data as input and return modified image data.
+Functional programming represents color and tone operations as transformations that take image data and adjustment values as input and return an adjusted preview, without modifying the original photo.
 
 ### Rule-Based Logic
 
-Rule-based logic is used to determine which transformations should be applied to different regions of an image based on the detected content and the user's requested style.
+Rule-based logic maps requested looks and detected regions to adjustment values. For example, a request to warm the background while protecting a face can assign different warmth and exposure values to those regions.
 
 ## Project Goals
 
-The main goals of PixelSense are to:
-
-- Make basic photo enhancement accessible to users without professional editing experience.
-- Apply different enhancements based on the semantic content of an image.
-- Allow users to control photo enhancement using simple natural language.
-- Preserve the original image instead of generating a completely new image.
-- Explore how different programming paradigms can be combined within one application.
+- Make color and tone enhancement accessible without requiring professional editing experience.
+- Let users control adjustments through natural language, presets, and manual settings.
+- Apply settings to relevant regions while keeping the photo's content and geometry intact.
+- Preserve the original photo and keep edits reversible.
+- Demonstrate how object-oriented, functional, and rule-based approaches work together in one application.
 
 ## Project Status
 
-PixelSense is currently under development as part of the CS 152 final project.
-
-Additional implementation details, setup instructions, dependencies, and examples will be added as development progresses.
+PixelSense is under development as part of the CS 152 final project. Implementation details, setup instructions, dependencies, and examples will be added as development progresses.
