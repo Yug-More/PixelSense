@@ -5,7 +5,7 @@ This is the shared, human-readable state of the project for Tejas, Yug, and any 
 ## Current state — 2026-10-12
 
 - **Repository:** `Yug-More/PixelSense`, branch `main`; the project currently has documentation only. No iOS project or application code exists yet.
-- **Baseline remote commit:** `e6fd8af` clarified non-destructive color and tone editing. The documentation changes described below are being prepared on top of it; consult `git log` for their final commit.
+- **Shared documentation:** commit `6906e3b` on `main` contains the current README, project plan, agent guidelines, and this handoff. Consult `git log` for subsequent handoff updates.
 - **Agreed product direction:** native iPhone app, Apple Photos library access, color/tone adjustment of an existing photo, save to the same visible Photos item, no added gallery item in the normal flow, no generated or reshaped content.
 - **Platform constraint:** Apple Photos manages original and edited data internally. The app cannot overwrite the library's original file byte-for-byte or promise zero extra storage. This distinction must remain clear in code, docs, and demos.
 - **Cost decision:** build and test on the students' own iPhones with Xcode and free Apple Accounts. No App Store or TestFlight distribution is planned for the class prototype. Free personal-team installations expire after seven days and require reinstalling.
@@ -46,11 +46,11 @@ Keep this document factual. A completed acceptance check needs a reproducible re
 
 ### 2026-10-12 — Planning and agent handoff documents
 
-- **Who / branch / commit:** Codex assisting Tejas / `main` / commit containing this entry.
+- **Who / branch / commit:** Codex assisting Tejas / `main` / `6906e3b` (pushed).
 - **Work:** updated `README.md` for the same-item Photos save flow; created `docs/PROJECT_PLAN.md` with architecture, milestones M0–M6, acceptance checks, coordination, and risks; created `AGENTS.md` with documentation, verification, Git, and account rules; created this handoff.
 - **Reason:** ensure both students and their agents can resume from one written state and avoid conflicting interpretations of “no duplicate.”
 - **Verification:** reviewed the documentation diff and ran `git diff --check`; both passed. No app or device test is possible yet because the iOS project has not been created.
-- **Next action:** commit and push the documentation, then start M0 with the two students' device and course constraints.
+- **Next action:** start M0 with the two students' device and course constraints.
 
 ## Template for the next entry
 
