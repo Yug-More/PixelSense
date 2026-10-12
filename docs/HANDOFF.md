@@ -4,8 +4,8 @@ This is the shared, human-readable state of the project for Tejas, Yug, and any 
 
 ## Current state — 2026-10-12
 
-- **Repository:** `Yug-More/PixelSense`; Codex assisting Tejas owns `feature/ios-photo-editing-proof` for the first native iPhone app and PhotoKit save-back proof. The implementation is ready for source review and a physical-device test; consult `git status` and `git log` for its final commit and merge state.
-- **Shared documentation:** commit `6906e3b` on `main` contains the current README, project plan, agent guidelines, and this handoff. Consult `git log` for subsequent handoff updates.
+- **Repository:** `Yug-More/PixelSense`; `main` includes the first iPhone prototype at commit `5c43098`. The published `feature/ios-photo-editing-proof` branch points to the same implementation. Codex assisting Tejas owns follow-up fixes from the first physical-device test.
+- **Shared documentation:** commit `6906e3b` introduced the project plan, agent guidelines, and handoff; commit `5c43098` updated them for the first prototype. Consult `git log` for subsequent handoff updates.
 - **Agreed product direction:** native iPhone app, Apple Photos library access, color/tone adjustment of an existing photo, save to the same visible Photos item, no added gallery item in the normal flow, no generated or reshaped content.
 - **Platform constraint:** Apple Photos manages original and edited data internally. The app cannot overwrite the library's original file byte-for-byte or promise zero extra storage. This distinction must remain clear in code, docs, and demos.
 - **Cost decision:** build and test on the students' own iPhones with Xcode and free Apple Accounts. No App Store or TestFlight distribution is planned for the class prototype. Free personal-team installations expire after seven days and require reinstalling.
@@ -55,7 +55,7 @@ Keep this document factual. A completed acceptance check needs a reproducible re
 
 ### 2026-10-12 — First iPhone Photos editing prototype
 
-- **Who / branch / commit:** Codex assisting Tejas / `feature/ios-photo-editing-proof` / commit containing this entry.
+- **Who / branch / commit:** Codex assisting Tejas / `feature/ios-photo-editing-proof` / `5c43098` (published and fast-forwarded to `main`).
 - **Work and files:** added `PixelSense.xcodeproj` and the `PixelSense/` SwiftUI app; added `.gitignore`; updated `README.md` with current behavior and free-device setup; updated `docs/PROJECT_PLAN.md` with the initial iOS 17/still-photo/exposure choices. `PhotoLibraryStore` handles read/write or limited Photos authorization and browses still assets. `PhotoEditorModel` loads a content editing input, renders an exposure preview with Core Image, stores a versioned recipe, and asks PhotoKit to update the selected asset. `ContentView` provides the gallery, before/edit comparison, slider, and save action.
 - **Decisions and sources:** use `PHContentEditingOutput.renderedContentURL(for: .jpeg)` for the first still-photo proof; this API is available on iOS 17+. Use `PHAdjustmentData` for the exposure recipe and no asset-creation request in the save path. Apple references: [content editing](https://developer.apple.com/documentation/photokit/editing-asset-content), [editing output](https://developer.apple.com/documentation/photos/phcontenteditingoutput), [color filters](https://developer.apple.com/documentation/coreimage/color-adjustment-filters).
 - **Attempts and fixes:** the first build rejected a nonexistent `CIImageRepresentationOption.lossyCompressionQuality` member; removed that option and rebuilt successfully. Added required bundle keys to `Info.plist` after inspecting the built app metadata. The simulator service could not be used for a launch test in this tool session.
