@@ -116,58 +116,82 @@ private struct PhotoEditorView: View {
     }
 
     var body: some View {
-        VStack(spacing: 20) {
-            Spacer(minLength: 0)
-            if let image = showBefore ? model.beforePreview : model.editedPreview {
-                Image(uiImage: image)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(maxWidth: .infinity, maxHeight: 500)
-            } else if model.isLoading {
-                ProgressView("Opening photo…")
-                    .frame(maxHeight: .infinity)
-            }
-
-            Button(showBefore ? "Show edit" : "Show before") {
-                showBefore.toggle()
-            }
-            .disabled(model.beforePreview == nil)
-
-            VStack(alignment: .leading, spacing: 8) {
-                HStack {
-                    Text("Exposure")
-                    Spacer()
-                    Text(String(format: "%+.1f EV", model.exposureEV))
-                        .monospacedDigit()
+        ScrollView {
+            VStack(spacing: 20) {
+                if let image = showBefore ? model.beforePreview : model.editedPreview {
+                    Image(uiImage: image)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(maxWidth: .infinity, maxHeight: 360)
+                } else if model.isLoading {
+                    ProgressView("Opening photo…")
+                        .frame(height: 300)
                 }
-                Slider(value: $model.exposureEV, in: -2...2, step: 0.1)
-                    .onChange(of: model.exposureEV) { model.updatePreview() }
-            }
 
-            Button {
-                Task { await model.save() }
-            } label: {
-                if model.isSaving {
-                    ProgressView()
-                        .frame(maxWidth: .infinity)
-                } else {
-                    Text("Save to this photo")
-                        .frame(maxWidth: .infinity)
+                Button(showBefore ? "Show edit" : "Show before") {
+                    showBefore.toggle()
+                }
+                .disabled(model.beforePreview == nil)
+
+                VStack(spacing: 14) {
+                    adjustmentControl("Exposure", value: $model.exposureEV, range: -2...2, step: 0.1, format: "%+.1f EV")
+                    adjustmentControl("Contrast", value: $model.contrast, range: -0.5...0.5, step: 0.05, format: "%+.0f%%", multiplier: 100)
+                    adjustmentControl("Saturation", value: $model.saturation, range: -1...1, step: 0.05, format: "%+.0f%%", multiplier: 100)
+                    adjustmentControl("Warmth", value: $model.warmth, range: -1...1, step: 0.05, format: "%+.0f%%", multiplier: 100)
+                }
+                .disabled(model.isLoading || model.isSaving)
+
+                Button("Reset settings") { model.resetAdjustments() }
+                    .disabled(model.isLoading || model.isSaving || model.editedPreview == nil)
+
+                Button {
+                    Task { await model.save() }
+                } label: {
+                    if model.isSaving {
+                        ProgressView()
+                            .frame(maxWidth: .infinity)
+                    } else {
+                        Text("Save to this photo")
+                            .frame(maxWidth: .infinity)
+                    }
+                }
+                .buttonStyle(.borderedProminent)
+                .disabled(model.isLoading || model.isSaving || model.editedPreview == nil)
+
+                if let message = model.message {
+                    Text(message).foregroundStyle(.green)
+                }
+                if let error = model.errorMessage {
+                    Text(error).foregroundStyle(.red)
                 }
             }
-            .buttonStyle(.borderedProminent)
-            .disabled(model.isLoading || model.isSaving || model.editedPreview == nil)
-
-            if let message = model.message {
-                Text(message).foregroundStyle(.green)
-            }
-            if let error = model.errorMessage {
-                Text(error).foregroundStyle(.red)
-            }
+            .padding()
         }
-        .padding()
         .navigationTitle("Edit photo")
         .navigationBarTitleDisplayMode(.inline)
         .task { await model.load() }
+        .onChange(of: model.exposureEV) { model.updatePreview() }
+        .onChange(of: model.contrast) { model.updatePreview() }
+        .onChange(of: model.saturation) { model.updatePreview() }
+        .onChange(of: model.warmth) { model.updatePreview() }
+    }
+
+    private func adjustmentControl(
+        _ title: String,
+        value: Binding<Double>,
+        range: ClosedRange<Double>,
+        step: Double,
+        format: String,
+        multiplier: Double = 1
+    ) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack {
+                Text(title)
+                Spacer()
+                Text(String(format: format, value.wrappedValue * multiplier))
+                    .monospacedDigit()
+            }
+            Slider(value: value, in: range, step: step)
+        }
     }
 }

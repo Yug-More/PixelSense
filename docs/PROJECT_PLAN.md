@@ -23,7 +23,7 @@ Keep image processing on the device for the first version. A Photos editing exte
 
 ## Initial implementation choices — 2026-10-12
 
-The first prototype targets iOS 17 or later and standard still photos. It implements exposure from -2 to +2 EV as the smallest end-to-end save-back proof. It shows up to 100 recent still photos and excludes Live Photos. Prompt parsing, additional controls, region masks, and the Photos editing extension remain later milestones. These choices can be revised after Tejas provides his device/iOS version and the first physical-device test.
+The first prototype targets iOS 17 or later and standard still photos. It began with exposure from -2 to +2 EV as the smallest end-to-end save-back proof; contrast, saturation, and warmth controls now share the same versioned recipe and renderer. It shows up to 100 recent still photos and excludes Live Photos. Prompt parsing, region masks, and the Photos editing extension remain later milestones. These choices can be revised after Tejas provides his device/iOS version and the first physical-device test.
 
 ## Milestones and acceptance checks
 

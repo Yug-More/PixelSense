@@ -1,24 +1,7 @@
 import CoreImage
-import CoreImage.CIFilterBuiltins
 import Photos
 import SwiftUI
 import UniformTypeIdentifiers
-
-struct EditRecipe: Codable {
-    static let formatIdentifier = "edu.sjsu.pixelsense.recipe"
-    static let formatVersion = "1"
-
-    var exposureEV: Double
-
-    static func decode(_ adjustmentData: PHAdjustmentData?) -> EditRecipe? {
-        guard let adjustmentData,
-              adjustmentData.formatIdentifier == formatIdentifier,
-              adjustmentData.formatVersion == formatVersion else {
-            return nil
-        }
-        return try? JSONDecoder().decode(EditRecipe.self, from: adjustmentData.data)
-    }
-}
 
 enum PhotoEditError: LocalizedError {
     case noEditingInput
@@ -43,6 +26,9 @@ final class PhotoEditorModel: ObservableObject {
     let asset: PHAsset
 
     @Published var exposureEV = 0.0
+    @Published var contrast = 0.0
+    @Published var saturation = 0.0
+    @Published var warmth = 0.0
     @Published private(set) var beforePreview: UIImage?
     @Published private(set) var editedPreview: UIImage?
     @Published private(set) var isLoading = false
@@ -55,6 +41,15 @@ final class PhotoEditorModel: ObservableObject {
 
     init(asset: PHAsset) {
         self.asset = asset
+    }
+
+    private var recipe: EditRecipe {
+        EditRecipe(
+            exposureEV: exposureEV,
+            contrast: contrast,
+            saturation: saturation,
+            warmth: warmth
+        )
     }
 
     func load() async {
@@ -71,7 +66,11 @@ final class PhotoEditorModel: ObservableObject {
             let input = try await requestEditingInput()
             let source = try image(from: input)
             sourceImage = source
-            exposureEV = EditRecipe.decode(input.adjustmentData)?.exposureEV ?? 0
+            let savedRecipe = EditRecipe.decode(input.adjustmentData) ?? EditRecipe()
+            exposureEV = savedRecipe.exposureEV
+            contrast = savedRecipe.contrast
+            saturation = savedRecipe.saturation
+            warmth = savedRecipe.warmth
             beforePreview = try renderPreview(source)
             updatePreview()
         } catch {
@@ -82,10 +81,18 @@ final class PhotoEditorModel: ObservableObject {
     func updatePreview() {
         guard let sourceImage else { return }
         do {
-            editedPreview = try renderPreview(adjust(sourceImage, exposureEV: exposureEV))
+            editedPreview = try renderPreview(AdjustmentRenderer.apply(recipe, to: sourceImage))
         } catch {
             errorMessage = error.localizedDescription
         }
+    }
+
+    func resetAdjustments() {
+        exposureEV = 0
+        contrast = 0
+        saturation = 0
+        warmth = 0
+        updatePreview()
     }
 
     func save() async {
@@ -104,7 +111,7 @@ final class PhotoEditorModel: ObservableObject {
                 throw PhotoEditError.unsupportedOutput
             }
             let outputURL = try output.renderedContentURL(for: .jpeg)
-            let recipe = EditRecipe(exposureEV: exposureEV)
+            let recipe = self.recipe
             output.adjustmentData = PHAdjustmentData(
                 formatIdentifier: EditRecipe.formatIdentifier,
                 formatVersion: EditRecipe.formatVersion,
@@ -113,7 +120,7 @@ final class PhotoEditorModel: ObservableObject {
 
             let colorSpace = CGColorSpace(name: CGColorSpace.sRGB)!
             try context.writeJPEGRepresentation(
-                of: adjust(source, exposureEV: exposureEV),
+                of: AdjustmentRenderer.apply(recipe, to: source),
                 to: outputURL,
                 colorSpace: colorSpace,
                 options: [:]
@@ -159,13 +166,6 @@ final class PhotoEditorModel: ObservableObject {
             throw PhotoEditError.noImageData
         }
         return image.oriented(forExifOrientation: input.fullSizeImageOrientation)
-    }
-
-    private func adjust(_ image: CIImage, exposureEV: Double) -> CIImage {
-        let filter = CIFilter.exposureAdjust()
-        filter.inputImage = image
-        filter.ev = Float(exposureEV)
-        return filter.outputImage ?? image
     }
 
     private func renderPreview(_ image: CIImage) throws -> UIImage {

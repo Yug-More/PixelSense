@@ -91,14 +91,14 @@ Rule-based logic maps requested looks and detected regions to adjustment values.
 
 ## Project Status
 
-PixelSense is under development as part of the CS 152 final project. The first iPhone prototype can browse authorized still photos, preview an exposure change, compare before and after, and request a save to the same Photos item. The save flow still needs verification on a physical iPhone. Prompts, more adjustment controls, and region-aware editing are planned but not yet implemented.
+PixelSense is under development as part of the CS 152 final project. The first iPhone prototype can browse authorized still photos, preview exposure, contrast, saturation, and warmth changes, compare before and after, and request a save to the same Photos item. The save flow still needs verification on a physical iPhone. Prompts and region-aware editing are planned but not yet implemented.
 
 ### Run the prototype
 
 1. Open `PixelSense.xcodeproj` in Xcode 15.4 or later.
 2. Select the PixelSense target, choose your own Apple Account's Personal Team under **Signing & Capabilities**, and choose a connected iPhone running iOS 17 or later. If Xcode cannot support your iPhone's iOS version, update Xcode first.
 3. Build and run the app. Allow access to the photos you want to edit when prompted.
-4. Select a standard still photo, move the exposure slider, compare **Show before** and **Show edit**, then tap **Save to this photo**.
+4. Select a standard still photo, adjust the color and tone sliders, compare **Show before** and **Show edit**, then tap **Save to this photo**.
 5. Check that the existing item in Photos shows the edit and no new gallery item was added. Use a photo set aside for testing until save-back and Photos' revert behavior have been verified on a device.
 
 The prototype currently excludes Live Photos and shows up to 100 recent supported still photos. JPEG output, orientation, metadata, iCloud-hosted photos, repeated edits, and revert behavior need device testing. The app uses only Apple frameworks and does not upload the photo. A free Personal Team installation must be rebuilt and reinstalled after its provisioning profile expires.
