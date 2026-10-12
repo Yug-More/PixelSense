@@ -4,13 +4,13 @@ This is the shared, human-readable state of the project for Tejas, Yug, and any 
 
 ## Current state — 2026-10-12
 
-- **Repository:** `Yug-More/PixelSense`; `main` includes the first iPhone prototype at commit `5c43098`. The published `feature/ios-photo-editing-proof` branch points to the same implementation. Codex assisting Tejas owns `feature/color-controls` for the additional adjustment controls while the physical-device save test remains pending.
-- **Shared documentation:** commit `6906e3b` introduced the project plan, agent guidelines, and handoff; commit `5c43098` updated them for the first prototype. Consult `git log` for subsequent handoff updates.
+- **Repository:** `Yug-More/PixelSense`; `main` includes the first iPhone prototype (`5c43098`) and four-control adjustment engine (`23f2967`). Both feature branches are published. Codex assisting Tejas owns follow-up device findings while the physical-device save test remains pending.
+- **Shared documentation:** commit `6906e3b` introduced the project plan, agent guidelines, and handoff; commits `5c43098` and `23f2967` updated them for the prototype and color controls. Consult `git log` for subsequent handoff updates.
 - **Agreed product direction:** native iPhone app, Apple Photos library access, color/tone adjustment of an existing photo, save to the same visible Photos item, no added gallery item in the normal flow, no generated or reshaped content.
 - **Platform constraint:** Apple Photos manages original and edited data internally. The app cannot overwrite the library's original file byte-for-byte or promise zero extra storage. This distinction must remain clear in code, docs, and demos.
 - **Cost decision:** build and test on the students' own iPhones with Xcode and free Apple Accounts. No App Store or TestFlight distribution is planned for the class prototype. Free personal-team installations expire after seven days and require reinstalling.
 - **Environment checked:** Xcode 15.4 is installed on Tejas's current Mac. Device iOS versions and teammate environment have not been checked.
-- **Implementation status:** M0 is partial, M1 has a compiling prototype, and M2's four basic controls are implemented on `feature/color-controls`. `PixelSense.xcodeproj` targets iOS 17+, browses permitted still photos, previews exposure, contrast, saturation, and warmth, and submits a PhotoKit edit with versioned `PHAdjustmentData` to the same `PHAsset`. No physical-device save-back has been verified. Tejas will provide his device/iOS version. No extra course requirements are known yet.
+- **Implementation status:** M0 is partial, M1 has a compiling prototype, and M2's four basic controls are implemented on `main`. `PixelSense.xcodeproj` targets iOS 17+, browses permitted still photos, previews exposure, contrast, saturation, and warmth, and submits a PhotoKit edit with versioned `PHAdjustmentData` to the same `PHAsset`. No physical-device save-back has been verified. Tejas will provide his device/iOS version. No extra course requirements are known yet.
 - **Verification:** generic iOS Simulator and generic iPhone builds passed with code signing disabled. A simulator launch could not be performed because the local CoreSimulator service was unavailable to this tool session. No physical iPhone was connected or tested.
 - **Next action:** Tejas opens the Xcode project, selects his Personal Team, and tests the full flow on a standard still photo on his iPhone. Record whether the save updates one gallery item, whether repeat edits reopen the saved value, and whether Photos can revert. Then fix any device findings before M1 is marked done. Tejas and Yug still need to agree on ownership of later milestones.
 - **Open decisions:** see “Main risks and decisions still open” in `docs/PROJECT_PLAN.md`.
@@ -65,12 +65,12 @@ Keep this document factual. A completed acceptance check needs a reproducible re
 
 ### 2026-10-12 — Basic color and tone controls
 
-- **Who / branch / commit:** Codex assisting Tejas / `feature/color-controls` / commit containing this entry.
+- **Who / branch / commit:** Codex assisting Tejas / `feature/color-controls` / `23f2967` (published and fast-forwarded to `main`).
 - **Work and files:** added `PixelSense/EditRecipe.swift` and `PixelSense/AdjustmentRenderer.swift`; updated `PixelSense/PhotoEditorModel.swift`, `PixelSense/ContentView.swift`, and the Xcode project. The editor now exposes exposure, contrast, saturation, warmth, and reset controls in a scrollable layout. The same recipe drives both preview and full-resolution save. Updated `README.md` and `docs/PROJECT_PLAN.md` to reflect the added controls.
 - **Decisions and sources:** kept recipe format version 1 and decode missing new fields as zero, so exposure-only recipes remain readable. The renderer skips controls at their neutral value. Contrast and saturation use Core Image color controls; warmth uses temperature and tint. [Apple Core Image color adjustment filters](https://developer.apple.com/documentation/coreimage/color-adjustment-filters).
 - **Verification and result:** generic iPhone and simulator builds passed with signing disabled. A temporary compatibility check decoded the earlier exposure-only JSON with all new controls at zero and round-tripped a four-control recipe. No on-device color, format, save-back, or performance check has been completed.
 - **Blockers or risks:** Core Image warmth direction and strength, color fidelity, and large-photo responsiveness require visual review on a real device. M1 same-asset save remains unverified on hardware.
-- **Exact next action and owner:** Codex finishes diff verification and publishes this change. Tejas then runs the README device flow and reports save behavior and appearance; Codex fixes any findings.
+- **Exact next action and owner:** Tejas runs the README device flow and reports save behavior and appearance; Codex fixes any findings.
 
 ## Template for the next entry
 
