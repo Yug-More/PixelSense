@@ -21,6 +21,10 @@ The class prototype will be built and tested on the students' own devices with X
 
 Keep image processing on the device for the first version. A Photos editing extension, which would launch from the Photos app's Edit flow, is a later milestone after the standalone app can reliably save back to an existing asset.
 
+## Initial implementation choices — 2026-10-12
+
+The first prototype targets iOS 17 or later and standard still photos. It implements exposure from -2 to +2 EV as the smallest end-to-end save-back proof. It shows up to 100 recent still photos and excludes Live Photos. Prompt parsing, additional controls, region masks, and the Photos editing extension remain later milestones. These choices can be revised after Tejas provides his device/iOS version and the first physical-device test.
+
 ## Milestones and acceptance checks
 
 ### M0 — Requirements and environment
