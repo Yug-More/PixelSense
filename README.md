@@ -1,6 +1,6 @@
 # PixelSense
 
-PixelSense is a prompt-driven photo enhancement application developed as a final project for **CS 152: Programming Paradigms** at **San José State University**.
+PixelSense is a prompt-driven iPhone photo enhancement application developed as a final project for **CS 152: Programming Paradigms** at **San José State University**.
 
 The goal is to help users achieve a desired color and tone by adjusting controls such as exposure, contrast, saturation, and warmth. A user can describe the look they want in natural language, then refine the resulting settings manually. PixelSense edits the appearance of the original photograph; it does not generate or replace image content.
 
@@ -22,7 +22,7 @@ Computer Science, San José State University
 
 ## Project Overview
 
-PixelSense treats photo enhancement as a set of editable color and tone settings. Similar to the adjustment controls in a photo editor, these settings change how an existing photo looks without changing what it depicts. The original photo remains untouched, and the settings can be revised or reset.
+PixelSense treats photo enhancement as a set of editable color and tone settings. Similar to the adjustment controls in a photo editor, these settings change how an existing photo looks without changing what it depicts. Users choose a photo from their iPhone Photos library and save the edit back to that same library item.
 
 A user might request:
 
@@ -44,7 +44,7 @@ PixelSense will not:
 - Change the shape, position, or geometry of objects or regions.
 - Crop, warp, or otherwise reconstruct image content as part of prompt-based enhancement.
 
-Adjusting color or tone necessarily changes pixel values in the displayed result. PixelSense preserves the source photo and stores the adjustment settings separately so the edit remains reversible. Exporting produces an adjusted copy of the same photo, not a newly generated image.
+Adjusting color or tone necessarily changes pixel values in the displayed result. PixelSense saves adjustment settings as an editable recipe and updates the selected Photos item without adding a second visible item to the library. Apple Photos manages the original and edited rendering internally; iOS does not let PixelSense overwrite the original library file in place or guarantee that the edit uses no additional storage.
 
 ## Key Features
 
@@ -54,16 +54,16 @@ Adjusting color or tone necessarily changes pixel values in the displayed result
 - Style presets expressed through the same adjustable settings
 - Manual controls for refining the result
 - Before-and-after comparison
-- Export of the adjusted photo
+- Saving the edit to the same item in Apple Photos
 
 ## How It Works
 
-1. The user uploads a photo, which PixelSense keeps as the untouched original.
+1. The user selects a photo from their iPhone Photos library.
 2. The user describes the desired look, selects a preset, or changes settings manually.
 3. PixelSense translates the request or preset into adjustment values.
 4. If a request targets part of the photo, PixelSense identifies the relevant region and applies the color and tone adjustments there.
 5. The user compares the preview with the original and refines the settings.
-6. The user exports the adjusted photo while retaining the original and editable settings.
+6. The user saves the edit to the same Photos item, with the adjustment recipe available for later refinement.
 
 ## Programming Paradigms
 
@@ -71,7 +71,7 @@ A major goal of this project is to apply concepts covered in CS 152 by using mul
 
 ### Object-Oriented Programming
 
-Object-oriented programming organizes responsibilities such as photo loading, region detection, prompt interpretation, adjustment settings, and export.
+Object-oriented programming organizes responsibilities such as Photos library access, region detection, prompt interpretation, adjustment settings, and saving.
 
 ### Functional Programming
 
@@ -91,4 +91,6 @@ Rule-based logic maps requested looks and detected regions to adjustment values.
 
 ## Project Status
 
-PixelSense is under development as part of the CS 152 final project. Implementation details, setup instructions, dependencies, and examples will be added as development progresses.
+PixelSense is under development as part of the CS 152 final project. The repository currently contains project documentation; application code, setup instructions, dependencies, and examples will be added as development progresses.
+
+See the [project plan](docs/PROJECT_PLAN.md) for milestones and acceptance checks, the [handoff](docs/HANDOFF.md) for current status, and [agent guidelines](AGENTS.md) for the team workflow.
