@@ -110,6 +110,7 @@ private struct PhotoThumbnailView: View {
 private struct PhotoEditorView: View {
     @StateObject private var model: PhotoEditorModel
     @State private var showBefore = false
+    @State private var promptText = ""
 
     init(asset: PHAsset) {
         _model = StateObject(wrappedValue: PhotoEditorModel(asset: asset))
@@ -133,11 +134,13 @@ private struct PhotoEditorView: View {
                 }
                 .disabled(model.beforePreview == nil)
 
+                promptSection
+
                 VStack(spacing: 14) {
-                    adjustmentControl("Exposure", value: $model.exposureEV, range: -2...2, step: 0.1, format: "%+.1f EV")
-                    adjustmentControl("Contrast", value: $model.contrast, range: -0.5...0.5, step: 0.05, format: "%+.0f%%", multiplier: 100)
-                    adjustmentControl("Saturation", value: $model.saturation, range: -1...1, step: 0.05, format: "%+.0f%%", multiplier: 100)
-                    adjustmentControl("Warmth", value: $model.warmth, range: -1...1, step: 0.05, format: "%+.0f%%", multiplier: 100)
+                    adjustmentControl("Exposure", value: $model.exposureEV, range: EditRecipe.exposureRange, step: 0.1, format: "%+.1f EV")
+                    adjustmentControl("Contrast", value: $model.contrast, range: EditRecipe.contrastRange, step: 0.025, format: "%+.1f%%", multiplier: 100)
+                    adjustmentControl("Saturation", value: $model.saturation, range: EditRecipe.saturationRange, step: 0.05, format: "%+.0f%%", multiplier: 100)
+                    adjustmentControl("Warmth", value: $model.warmth, range: EditRecipe.warmthRange, step: 0.05, format: "%+.0f%%", multiplier: 100)
                 }
                 .disabled(model.isLoading || model.isSaving)
 
@@ -167,6 +170,7 @@ private struct PhotoEditorView: View {
             }
             .padding()
         }
+        .scrollDismissesKeyboard(.interactively)
         .navigationTitle("Edit photo")
         .navigationBarTitleDisplayMode(.inline)
         .task { await model.load() }
@@ -174,6 +178,48 @@ private struct PhotoEditorView: View {
         .onChange(of: model.contrast) { model.updatePreview() }
         .onChange(of: model.saturation) { model.updatePreview() }
         .onChange(of: model.warmth) { model.updatePreview() }
+        .onChange(of: promptText) { model.clearPromptError() }
+    }
+
+    private var promptSection: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Describe a change")
+                .font(.headline)
+            Text("Exposure, contrast, saturation, and warmth. You can still move the sliders before saving.")
+                .font(.footnote)
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+            TextField("Make this photo warmer.", text: $promptText, axis: .vertical)
+                .lineLimit(1...3)
+                .textFieldStyle(.roundedBorder)
+                .textInputAutocapitalization(.sentences)
+                .disabled(model.isLoading || model.isSaving)
+                .onSubmit { applyPrompt() }
+            Button { applyPrompt() } label: {
+                Text("Apply")
+                    .frame(maxWidth: .infinity)
+            }
+            .buttonStyle(.bordered)
+            .disabled(promptIsEmpty || model.isLoading || model.isSaving)
+            if let promptError = model.promptError {
+                Text(promptError)
+                    .font(.footnote)
+                    .foregroundStyle(.red)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .accessibilityLabel("Prompt error")
+            }
+        }
+    }
+
+    private var promptIsEmpty: Bool {
+        promptText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+
+    private func applyPrompt() {
+        model.applyPrompt(promptText)
+        if model.promptError == nil {
+            showBefore = false
+        }
     }
 
     private func adjustmentControl(

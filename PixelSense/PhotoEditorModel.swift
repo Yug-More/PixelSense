@@ -35,6 +35,7 @@ final class PhotoEditorModel: ObservableObject {
     @Published private(set) var isSaving = false
     @Published private(set) var message: String?
     @Published private(set) var errorMessage: String?
+    @Published private(set) var promptError: String?
 
     private var sourceImage: CIImage?
     private let context = CIContext()
@@ -58,6 +59,7 @@ final class PhotoEditorModel: ObservableObject {
         defer { isLoading = false }
         errorMessage = nil
         message = nil
+        promptError = nil
         beforePreview = nil
         editedPreview = nil
         sourceImage = nil
@@ -92,7 +94,26 @@ final class PhotoEditorModel: ObservableObject {
         contrast = 0
         saturation = 0
         warmth = 0
+        promptError = nil
         updatePreview()
+    }
+
+    /// Fills the sliders from a supported prompt. A failed prompt leaves the recipe unchanged
+    /// and never calls `save()`.
+    func applyPrompt(_ text: String) {
+        var session = PromptApplication(recipe: recipe)
+        session.apply(text)
+        promptError = session.errorMessage
+        guard session.errorMessage == nil else { return }
+        exposureEV = session.recipe.exposureEV
+        contrast = session.recipe.contrast
+        saturation = session.recipe.saturation
+        warmth = session.recipe.warmth
+        updatePreview()
+    }
+
+    func clearPromptError() {
+        promptError = nil
     }
 
     func save() async {
