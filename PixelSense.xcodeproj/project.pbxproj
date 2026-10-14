@@ -13,6 +13,7 @@
 		A10000000000000000000004 /* PhotoEditorModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000004 /* PhotoEditorModel.swift */; };
 		A10000000000000000000005 /* EditRecipe.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000007 /* EditRecipe.swift */; };
 		A10000000000000000000006 /* AdjustmentRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000008 /* AdjustmentRenderer.swift */; };
+		A10000000000000000000008 /* EditRecipePhotoKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000000000000000000000A /* EditRecipePhotoKit.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -24,6 +25,7 @@
 		A20000000000000000000006 /* PixelSense.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PixelSense.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A20000000000000000000007 /* EditRecipe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditRecipe.swift; sourceTree = "<group>"; };
 		A20000000000000000000008 /* AdjustmentRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdjustmentRenderer.swift; sourceTree = "<group>"; };
+		A2000000000000000000000A /* EditRecipePhotoKit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditRecipePhotoKit.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -53,6 +55,7 @@
 				A20000000000000000000003 /* PhotoLibraryStore.swift */,
 				A20000000000000000000004 /* PhotoEditorModel.swift */,
 				A20000000000000000000007 /* EditRecipe.swift */,
+				A2000000000000000000000A /* EditRecipePhotoKit.swift */,
 				A20000000000000000000008 /* AdjustmentRenderer.swift */,
 				A20000000000000000000005 /* Info.plist */,
 			);
@@ -139,6 +142,7 @@
 				A10000000000000000000003 /* PhotoLibraryStore.swift in Sources */,
 				A10000000000000000000004 /* PhotoEditorModel.swift in Sources */,
 				A10000000000000000000005 /* EditRecipe.swift in Sources */,
+				A10000000000000000000008 /* EditRecipePhotoKit.swift in Sources */,
 				A10000000000000000000006 /* AdjustmentRenderer.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
