@@ -2,22 +2,23 @@
 
 This is the shared, human-readable state of the project for Tejas, Yug, and any agents helping them. Read it with `README.md`, `docs/PROJECT_PLAN.md`, and `AGENTS.md` before starting work. Update the current-state summary and append a work-log entry before every handoff.
 
-## Current state — 2026-10-12
+## Current state — 2026-10-13
 
-- **Repository:** `Yug-More/PixelSense`; `main` includes the first iPhone prototype (`5c43098`) and four-control adjustment engine (`23f2967`). Both feature branches are published. Codex assisting Tejas owns follow-up device findings while the physical-device save test remains pending.
-- **Shared documentation:** commit `6906e3b` introduced the project plan, agent guidelines, and handoff; commits `5c43098` and `23f2967` updated them for the prototype and color controls. Consult `git log` for subsequent handoff updates.
+- **Repository:** `Yug-More/PixelSense`. `main` is `31267ce` and matches `origin/main`. It includes the first iPhone prototype (`5c43098`) and the four-control adjustment engine (`23f2967`). Local branch `docs/check-in-architecture` holds uncommitted documentation for the October 20 check-in. No Swift files are part of that work.
+- **Shared documentation:** `README.md`, `docs/PROJECT_PLAN.md`, and `docs/ARCHITECTURE.md` on this branch separate implemented behavior from planned prompt and region work. `main` still has the October 12 versions of the README, plan, and handoff until this branch is reviewed and merged.
 - **Agreed product direction:** native iPhone app, Apple Photos library access, color/tone adjustment of an existing photo, save to the same visible Photos item, no added gallery item in the normal flow, no generated or reshaped content.
 - **Platform constraint:** Apple Photos manages original and edited data internally. The app cannot overwrite the library's original file byte-for-byte or promise zero extra storage. This distinction must remain clear in code, docs, and demos.
 - **Cost decision:** build and test on the students' own iPhones with Xcode and free Apple Accounts. No App Store or TestFlight distribution is planned for the class prototype. Free personal-team installations expire after seven days and require reinstalling.
-- **Environment checked:** Xcode 15.4 is installed on Tejas's current Mac. Device iOS versions and teammate environment have not been checked.
-- **Implementation status:** M0 is partial, M1 has a compiling prototype, and M2's four basic controls are implemented on `main`. `PixelSense.xcodeproj` targets iOS 17+, browses permitted still photos, previews exposure, contrast, saturation, and warmth, and submits a PhotoKit edit with versioned `PHAdjustmentData` to the same `PHAsset`. No physical-device save-back has been verified. Tejas will provide his device/iOS version. No extra course requirements are known yet.
-- **Verification:** generic iOS Simulator and generic iPhone builds passed with code signing disabled. A simulator launch could not be performed because the local CoreSimulator service was unavailable to this tool session. No physical iPhone was connected or tested.
-- **Next action:** Tejas opens the Xcode project, selects his Personal Team, and tests the full flow on a standard still photo on his iPhone. Record whether the save updates one gallery item, whether repeat edits reopen the saved value, and whether Photos can revert. Then fix any device findings before M1 is marked done. Tejas and Yug still need to agree on ownership of later milestones.
-- **Open decisions:** see “Main risks and decisions still open” in `docs/PROJECT_PLAN.md`.
+- **Environment checked:** Xcode 15.4 was recorded on Tejas's Mac on 2026-10-12. Yug's current Mac has Swift 6.0.2 command-line tools; `xcodebuild` is not available because the active developer directory is Command Line Tools. Device iOS versions are still unrecorded. No build was run for this documentation pass.
+- **Implementation status:** M0 is partial. M1's PhotoKit prototype and M2's four controls are on `main` and are not accepted on a physical iPhone. M3 is specified in `docs/PROJECT_PLAN.md` and is not implemented. M4 is design-only in `docs/ARCHITECTURE.md`. M5 and M6 are untouched. There is no unit-test target and no prompt field.
+- **Identity:** this session authenticated to GitHub as `Yug-More`. Local Git author is `Yug-More <yugmore20@gmail.com>`. Collaborators are `Yug-More` (admin) and `Tejasvid29` (write). No agent account was added. Nothing was committed, pushed, or merged.
+- **Verification:** no new build or test in this session. The October 12 generic simulator and generic iPhone builds with signing disabled remain the last recorded compile results. They do not prove Photos save-back.
+- **Next action:** Yug reviews the documentation diff and approves Phase 3 before any interpreter work. Tejas still runs the README device flow and owns follow-up fixes on the save path. Do not mark M1 or M2 done from this branch.
+- **Open decisions:** see “Main risks and decisions still open” in `docs/PROJECT_PLAN.md`. The check-in prompt table is now a written spec, not code.
 
 ## Working agreement
 
-The two students are the only intended GitHub collaborators. An assisting agent must not invite itself, a bot, or a service account. In this session, GitHub SSH authenticated as Tejas's existing `Tejasvid29` account, and Git commits used that account's already-configured identity. No agent account was added. The repository's collaborator settings have not been independently inspected; the students should verify those settings if they need an account-level audit.
+The two students are the only intended GitHub collaborators. An assisting agent must not invite itself, a bot, or a service account, and must not add a co-author trailer. On 2026-10-13 the GitHub collaborators were `Yug-More` (admin) and `Tejasvid29` (write). Use the student account already authenticated on the machine. Do not change `user.name`, `user.email`, remotes, or access.
 
 Keep this document factual. A completed acceptance check needs a reproducible result, especially for Photos save-back on a real iPhone. Record simulator-only work as simulator-only. Never attach private photos, device identifiers, or secrets.
 
@@ -71,6 +72,15 @@ Keep this document factual. A completed acceptance check needs a reproducible re
 - **Verification and result:** generic iPhone and simulator builds passed with signing disabled. A temporary compatibility check decoded the earlier exposure-only JSON with all new controls at zero and round-tripped a four-control recipe. No on-device color, format, save-back, or performance check has been completed.
 - **Blockers or risks:** Core Image warmth direction and strength, color fidelity, and large-photo responsiveness require visual review on a real device. M1 same-asset save remains unverified on hardware.
 - **Exact next action and owner:** Tejas runs the README device flow and reports save behavior and appearance; Codex fixes any findings.
+
+### 2026-10-13 — October 20 documentation pass
+
+- **Who / branch / commit:** Agent session assisting Yug / `docs/check-in-architecture` / uncommitted. Git author for a later commit would be `Yug-More <yugmore20@gmail.com>`. No co-author trailer.
+- **Work and files:** rewrote `README.md` so current features, setup, roadmap, and limitations match the code. Added `docs/ARCHITECTURE.md` for components, recipe and PhotoKit flow, paradigms, and the unimplemented M4 design. Updated `docs/PROJECT_PLAN.md` with milestone status, October 20 scope, ownership, and the prompt specification. Updated this handoff. No Swift files, project settings, remotes, or collaborator settings were changed.
+- **Decisions and sources:** kept the existing product boundary, iOS 17 target, JPEG content edit, and version 1 recipe. Prompt intensity, conflict handling, and the four demo prompts are documented as the M3 check-in spec and are not code. Diagrams mark the prompt interpreter and region masks as planned. Apple references remain those already cited in the project plan and architecture doc.
+- **Verification and result:** inspected the repository, `main` history, GitHub login `Yug-More`, and collaborators `Yug-More` and `Tejasvid29` before editing. No build, unit test, or device run was executed. `xcodebuild` is unavailable on this Mac.
+- **Blockers or risks:** `main` does not yet contain these docs. Tejas's device test can still change save-path findings. Screenshots are intentionally absent.
+- **Exact next action and owner:** Yug approves or corrects this documentation. Phase 3, on a new branch, adds the prompt interpreter and tests only after that approval. Tejas owns the physical-device save check.
 
 ## Template for the next entry
 

@@ -1,106 +1,194 @@
 # PixelSense
 
-PixelSense is a prompt-driven iPhone photo enhancement application developed as a final project for **CS 152: Programming Paradigms** at **San José State University**.
+PixelSense is a native iPhone editor that changes the color and tone of a photo already in Apple Photos.
 
-The goal is to help users achieve a desired color and tone by adjusting controls such as exposure, contrast, saturation, and warmth. A user can describe the look they want in natural language, then refine the resulting settings manually. PixelSense edits the appearance of the original photograph; it does not generate or replace image content.
+Users adjust exposure, contrast, saturation, and warmth, preview the result, and save it back to the same library item. A rule-based prompt will eventually fill those same controls. The app does not generate a new scene, move objects, or change geometry.
 
-## Course Information
+- **Course:** CS 152 — Programming Paradigms, San José State University, Fall 2026
+- **Instructor:** Dr. Saptarshi Sengupta
+- **First check-in:** October 20, 2026
 
-**Course:** CS 152 - Programming Paradigms  
-**University:** San José State University  
-**Department:** Computer Science  
-**Semester:** Fall 2026  
-**Instructor:** Dr. Saptarshi Sengupta
+## Product overview
 
-## Team
+PixelSense is for someone who wants a clearer or warmer photo without learning a full editing suite. The user picks a still photo they already have, changes a small set of color and tone settings, and keeps the result on that same Photos item.
 
-**Yug Amol More**  
-Computer Science, San José State University
+The adjustment is stored as a versioned recipe, separate from the rendered image. Apple Photos keeps its own original and edited renditions. PixelSense cannot overwrite the library file in place, and it does not promise that an edit uses no extra storage.
 
-**Tejas**  
-Computer Science, San José State University
+## Problem
 
-## Project Overview
+Manual color controls are precise, but the first choice of settings is slow when a person only knows the look they want in words. PixelSense keeps the controls, and will translate a short supported phrase into those controls so the person can review them before saving.
 
-PixelSense treats photo enhancement as a set of editable color and tone settings. Similar to the adjustment controls in a photo editor, these settings change how an existing photo looks without changing what it depicts. Users choose a photo from their iPhone Photos library and save the edit back to that same library item.
+The check-in version solves the library, preview, and save path. Prompt interpretation is specified and not yet in the app.
 
-A user might request:
+## Key features
 
-> "Make the image warmer without overexposing the person."
+| Feature | Status |
+| --- | --- |
+| Choose an authorized still photo from the library | Implemented |
+| Preview exposure, contrast, saturation, and warmth | Implemented |
+| Compare the unadjusted and adjusted preview | Implemented |
+| Reset sliders to the neutral recipe | Implemented |
+| Save a JPEG rendition and recipe onto the same Photos item | Implemented in code; not verified on a physical iPhone |
+| Reopen a PixelSense recipe and continue editing it | Implemented in code; not verified on a physical iPhone |
+| Natural-language prompt that fills the same recipe | Planned for the October 20 check-in |
+| Named presets | Planned |
+| Region-specific adjustments | Planned; design only until a later milestone |
+| Launch from the Photos app as an editing extension | Deferred |
 
-or
+## Current development status
 
-> "Give the photo a cinematic color grade."
+`main` contains the first iPhone prototype: a SwiftUI library browser and an editor for four global controls. There is no prompt parser, no segmentation, and no unit-test target yet.
 
-PixelSense interprets the request as adjustment values, previews their effect on the original photo, and lets the user fine-tune them. When appropriate, it can apply different values to regions such as the subject, sky, and background. Region detection only determines **where** color and tone settings apply; it does not change the regions' shapes or contents.
+As of October 12, 2026, generic iOS Simulator and generic iPhone builds were reported with code signing disabled. That result does not show that Photos save-back works on hardware. No physical iPhone run is recorded.
 
-## Scope
+Device screenshots are pending. After a real-device pass, captures belong in `docs/assets/`. This repository does not include product images.
 
-PixelSense focuses on adjustments such as exposure, brightness, contrast, highlights, shadows, saturation, and warmth. The exact controls supported by the application will be defined during implementation.
+Details and acceptance checks are in the [project plan](docs/PROJECT_PLAN.md). Session notes are in the [handoff](docs/HANDOFF.md). Component boundaries are in the [architecture](docs/ARCHITECTURE.md).
 
-PixelSense will not:
+## Technology stack
 
-- Generate a new scene or add, remove, or replace objects.
-- Change the shape, position, or geometry of objects or regions.
-- Crop, warp, or otherwise reconstruct image content as part of prompt-based enhancement.
+| Layer | Choice |
+| --- | --- |
+| Language | Swift 5 |
+| Interface | SwiftUI |
+| Photos access and save | PhotoKit |
+| Color and tone | Core Image |
+| Recipe storage | Versioned JSON in `PHAdjustmentData` |
+| Minimum system | iOS 17, iPhone |
+| Distribution for class | Xcode with a free Apple Account Personal Team |
+| Services | None. Photos stay on the device. |
 
-Adjusting color or tone necessarily changes pixel values in the displayed result. PixelSense saves adjustment settings as an editable recipe and updates the selected Photos item without adding a second visible item to the library. Apple Photos manages the original and edited rendering internally; iOS does not let PixelSense overwrite the original library file in place or guarantee that the edit uses no additional storage.
+The Xcode project has no third-party packages.
 
-## Key Features
+## System architecture
 
-- Natural language requests mapped to color and tone settings
-- Reversible, non-destructive adjustments with the original photo preserved
-- Region-aware adjustments for subjects, skies, and backgrounds where useful
-- Style presets expressed through the same adjustable settings
-- Manual controls for refining the result
-- Before-and-after comparison
-- Saving the edit to the same item in Apple Photos
+Solid boxes are on `main` today. Dashed boxes are planned and are not in the build.
 
-## How It Works
+```mermaid
+flowchart TD
+    subgraph now [Implemented]
+        ui[SwiftUI interface]
+        library[PhotoLibraryStore]
+        editor[PhotoEditorModel]
+        recipe[EditRecipe]
+        renderer[AdjustmentRenderer]
+        photos[PhotoKit save on the same asset]
+    end
 
-1. The user selects a photo from their iPhone Photos library.
-2. The user describes the desired look, selects a preset, or changes settings manually.
-3. PixelSense translates the request or preset into adjustment values.
-4. If a request targets part of the photo, PixelSense identifies the relevant region and applies the color and tone adjustments there.
-5. The user compares the preview with the original and refines the settings.
-6. The user saves the edit to the same Photos item, with the adjustment recipe available for later refinement.
+    subgraph later [Planned]
+        prompt[Prompt interpreter]
+        regions[Region masks]
+    end
 
-## Programming Paradigms
+    ui --> library
+    ui --> editor
+    library --> photos
+    editor --> recipe
+    recipe --> renderer
+    editor --> photos
+    prompt -.-> recipe
+    regions -.-> renderer
+```
 
-A major goal of this project is to apply concepts covered in CS 152 by using multiple programming paradigms where they are appropriate.
+The prompt interpreter, when added, will only produce an `EditRecipe`. It will not render pixels and will not call a model. Region masks, when added, will only choose where the existing renderer applies settings.
 
-### Object-Oriented Programming
+## How PixelSense works
 
-Object-oriented programming organizes responsibilities such as Photos library access, region detection, prompt interpretation, adjustment settings, and saving.
+Implemented path:
 
-### Functional Programming
+1. The user allows read/write or limited Photos access and selects a still photo. Live Photos are skipped.
+2. The editor loads a PhotoKit content-editing input and shows the photo.
+3. Slider changes update one `EditRecipe`. The same recipe drives the preview and the full-size save.
+4. The user compares **Show before** and **Show edit**, then taps **Save to this photo**.
+5. PixelSense writes a JPEG rendition and the recipe, then commits that output on the selected asset. The save path does not create a new asset.
 
-Functional programming represents color and tone operations as transformations that take image data and adjustment values as input and return an adjusted preview, without modifying the original photo.
+Planned path for the check-in: a text prompt is parsed into recipe values, the sliders update, and the user can change those values before the same save action. Unsupported phrases return an explanation and leave the current sliders alone.
 
-### Rule-Based Logic
+```mermaid
+flowchart LR
+    select[Select a still photo] --> adjust[Adjust the four sliders]
+    prompt[Enter a supported prompt] -.-> adjust
+    adjust --> recipe[Build one EditRecipe]
+    recipe --> preview[Preview the adjusted pixels]
+    preview --> confirm[Confirm save]
+    confirm --> update[Update the same Photos item]
+```
 
-Rule-based logic maps requested looks and detected regions to adjustment values. For example, a request to warm the background while protecting a face can assign different warmth and exposure values to those regions.
+The dashed step is the planned prompt. Sliders, preview, and save are the current app.
 
-## Project Goals
+## Installation and setup
 
-- Make color and tone enhancement accessible without requiring professional editing experience.
-- Let users control adjustments through natural language, presets, and manual settings.
-- Apply settings to relevant regions while keeping the photo's content and geometry intact.
-- Preserve the original photo and keep edits reversible.
-- Demonstrate how object-oriented, functional, and rule-based approaches work together in one application.
+1. Install Xcode 15.4 or later. The deployment target is iOS 17.
+2. Clone this repository and open `PixelSense.xcodeproj`.
+3. Select the PixelSense target. Under **Signing & Capabilities**, choose the Personal Team for your own Apple Account.
+4. Connect an iPhone running iOS 17 or later. If Xcode does not support that iOS version, update Xcode before running.
+5. A free Personal Team install expires after seven days. Rebuild and reinstall after it expires. App Store and TestFlight distribution are outside the class prototype.
 
-## Project Status
+## Running the app
 
-PixelSense is under development as part of the CS 152 final project. The first iPhone prototype can browse authorized still photos, preview exposure, contrast, saturation, and warmth changes, compare before and after, and request a save to the same Photos item. The save flow still needs verification on a physical iPhone. Prompts and region-aware editing are planned but not yet implemented.
+1. Build and run PixelSense on the connected iPhone.
+2. Allow access to the photos you intend to edit.
+3. Select a standard still photo. The browser shows up to 100 recent stills and excludes Live Photos.
+4. Move exposure, contrast, saturation, or warmth. Use **Show before** and **Show edit** to compare.
+5. Tap **Save to this photo**.
+6. In the Photos app, confirm that the same library item shows the edit and that no second gallery item appeared.
 
-### Run the prototype
+Use a photo set aside for testing until save, reopen, and revert behavior have been checked on a device. The app does not upload the photo.
 
-1. Open `PixelSense.xcodeproj` in Xcode 15.4 or later.
-2. Select the PixelSense target, choose your own Apple Account's Personal Team under **Signing & Capabilities**, and choose a connected iPhone running iOS 17 or later. If Xcode cannot support your iPhone's iOS version, update Xcode first.
-3. Build and run the app. Allow access to the photos you want to edit when prompted.
-4. Select a standard still photo, adjust the color and tone sliders, compare **Show before** and **Show edit**, then tap **Save to this photo**.
-5. Check that the existing item in Photos shows the edit and no new gallery item was added. Use a photo set aside for testing until save-back and Photos' revert behavior have been verified on a device.
+## Testing
 
-The prototype currently excludes Live Photos and shows up to 100 recent supported still photos. JPEG output, orientation, metadata, iCloud-hosted photos, repeated edits, and revert behavior need device testing. The app uses only Apple frameworks and does not upload the photo. A free Personal Team installation must be rebuilt and reinstalled after its provisioning profile expires.
+The Xcode project does not yet include a test target. Recipe bounds, reset behavior, and the prompt parser are planned tests for the check-in. They are not in the tree, and this document does not treat them as passing.
 
-See the [project plan](docs/PROJECT_PLAN.md) for milestones and acceptance checks, the [handoff](docs/HANDOFF.md) for current status, and [agent guidelines](AGENTS.md) for the team workflow.
+What still needs a physical iPhone:
+
+- Save updates one visible library item.
+- Cancel or a failed save leaves the photo unchanged.
+- A saved PixelSense edit reopens with the stored slider values.
+- Photos revert behavior, orientation, metadata, JPEG appearance, iCloud downloads, and large photos.
+
+A simulator build cannot establish those results.
+
+## Programming paradigms
+
+The course asks the project to use more than one paradigm where it fits the work.
+
+**Object-oriented.** `PhotoLibraryStore` and `PhotoEditorModel` own library access, editor state, and the PhotoKit save request. The views observe those objects and do not perform the edit themselves.
+
+**Functional.** `EditRecipe` is a value. `AdjustmentRenderer.apply` takes a recipe and a `CIImage` and returns another image. The preview and the save call that same function.
+
+**Rule-based.** The check-in prompt parser will map a small phrase list onto recipe values, including intensity words and a fixed response to contradictory instructions. That parser is not in the app yet. It is not an AI model. Region rules are a later milestone.
+
+## Development roadmap
+
+| Milestone | Intent | Check-in position |
+| --- | --- | --- |
+| M0 Planning | Scope, platform, and ownership | Partial. Docs exist; device versions are still open |
+| M1 Photos | Authorized selection and same-asset save | Code on `main`; physical-device acceptance is open |
+| M2 Adjustments | One recipe for preview and save | Four controls on `main`; automated tests are open |
+| M3 Prompts | Local phrases and presets mapped to that recipe | Specified for October 20; not implemented |
+| M4 Regions | Masks that limit where settings apply | Design only for the check-in |
+| M5 Demo polish | A full class demonstration | After the check-in |
+| M6 Extension | The same editor inside Photos | Optional, after M1–M5 |
+
+## Known limitations
+
+- Only standard still photos are in scope. Live Photos, RAW, HDR, and video are deferred.
+- The library browser lists at most 100 recent supported photos.
+- Warmth is a fixed Core Image temperature shift. Its visual strength has not been judged on a device.
+- Recipe numbers are limited by the sliders. The recipe type does not yet clamp values on its own.
+- An edit made by another app is a baseline PixelSense does not try to reverse-engineer.
+- Prompt interpretation, presets, and region masks are not available.
+- Photos may download an iCloud original during editing. That network use is PhotoKit's, not an upload to a PixelSense server.
+- There is no automated test suite in the project yet.
+
+## Team and contributions
+
+**Yug Amol More** (GitHub: [Yug-More](https://github.com/Yug-More)) — repository owner, check-in documentation, and the upcoming prompt work.
+
+**Tejas** (GitHub: [Tejasvid29](https://github.com/Tejasvid29)) — project plan, iPhone prototype, and physical-device verification of the Photos save path.
+
+The two students are the only GitHub collaborators. Session notes, including assisted work, are recorded in [docs/HANDOFF.md](docs/HANDOFF.md). Commits stay on the student accounts that make them.
+
+## License and course use
+
+PixelSense is a university project. Do not commit personal photos, signing certificates, or provisioning profiles.
