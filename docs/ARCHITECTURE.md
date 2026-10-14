@@ -2,7 +2,7 @@
 
 Last updated: 2026-10-13
 
-This document describes the app as it exists on `main`, and the two additions planned around the October 20, 2026 check-in: a deterministic prompt interpreter, and a written design for later region masks. It does not add those features to the build.
+This document describes the check-in tree: library selection, four global controls, a deterministic prompt interpreter, and the PhotoKit save path. Region masks are specified and not implemented. Physical-device save behavior is still unverified.
 
 ## Layers
 
@@ -10,12 +10,12 @@ The app is a single iOS target. Processing stays on device. There is no backend,
 
 | Layer | Type | Responsibility |
 | --- | --- | --- |
-| Interface | SwiftUI views in `ContentView.swift` | Permission prompt, photo grid, editor controls, save button, and error text |
+| Interface | SwiftUI views in `ContentView.swift` | Permission prompt, photo grid, prompt field, sliders, save button, and error text |
 | Library | `PhotoLibraryStore` | Read/write or limited Photos authorization, and a list of recent still images |
-| Editor | `PhotoEditorModel` | Load one asset, hold slider state, render previews, and submit a content edit |
-| Recipe | `EditRecipe` | Versioned adjustment values shared by preview and save |
+| Editor | `PhotoEditorModel` | Load one asset, hold slider state, apply a prompt, render previews, and submit a content edit |
+| Recipe | `EditRecipe` | Versioned adjustment values and the shared numeric limits |
+| Prompt | `PromptInterpreter` | Map a supported sentence to a recipe, or return an error |
 | Rendering | `AdjustmentRenderer` | Core Image transforms from a recipe and an image to a new image |
-| Prompt interpretation | Planned Swift type | Map a supported sentence to a recipe, or return an error |
 | Region targeting | Planned, after global edits are reliable | Build a mask that selects where the renderer applies a recipe |
 
 `PixelSenseApp` only creates a window with `ContentView`.
@@ -32,13 +32,38 @@ Owns the selected `PHAsset` and the four published adjustment values. `load` req
 
 `canHandleAdjustmentData` returns true only when that recipe decodes. PhotoKit then provides the original image plus the PixelSense recipe, so a later save reapplies the full recipe instead of stacking a second edit. An unknown recipe is left untouched: PixelSense edits the rendition Photos provides and does not claim the other app's settings are editable.
 
-`save` requests a fresh input, renders a full-size JPEG to `PHContentEditingOutput.renderedContentURL(for: .jpeg)`, attaches the encoded recipe as `PHAdjustmentData`, and assigns that output on `PHAssetChangeRequest` inside `PHPhotoLibrary.performChanges`. The closure does not insert a new asset.
+`save` requests a fresh input, renders a full-size JPEG to `PHContentEditingOutput.renderedContentURL(for: .jpeg)`, attaches the encoded recipe as `PHAdjustmentData`, and assigns that output on `PHAssetChangeRequest` inside `PHPhotoLibrary.performChanges`. The closure does not insert a new asset. `applyPrompt` does not call `save`.
 
 ### EditRecipe
 
-A `Codable` value with `exposureEV`, `contrast`, `saturation`, and `warmth`. Missing keys decode as zero so an older exposure-only payload still reads. The format identifier and version live on the type.
+A `Codable` value with `exposureEV`, `contrast`, `saturation`, and `warmth`. Missing keys decode as zero so an older exposure-only payload still reads. The format identifier stays `edu.sjsu.pixelsense.recipe` and the format version stays `1`. PhotoKit encoding lives in `EditRecipePhotoKit.swift`, so the value type itself does not import Photos.
 
-The sliders currently enforce ranges: exposure −2…+2, contrast −0.5…+0.5, saturation −1…+1, warmth −1…+1. The struct does not clamp. A check-in test pass should lock those bounds in one place used by the sliders and the future parser.
+The limits live on the type and are shared by the sliders and the interpreter:
+
+| Control | Minimum | Maximum |
+| --- | ---: | ---: |
+| Exposure | -2 | 2 |
+| Contrast | -0.5 | 0.5 |
+| Saturation | -1 | 1 |
+| Warmth | -1 | 1 |
+
+A finite value outside its range is clamped when the recipe is decoded or when `clamped()` runs. A non-finite value becomes 0. A successful prompt is clamped before it reaches the sliders. An invalid prompt is rejected and does not change the current recipe. In-range saved recipes decode to the same numbers as before.
+
+### PromptInterpreter
+
+`interpret(_:current:)` is a pure function. The stages are:
+
+1. **Normalize.** Lowercase the text and turn punctuation into spaces.
+2. **Reject blocked words.** Region words, style names such as "cinematic", and content edits such as remove, replace, blur, or generate fail the whole sentence.
+3. **Match phrases.** Longer phrases win when two patterns overlap, so "warmth" is not read as the word "warm".
+4. **Read strength in that clause.** "Slightly", "a bit", and "a little" use 25 percent of the distance from neutral to the control's limit. No strength word uses 50 percent. "Much", "a lot", "strongly", and "significantly" use 100 percent. Two different strengths in one clause are an error. A bare control joined by "and", such as "increase contrast and saturation", copies the previous clause's direction and strength, then uses its own limit.
+5. **Detect conflicts.** Opposite directions for one control fail the whole sentence. The same direction keeps the stronger value.
+6. **Build the recipe.** Mentioned controls are replaced with those absolute values. Unmentioned controls stay. The result is clamped.
+7. **Return.** Success is a recipe. Failure is `PromptFailure` with a short message. Nothing is saved.
+
+`PromptApplication` is the small state change the editor uses: `apply` updates the recipe only on success, and `reset` returns every control to zero. The view calls `PhotoEditorModel.applyPrompt`, which copies that result onto the sliders and refreshes the preview.
+
+Syntax is the matched words. Semantics are the numbers those words write. "Increase brightness slightly" is recognized as an exposure increase at 25 percent, which means `exposureEV = 0.5` because the exposure limit is 2. The same 25 percent on warmth means `warmth = 0.25` because that limit is 1. The parser is not a compiler and not a model.
 
 ### AdjustmentRenderer
 
@@ -57,7 +82,7 @@ Preview rendering scales the longest side to at most 1400 points. Save renders t
 
 ### ContentView
 
-`ContentView` shows the library. `PhotoEditorView` shows the preview, before/after toggle, four sliders, reset, and save. Thumbnail requests are cancelled when a cell disappears. There is no prompt field.
+`ContentView` shows the library. `PhotoEditorView` shows the preview, before/after toggle, prompt field, four sliders, reset, and save. The contrast slider steps by 0.025 so the 25 percent contrast value, 0.125, lands on a detent. Thumbnail requests are cancelled when a cell disappears. The prompt field does not upload text.
 
 ## Data flow
 
@@ -75,19 +100,11 @@ flowchart TD
 
 Reset sets every value to zero and refreshes the preview. That zero recipe is the neutral adjustment on whatever baseline Photos supplied for this input.
 
-### Prompt edit, planned
+### Prompt edit
 
-The interpreter will be a pure function from a string to either a recipe or a user-readable error. The editor will copy a successful recipe onto the existing sliders. The user can move the sliders afterward. Save stays the button that already exists.
+`PromptInterpreter.interpret` returns a recipe or a `PromptFailure`. On success, `PhotoEditorModel.applyPrompt` copies the recipe onto the sliders and refreshes the preview. On failure it sets `promptError` and leaves the sliders alone. The user can move the sliders afterward. Save stays the separate **Save to this photo** button.
 
-Check-in rules, specified in [PROJECT_PLAN.md](PROJECT_PLAN.md) and not implemented:
-
-- The parser understands warmth, exposure, contrast, and saturation only. Brightness words map to exposure.
-- "Slightly", "a bit", and "a little" move 25 percent of the way from neutral to that control's limit. No intensity word moves 50 percent. "Much", "a lot", and "significantly" move to the limit.
-- Different controls in one sentence combine.
-- Opposite directions for one control produce an error and do not change the sliders.
-- Two phrases in the same direction keep the stronger intensity.
-- Values are clamped to the slider ranges.
-- Region words, style names, and unknown phrases return an unsupported-prompt error.
+The agreed sentences and values are in [PROJECT_PLAN.md](PROJECT_PLAN.md). Brightness language writes `exposureEV`. "Strongly" uses the same 100 percent tier as "much", "a lot", and "significantly".
 
 ```mermaid
 flowchart TD
@@ -145,15 +162,15 @@ Authorization failures stay in the library screen: a request button while access
 
 The save button is disabled while a load or save is in progress. There is no separate cancel control for an in-flight save. Thumbnail image requests are cancelled when the cell disappears. A content-editing request is not cancelled from the interface.
 
-The planned parser adds a second error channel for language the rules do not support. That message must not be reported as a Photos failure.
+Prompt failures use `promptError`, separate from `errorMessage`. A sentence PixelSense does not understand is not reported as a Photos failure. **Apply** is disabled while the field is empty or while a load or save is in progress.
 
 ## Programming paradigms
 
-**Object-oriented.** Library access and the editing session are reference objects with a clear public surface: request access, refresh, load, update the preview, reset, and save. SwiftUI observes them. Adding a prompt field should call the editor; it should not embed PhotoKit calls in the view.
+**Object-oriented.** Library access and the editing session are reference objects. `PhotoLibraryStore` hides the fetch, and `PhotoEditorModel` hides loading, preview, prompt application, and save. SwiftUI observes them. The prompt field calls `applyPrompt`. It does not call PhotoKit.
 
-**Functional.** The recipe is a value, and rendering is a transformation. Tests can construct a recipe and check the result without a view. The renderer does not write slider state.
+**Functional.** The recipe is a value. `AdjustmentRenderer.apply` and `PromptInterpreter.interpret` take values in and return values out. They do not write slider state or start a save. `PromptApplication.apply` is the explicit state transition from a sentence to the next recipe.
 
-**Rule-based.** Prompt decisions will be explicit matches and a documented conflict rule, so a demo can show why a sentence became a set of numbers. A statistical model is not part of this design. The project plan allows a later review only if the agreed demo phrases cannot be handled by rules.
+**Rule-based, syntax, and semantics.** The match list is the syntax: which phrases are legal. The intensity table and the per-control limits are the semantics: what number a legal phrase writes. A conflict is a sentence that is syntactically recognizable and still has no meaning the editor will apply. A statistical model is not part of this design. The project plan allows a later review only if the agreed demo phrases cannot be handled by rules.
 
 ## Planned region integration
 

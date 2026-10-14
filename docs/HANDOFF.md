@@ -4,17 +4,17 @@ This is the shared, human-readable state of the project for Tejas, Yug, and any 
 
 ## Current state — 2026-10-13
 
-- **Repository:** `Yug-More/PixelSense`. `main` is `31267ce` and matches `origin/main`. It includes the first iPhone prototype (`5c43098`) and the four-control adjustment engine (`23f2967`). Local branch `docs/check-in-architecture` holds uncommitted documentation for the October 20 check-in. No Swift files are part of that work.
-- **Shared documentation:** `README.md`, `docs/PROJECT_PLAN.md`, and `docs/ARCHITECTURE.md` on this branch separate implemented behavior from planned prompt and region work. `main` still has the October 12 versions of the README, plan, and handoff until this branch is reviewed and merged.
+- **Repository:** `Yug-More/PixelSense`. `origin/main` is `966de3b`, the merge of documentation pull request #1, which contains `8ebe487`. Branch `feature/first-checkin-prompt-editing` adds `a8e2a74` (recipe limits), `b515d9f` (prompt interpreter), `1ab0e78` (editor field), `a0fc4e6` (logic tests), and the documentation commit that contains this note. `PhotoLibraryStore.swift` and the PhotoKit `save()` body were not edited.
+- **Shared documentation:** `README.md`, `docs/ARCHITECTURE.md`, `docs/PROJECT_PLAN.md`, and `docs/FIRST_CHECKIN.md` describe the prompt rules as implemented in this working tree and region detection as design only. `main` does not contain the Swift changes until this branch is reviewed.
 - **Agreed product direction:** native iPhone app, Apple Photos library access, color/tone adjustment of an existing photo, save to the same visible Photos item, no added gallery item in the normal flow, no generated or reshaped content.
 - **Platform constraint:** Apple Photos manages original and edited data internally. The app cannot overwrite the library's original file byte-for-byte or promise zero extra storage. This distinction must remain clear in code, docs, and demos.
 - **Cost decision:** build and test on the students' own iPhones with Xcode and free Apple Accounts. No App Store or TestFlight distribution is planned for the class prototype. Free personal-team installations expire after seven days and require reinstalling.
-- **Environment checked:** Xcode 15.4 was recorded on Tejas's Mac on 2026-10-12. Yug's current Mac has Swift 6.0.2 command-line tools; `xcodebuild` is not available because the active developer directory is Command Line Tools. Device iOS versions are still unrecorded. No build was run for this documentation pass.
-- **Implementation status:** M0 is partial. M1's PhotoKit prototype and M2's four controls are on `main` and are not accepted on a physical iPhone. M3 is specified in `docs/PROJECT_PLAN.md` and is not implemented. M4 is design-only in `docs/ARCHITECTURE.md`. M5 and M6 are untouched. There is no unit-test target and no prompt field.
-- **Identity:** this session authenticated to GitHub as `Yug-More`. Local Git author is `Yug-More <yugmore20@gmail.com>`. Collaborators are `Yug-More` (admin) and `Tejasvid29` (write). No agent account was added. Nothing was committed, pushed, or merged.
-- **Verification:** no new build or test in this session. The October 12 generic simulator and generic iPhone builds with signing disabled remain the last recorded compile results. They do not prove Photos save-back.
-- **Next action:** Yug reviews the documentation diff and approves Phase 3 before any interpreter work. Tejas still runs the README device flow and owns follow-up fixes on the save path. Do not mark M1 or M2 done from this branch.
-- **Open decisions:** see “Main risks and decisions still open” in `docs/PROJECT_PLAN.md`. The check-in prompt table is now a written spec, not code.
+- **Environment checked:** Xcode 15.4 was recorded on Tejas's Mac on 2026-10-12. Yug's current Mac has Swift 6.0.2 command-line tools; `xcodebuild` is not available because the active developer directory is Command Line Tools, and no Xcode.app was found. Device iOS versions are still unrecorded.
+- **Implementation status:** M0 is partial. M1's save path is unchanged and is not accepted on a physical iPhone. M2 has centralized limits, clamp-on-decode, and logic tests; device appearance is open. M3 phrase rules and the prompt field are in this working tree; presets are not. M4 remains design-only. M5 and M6 are untouched.
+- **Identity:** GitHub login `Yug-More`. These commits are authored and committed by `Yug-More <yugmore20@gmail.com>`, with no co-author trailer. Collaborators were not changed. The branch is ready for review and is not merged.
+- **Verification:** `swiftc -parse` accepted the Swift sources. The logic runner printed `Passed 32 logic tests`. `xcodebuild test` was not run. No simulator launch and no physical iPhone run.
+- **Next action:** Review the pull request without merging it until Tejas has seen it. Tejas runs the editor on an iPhone, including one prompt, a slider change, and **Save to this photo**. Do not mark M1 done from the logic tests.
+- **Open decisions:** see “Main risks and decisions still open” in `docs/PROJECT_PLAN.md`.
 
 ## Working agreement
 
@@ -81,6 +81,15 @@ Keep this document factual. A completed acceptance check needs a reproducible re
 - **Verification and result:** inspected the repository, `main` history, GitHub login `Yug-More`, and collaborators `Yug-More` and `Tejasvid29` before editing. No build, unit test, or device run was executed. `xcodebuild` is unavailable on this Mac.
 - **Blockers or risks:** `main` does not yet contain these docs. Tejas's device test can still change save-path findings. Screenshots are intentionally absent.
 - **Exact next action and owner:** Yug approves or corrects this documentation. Phase 3, on a new branch, adds the prompt interpreter and tests only after that approval. Tejas owns the physical-device save check.
+
+### 2026-10-13 — October 20 prompt interpreter
+
+- **Who / branch / commit:** Agent session assisting Yug / `feature/first-checkin-prompt-editing` / `a8e2a74`, `b515d9f`, `1ab0e78`, `a0fc4e6`, and this documentation commit. Author and committer are `Yug-More <yugmore20@gmail.com>`. No co-author trailer.
+- **Work and files:** added `PixelSense/PromptInterpreter.swift`, `PixelSense/EditRecipePhotoKit.swift`, `PixelSenseTests/LogicChecks.swift`, `PixelSenseTests/PixelSenseLogicTests.swift`, `PixelSenseTests/LogicTestMain.swift`, `docs/FIRST_CHECKIN.md`, and a shared Xcode scheme. Updated `PixelSense/EditRecipe.swift` with shared limits and clamping, `PixelSense/PhotoEditorModel.swift` with `applyPrompt` only, and `PixelSense/ContentView.swift` with the prompt field and slider limits. Updated `README.md`, `docs/ARCHITECTURE.md`, `docs/PROJECT_PLAN.md`, and this handoff. Did not edit `PhotoLibraryStore.swift`, `AdjustmentRenderer.swift`, or the body of `save()`.
+- **Decisions and sources:** a mentioned control is replaced from neutral; unmentioned controls stay; conflicts and unsupported sentences change nothing. Finite out-of-range JSON is clamped; non-finite values become neutral; format identifier and version stay `edu.sjsu.pixelsense.recipe` / `1`. "Strongly" uses the 100 percent tier. Contrast slider step is 0.025 so 0.125 is a detent. Apple references are unchanged from the architecture document.
+- **Verification and result:** `plutil -lint PixelSense.xcodeproj/project.pbxproj` passed. `swiftc -parse` on the Swift sources passed. Logic runner command: `swiftc -parse-as-library -D LOGIC_TEST_RUNNER -o /tmp/pixelsense-logic-tests PixelSense/EditRecipe.swift PixelSense/PromptInterpreter.swift PixelSenseTests/LogicChecks.swift PixelSenseTests/LogicTestMain.swift` then `/tmp/pixelsense-logic-tests`. Result: `Passed 32 logic tests`. `xcodebuild` is unavailable. No iOS link, simulator, or iPhone test.
+- **Blockers or risks:** the app may still fail to build or the prompt layout may need adjustment once Xcode is available. Photos save, reopen, and revert remain unverified. Tejas still owns that device pass.
+- **Exact next action and owner:** Yug reviews the open pull request and does not merge it yet. Tejas verifies selection, prompt, slider edit, and same-item save on an iPhone.
 
 ## Template for the next entry
 
