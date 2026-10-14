@@ -13,6 +13,11 @@
 		A10000000000000000000004 /* PhotoEditorModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000004 /* PhotoEditorModel.swift */; };
 		A10000000000000000000005 /* EditRecipe.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000007 /* EditRecipe.swift */; };
 		A10000000000000000000006 /* AdjustmentRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000008 /* AdjustmentRenderer.swift */; };
+		A10000000000000000000007 /* PromptInterpreter.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000009 /* PromptInterpreter.swift */; };
+		A10000000000000000000008 /* EditRecipePhotoKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000000000000000000000A /* EditRecipePhotoKit.swift */; };
+		B10000000000000000000001 /* LogicChecks.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000001 /* LogicChecks.swift */; };
+		B10000000000000000000002 /* PixelSenseLogicTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000002 /* PixelSenseLogicTests.swift */; };
+		B10000000000000000000003 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B20000000000000000000004 /* XCTest.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -24,6 +29,12 @@
 		A20000000000000000000006 /* PixelSense.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PixelSense.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A20000000000000000000007 /* EditRecipe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditRecipe.swift; sourceTree = "<group>"; };
 		A20000000000000000000008 /* AdjustmentRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdjustmentRenderer.swift; sourceTree = "<group>"; };
+		A20000000000000000000009 /* PromptInterpreter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PromptInterpreter.swift; sourceTree = "<group>"; };
+		A2000000000000000000000A /* EditRecipePhotoKit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditRecipePhotoKit.swift; sourceTree = "<group>"; };
+		B20000000000000000000001 /* LogicChecks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogicChecks.swift; sourceTree = "<group>"; };
+		B20000000000000000000002 /* PixelSenseLogicTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PixelSenseLogicTests.swift; sourceTree = "<group>"; };
+		B20000000000000000000003 /* PixelSenseTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PixelSenseTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		B20000000000000000000004 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = System/Library/Frameworks/XCTest.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -34,6 +45,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		B30000000000000000000001 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B10000000000000000000003 /* XCTest.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -41,6 +60,7 @@
 			isa = PBXGroup;
 			children = (
 				A40000000000000000000002 /* PixelSense */,
+				B40000000000000000000001 /* PixelSenseTests */,
 				A40000000000000000000003 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -53,6 +73,8 @@
 				A20000000000000000000003 /* PhotoLibraryStore.swift */,
 				A20000000000000000000004 /* PhotoEditorModel.swift */,
 				A20000000000000000000007 /* EditRecipe.swift */,
+				A2000000000000000000000A /* EditRecipePhotoKit.swift */,
+				A20000000000000000000009 /* PromptInterpreter.swift */,
 				A20000000000000000000008 /* AdjustmentRenderer.swift */,
 				A20000000000000000000005 /* Info.plist */,
 			);
@@ -63,8 +85,18 @@
 			isa = PBXGroup;
 			children = (
 				A20000000000000000000006 /* PixelSense.app */,
+				B20000000000000000000003 /* PixelSenseTests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		B40000000000000000000001 /* PixelSenseTests */ = {
+			isa = PBXGroup;
+			children = (
+				B20000000000000000000001 /* LogicChecks.swift */,
+				B20000000000000000000002 /* PixelSenseLogicTests.swift */,
+			);
+			path = PixelSenseTests;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -87,6 +119,23 @@
 			productReference = A20000000000000000000006 /* PixelSense.app */;
 			productType = "com.apple.product-type.application";
 		};
+		B50000000000000000000001 /* PixelSenseTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B60000000000000000000001 /* Build configuration list for PBXNativeTarget "PixelSenseTests" */;
+			buildPhases = (
+				B30000000000000000000002 /* Sources */,
+				B30000000000000000000001 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				B52000000000000000000001 /* PBXTargetDependency */,
+			);
+			name = PixelSenseTests;
+			productName = PixelSenseTests;
+			productReference = B20000000000000000000003 /* PixelSenseTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -98,6 +147,10 @@
 				TargetAttributes = {
 					A50000000000000000000001 = {
 						CreatedOnToolsVersion = 15.4;
+					};
+					B50000000000000000000001 = {
+						CreatedOnToolsVersion = 15.4;
+						TestTargetID = A50000000000000000000001;
 					};
 				};
 			};
@@ -115,6 +168,7 @@
 			projectRoot = "";
 			targets = (
 				A50000000000000000000001 /* PixelSense */,
+				B50000000000000000000001 /* PixelSenseTests */,
 			);
 		};
 /* End PBXProject section */
@@ -139,11 +193,40 @@
 				A10000000000000000000003 /* PhotoLibraryStore.swift in Sources */,
 				A10000000000000000000004 /* PhotoEditorModel.swift in Sources */,
 				A10000000000000000000005 /* EditRecipe.swift in Sources */,
+				A10000000000000000000008 /* EditRecipePhotoKit.swift in Sources */,
+				A10000000000000000000007 /* PromptInterpreter.swift in Sources */,
 				A10000000000000000000006 /* AdjustmentRenderer.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		B30000000000000000000002 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B10000000000000000000001 /* LogicChecks.swift in Sources */,
+				B10000000000000000000002 /* PixelSenseLogicTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXContainerItemProxy section */
+		B51000000000000000000001 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A70000000000000000000001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A50000000000000000000001;
+			remoteInfo = PixelSense;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXTargetDependency section */
+		B52000000000000000000001 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = A50000000000000000000001 /* PixelSense */;
+			targetProxy = B51000000000000000000001 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		A80000000000000000000001 /* Debug */ = {
@@ -218,6 +301,50 @@
 			};
 			name = Release;
 		};
+		B80000000000000000000001 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.pixelsense.prototype.tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/PixelSense.app/PixelSense";
+			};
+			name = Debug;
+		};
+		B80000000000000000000002 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.pixelsense.prototype.tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/PixelSense.app/PixelSense";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -235,6 +362,15 @@
 			buildConfigurations = (
 				A80000000000000000000003 /* Debug */,
 				A80000000000000000000004 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		B60000000000000000000001 /* Build configuration list for PBXNativeTarget "PixelSenseTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B80000000000000000000001 /* Debug */,
+				B80000000000000000000002 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

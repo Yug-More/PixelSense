@@ -8,8 +8,8 @@ Last updated: 2026-10-13
 | --- | --- | --- |
 | M0 Requirements and environment | Plan, handoff, and agent guidelines are on `main`. Check-in scope is documented on the documentation branch. | Partial. Student iPhone and Xcode versions are not both recorded, and the first shared device test is still open. |
 | M1 Library access and same-asset save | PhotoKit browse, content editing, and same-asset save code are on `main`. | Not accepted. No physical iPhone result is recorded. |
-| M2 Reversible adjustment engine | Exposure, contrast, saturation, and warmth share one versioned recipe and renderer. | Partial. The controls are in the app. Bounds tests, a committed round-trip test, and device appearance checks are open. |
-| M3 Prompt interpretation and presets | Behavior for the check-in is specified below. | Not started. |
+| M2 Reversible adjustment engine | Exposure, contrast, saturation, and warmth share one versioned recipe and renderer. Limits are centralized, and decode clamps finite out-of-range values. | Partial. Logic tests cover bounds, JSON, and reset. Device appearance is open. |
+| M3 Prompt interpretation and presets | The four-control phrase rules and the editor prompt field are in the check-in tree. Presets are not. | Partial. 32 logic tests passed on a Mac. The prompt screen has not been run on an iPhone. |
 | M4 Region-aware adjustments | Proposed integration is written in `docs/ARCHITECTURE.md`. | Not started. Design only for the first check-in. |
 | M5 Usable editor and class demo | Basic selection, sliders, comparison, and save exist. | Not started as a milestone. |
 | M6 Photos editing extension | Described as later work. | Out of scope. |
@@ -37,7 +37,7 @@ The check-in demonstrates a maintained project and a working slice of the editor
 - **Yug More** (`Yug-More`): check-in documentation, recipe validation tests, the prompt interpreter, and the prompt field. Avoid drive-by edits to the save path.
 - **Tejas** (`Tejasvid29`): run the current editor on a physical iPhone and record whether save updates one gallery item, whether a saved recipe reopens, and whether Photos can revert. Follow-up fixes in `PhotoLibraryStore` and `PhotoEditorModel` stay with that device pass unless the two students agree otherwise.
 
-The prompt rules below are the written M0 demo mapping. They are not implemented.
+The prompt rules below are the written M0 demo mapping. The interpreter and prompt field now follow them. Presets are still not part of the check-in. The iPhone screen has not been run.
 
 ## Product decision
 
@@ -108,7 +108,7 @@ The first prototype targets iOS 17 or later and standard still photos. It began 
 - Add a few named presets as recipe values, not separate image generation paths.
 - Make unsupported or ambiguous prompts produce a helpful message rather than silently guessing.
 
-**Check-in specification (not implemented).** The October 20 interpreter covers the four current controls only. Brightness language writes `exposureEV`. Intensity is a fraction of the distance from neutral to that control's slider limit: 0.25 for "slightly", "a bit", or "a little"; 0.50 when no intensity word is present; 1.00 for "much", "a lot", or "significantly". Results are clamped to exposure −2…+2, contrast −0.5…+0.5, saturation −1…+1, and warmth −1…+1.
+**Check-in specification (implemented in this tree, not device-tested).** The interpreter covers the four current controls only. Brightness language writes `exposureEV`. Intensity is a fraction of the distance from neutral to that control's slider limit: 0.25 for "slightly", "a bit", or "a little"; 0.50 when no intensity word is present; 1.00 for "much", "a lot", "strongly", or "significantly". Results stay inside exposure −2…+2, contrast −0.5…+0.5, saturation −1…+1, and warmth −1…+1. A mentioned control is replaced with that absolute value. Other controls keep their current values. A bare noun after "and" copies the previous clause's direction and strength.
 
 | Prompt | Expected recipe change |
 | --- | --- |
