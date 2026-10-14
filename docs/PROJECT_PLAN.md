@@ -159,7 +159,7 @@ Phrases that name different controls combine. Two moves on the same control in t
 
 The students should agree on owners before parallel implementation. A practical split is **Photos integration and on-device testing** versus **adjustment engine, prompt rules, and editor UI**, with shared review at each milestone. Keep interfaces and recipe schema agreed in writing before both sides code against them. Use focused branches for overlapping work, and record branch/commit references in `docs/HANDOFF.md`. No AI agent or bot needs GitHub collaborator access; students use their own accounts and review each other's changes.
 
-For the first check-in, that split is the ownership list in the status section above. Tejas is the device owner for the existing save path. Yug is the owner for documentation and the prompt interpreter. Shared files, especially `ContentView.swift` and `PhotoEditorModel.swift`, change only on a named branch after the other student can see the plan.
+For the first check-in, that split is the ownership list in the status section above. Tejas is the device owner for the existing save path. Yug is the owner for documentation and the prompt interpreter. Shared files, especially `Editor/ContentView.swift` and `Editor/PhotoEditorModel.swift`, change only on a named branch after the other student can see the plan.
 
 ## Main risks and decisions still open
 

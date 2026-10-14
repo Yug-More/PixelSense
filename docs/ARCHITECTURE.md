@@ -10,12 +10,12 @@ The app is a single iOS target. Processing stays on device. There is no backend,
 
 | Layer | Type | Responsibility |
 | --- | --- | --- |
-| Interface | SwiftUI views in `ContentView.swift` | Permission prompt, photo grid, prompt field, sliders, save button, and error text |
+| Interface | `Editor/ContentView.swift` | Permission prompt, photo grid, prompt field, sliders, save button, and error text |
 | Library | `PhotoLibraryStore` | Read/write or limited Photos authorization, and a list of recent still images |
 | Editor | `PhotoEditorModel` | Load one asset, hold slider state, apply a prompt, render previews, and submit a content edit |
-| Recipe | `EditRecipe` | Versioned adjustment values and the shared numeric limits |
-| Prompt | `PromptInterpreter` | Map a supported sentence to a recipe, or return an error |
-| Rendering | `AdjustmentRenderer` | Core Image transforms from a recipe and an image to a new image |
+| Recipe | `Editor/EditRecipe.swift` | Versioned adjustment values and the shared numeric limits |
+| Prompt | `Editor/PromptInterpreter.swift` | Map a supported sentence to a recipe, or return an error |
+| Rendering | `Editor/AdjustmentRenderer.swift` | Core Image transforms from a recipe and an image to a new image |
 | Region targeting | Planned, after global edits are reliable | Build a mask that selects where the renderer applies a recipe |
 
 `PixelSenseApp` only creates a window with `ContentView`.
@@ -36,7 +36,7 @@ Owns the selected `PHAsset` and the four published adjustment values. `load` req
 
 ### EditRecipe
 
-A `Codable` value with `exposureEV`, `contrast`, `saturation`, and `warmth`. Missing keys decode as zero so an older exposure-only payload still reads. The format identifier stays `edu.sjsu.pixelsense.recipe` and the format version stays `1`. PhotoKit encoding lives in `EditRecipePhotoKit.swift`, so the value type itself does not import Photos.
+A `Codable` value with `exposureEV`, `contrast`, `saturation`, and `warmth`. Missing keys decode as zero so an older exposure-only payload still reads. The format identifier stays `edu.sjsu.pixelsense.recipe` and the format version stays `1`. PhotoKit encoding lives in `Photos/EditRecipePhotoKit.swift`, so the value type itself does not import Photos. Library access is `Photos/PhotoLibraryStore.swift`. Editor state is `Editor/PhotoEditorModel.swift`. The app entry is `App/PixelSenseApp.swift`.
 
 The limits live on the type and are shared by the sliders and the interpreter:
 
