@@ -1,6 +1,43 @@
 # PixelSense project plan
 
-Last updated: 2026-10-12
+Last updated: 2026-10-13
+
+## Status — 2026-10-13
+
+| Milestone | In the repository | Acceptance |
+| --- | --- | --- |
+| M0 Requirements and environment | Plan, handoff, and agent guidelines are on `main`. Check-in scope is documented on the documentation branch. | Partial. Student iPhone and Xcode versions are not both recorded, and the first shared device test is still open. |
+| M1 Library access and same-asset save | PhotoKit browse, content editing, and same-asset save code are on `main`. | Not accepted. No physical iPhone result is recorded. |
+| M2 Reversible adjustment engine | Exposure, contrast, saturation, and warmth share one versioned recipe and renderer. | Partial. The controls are in the app. Bounds tests, a committed round-trip test, and device appearance checks are open. |
+| M3 Prompt interpretation and presets | Behavior for the check-in is specified below. | Not started. |
+| M4 Region-aware adjustments | Proposed integration is written in `docs/ARCHITECTURE.md`. | Not started. Design only for the first check-in. |
+| M5 Usable editor and class demo | Basic selection, sliders, comparison, and save exist. | Not started as a milestone. |
+| M6 Photos editing extension | Described as later work. | Out of scope. |
+
+## First check-in — October 20, 2026
+
+The check-in demonstrates a maintained project and a working slice of the editor. It does not finish the product.
+
+**In scope**
+
+- Docs that separate the current app from planned prompt and region work.
+- The existing Photos flow, described as device-unverified until Tejas records a hardware result.
+- Tests for recipe bounds, reset values, and decode of a version 1 recipe.
+- A deterministic prompt interpreter and a SwiftUI field that fills the current sliders before save.
+- The M4 design in `docs/ARCHITECTURE.md`, with no segmentation code.
+
+**Out of scope**
+
+- Implementing region masks, presets beyond a possible follow-up, or the Photos editing extension.
+- Marking M1 complete from a simulator build.
+- Replacing the four controls or the PhotoKit save path.
+
+**Ownership for this check-in**
+
+- **Yug More** (`Yug-More`): check-in documentation, recipe validation tests, the prompt interpreter, and the prompt field. Avoid drive-by edits to the save path.
+- **Tejas** (`Tejasvid29`): run the current editor on a physical iPhone and record whether save updates one gallery item, whether a saved recipe reopens, and whether Photos can revert. Follow-up fixes in `PhotoLibraryStore` and `PhotoEditorModel` stay with that device pass unless the two students agree otherwise.
+
+The prompt rules below are the written M0 demo mapping. They are not implemented.
 
 ## Product decision
 
@@ -71,6 +108,17 @@ The first prototype targets iOS 17 or later and standard still photos. It began 
 - Add a few named presets as recipe values, not separate image generation paths.
 - Make unsupported or ambiguous prompts produce a helpful message rather than silently guessing.
 
+**Check-in specification (not implemented).** The October 20 interpreter covers the four current controls only. Brightness language writes `exposureEV`. Intensity is a fraction of the distance from neutral to that control's slider limit: 0.25 for "slightly", "a bit", or "a little"; 0.50 when no intensity word is present; 1.00 for "much", "a lot", or "significantly". Results are clamped to exposure −2…+2, contrast −0.5…+0.5, saturation −1…+1, and warmth −1…+1.
+
+| Prompt | Expected recipe change |
+| --- | --- |
+| Make this photo warmer. | `warmth = 0.5` |
+| Increase brightness slightly. | `exposureEV = 0.5` |
+| Reduce saturation. | `saturation = -0.5` |
+| Make the photo cooler and increase contrast. | `warmth = -0.5`, `contrast = 0.25` |
+
+Phrases that name different controls combine. Two moves on the same control in the same direction keep the stronger intensity. Opposite directions for one control, such as warmer and cooler, return an error and do not change the recipe. Region words, style names such as "cinematic", and any unsupported phrase return an error. The interpreter does not call a model. Named presets remain a later part of M3 and are not required for the check-in.
+
 **Done when:** the agreed demo prompts produce documented settings, users can refine them manually, and no prompt changes image content or geometry.
 
 ### M4 — Region-aware adjustments
@@ -81,6 +129,8 @@ The first prototype targets iOS 17 or later and standard still photos. It began 
 - Create a mask only to choose where the existing adjustment engine applies settings; feather boundaries to avoid visible halos.
 - Provide a clear fallback to global adjustments when a region cannot be found confidently.
 - Recompute or otherwise manage masks when reopening an edit; keep `PHAdjustmentData` compact.
+
+**Check-in note.** Do not implement segmentation before October 20. The proposed Vision mask, recipe-version compatibility, fallback, and integration with `AdjustmentRenderer` are recorded in `docs/ARCHITECTURE.md`.
 
 **Done when:** a region-specific demo changes the intended area without obvious edge artifacts or content changes, and failure cases are visible and recoverable.
 
@@ -109,10 +159,12 @@ The first prototype targets iOS 17 or later and standard still photos. It began 
 
 The students should agree on owners before parallel implementation. A practical split is **Photos integration and on-device testing** versus **adjustment engine, prompt rules, and editor UI**, with shared review at each milestone. Keep interfaces and recipe schema agreed in writing before both sides code against them. Use focused branches for overlapping work, and record branch/commit references in `docs/HANDOFF.md`. No AI agent or bot needs GitHub collaborator access; students use their own accounts and review each other's changes.
 
+For the first check-in, that split is the ownership list in the status section above. Tejas is the device owner for the existing save path. Yug is the owner for documentation and the prompt interpreter. Shared files, especially `ContentView.swift` and `PhotoEditorModel.swift`, change only on a named branch after the other student can see the plan.
+
 ## Main risks and decisions still open
 
 1. **Physical storage:** PhotoKit updates one visible asset but Photos stores versions internally. Confirm the team accepts this as the meaning of “no duplicate.”
-2. **Device compatibility:** Xcode 15.4 is installed on the current Mac as of 2026-10-12. Confirm the students' iOS versions and whether an Xcode update is needed.
+2. **Device compatibility:** Xcode 15.4 was recorded on Tejas's Mac on 2026-10-12. On 2026-10-13, Yug's Mac had Command Line Tools only, so `xcodebuild` was unavailable there. Confirm both students' iOS versions and whether an Xcode update is needed.
 3. **Photo types:** decide the first supported formats and whether Live Photos, RAW, and HDR are postponed.
 4. **Region quality:** subject and sky masks may need different approaches; prove one region case before broad claims.
 5. **Prompt breadth:** start with reliable rules; decide later whether more flexible language understanding is worth its cost, privacy, and testing complexity.
