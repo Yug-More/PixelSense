@@ -68,17 +68,41 @@
 		A40000000000000000000002 /* PixelSense */ = {
 			isa = PBXGroup;
 			children = (
-				A20000000000000000000001 /* PixelSenseApp.swift */,
-				A20000000000000000000002 /* ContentView.swift */,
-				A20000000000000000000003 /* PhotoLibraryStore.swift */,
-				A20000000000000000000004 /* PhotoEditorModel.swift */,
-				A20000000000000000000007 /* EditRecipe.swift */,
-				A2000000000000000000000A /* EditRecipePhotoKit.swift */,
-				A20000000000000000000009 /* PromptInterpreter.swift */,
-				A20000000000000000000008 /* AdjustmentRenderer.swift */,
+				C40000000000000000000001 /* App */,
+				C40000000000000000000002 /* Editor */,
+				C40000000000000000000003 /* Photos */,
 				A20000000000000000000005 /* Info.plist */,
 			);
 			path = PixelSense;
+			sourceTree = "<group>";
+		};
+		C40000000000000000000001 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				A20000000000000000000001 /* PixelSenseApp.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		C40000000000000000000002 /* Editor */ = {
+			isa = PBXGroup;
+			children = (
+				A20000000000000000000008 /* AdjustmentRenderer.swift */,
+				A20000000000000000000002 /* ContentView.swift */,
+				A20000000000000000000007 /* EditRecipe.swift */,
+				A20000000000000000000004 /* PhotoEditorModel.swift */,
+				A20000000000000000000009 /* PromptInterpreter.swift */,
+			);
+			path = Editor;
+			sourceTree = "<group>";
+		};
+		C40000000000000000000003 /* Photos */ = {
+			isa = PBXGroup;
+			children = (
+				A2000000000000000000000A /* EditRecipePhotoKit.swift */,
+				A20000000000000000000003 /* PhotoLibraryStore.swift */,
+			);
+			path = Photos;
 			sourceTree = "<group>";
 		};
 		A40000000000000000000003 /* Products */ = {
