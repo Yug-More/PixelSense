@@ -50,9 +50,9 @@ Details are in [ARCHITECTURE.md](ARCHITECTURE.md).
 
 | Feature | Evidence in this check-in |
 | --- | --- |
-| Browse authorized still photos, skip Live Photos, cap the list at 100 | Code in `PhotoLibraryStore.swift`. Not re-run on a device in this session. |
+| Browse authorized still photos, skip Live Photos, cap the list at 100 | Code in `Photos/PhotoLibraryStore.swift`. Not re-run on a device in this session. |
 | Exposure, contrast, saturation, warmth, before/after, reset | Code on the editor. Logic tests cover neutral reset and the numeric limits. |
-| Rule-based prompt and an Apply button | `PromptInterpreter.swift` and the editor field. 32 logic tests passed. The screen was not opened on an iPhone. |
+| Rule-based prompt and an Apply button | `Editor/PromptInterpreter.swift` and the editor field. 32 logic tests passed. The screen was not opened on an iPhone. |
 | Save onto the same Photos asset | Existing `PhotoEditorModel.save`. Not modified in this sprint. No physical save result. |
 | Region detection and presets | Not implemented. The region design is written down only. |
 
