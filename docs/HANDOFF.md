@@ -4,16 +4,16 @@ This is the shared, human-readable state of the project for Tejas, Yug, and any 
 
 ## Current state — 2026-10-13
 
-- **Repository:** `Yug-More/PixelSense`. `origin/main` is `9980d3a`, the merge of pull request #2. That pull request brought in the prompt editor (`a8e2a74`, `b515d9f`, `1ab0e78`, `a0fc4e6`, `ff4c675`). `cleanup/project-structure` starts there and adds `e7d877f`, which moves the Swift files into `App`, `Editor`, and `Photos` and updates the Xcode groups. This documentation commit shortens the README and updates the paths. Behavior was not changed. `PhotoLibraryStore.swift` and the PhotoKit `save()` body were not edited.
+- **Repository:** `Yug-More/PixelSense`. `origin/main` is `e69671a`, the merge of pull request #3. That pull request contains `e7d877f` (Swift files in `App`, `Editor`, and `Photos`) and `8bfebf1` (shorter README and doc paths). This commit adds the course section to the README on `cleanup/project-structure` after that merge. Behavior was not changed. `PhotoLibraryStore.swift` and the PhotoKit `save()` body were not edited.
 - **Shared documentation:** `README.md`, `docs/ARCHITECTURE.md`, `docs/PROJECT_PLAN.md`, and `docs/FIRST_CHECKIN.md` describe the prompt rules as implemented on `main` and region detection as design only. Path names in those docs match the new folders.
 - **Agreed product direction:** native iPhone app, Apple Photos library access, color/tone adjustment of an existing photo, save to the same visible Photos item, no added gallery item in the normal flow, no generated or reshaped content.
 - **Platform constraint:** Apple Photos manages original and edited data internally. The app cannot overwrite the library's original file byte-for-byte or promise zero extra storage. This distinction must remain clear in code, docs, and demos.
 - **Cost decision:** build and test on the students' own iPhones with Xcode and free Apple Accounts. No App Store or TestFlight distribution is planned for the class prototype. Free personal-team installations expire after seven days and require reinstalling.
 - **Environment checked:** Xcode 15.4 was recorded on Tejas's Mac on 2026-10-12. Yug's current Mac has Swift 6.0.2 command-line tools; `xcodebuild` is not available because the active developer directory is Command Line Tools, and no Xcode.app was found. Device iOS versions are still unrecorded.
 - **Implementation status:** M0 is partial. M1's save path is unchanged and is not accepted on a physical iPhone. M2 has centralized limits, clamp-on-decode, and logic tests; device appearance is open. M3 phrase rules and the prompt field are in this working tree; presets are not. M4 remains design-only. M5 and M6 are untouched.
-- **Identity:** GitHub login `Yug-More`. These commits are authored and committed by `Yug-More <yugmore20@gmail.com>`, with no co-author trailer. Collaborators were not changed. The branch is ready for review and is not merged.
+- **Identity:** GitHub login `Yug-More`. These commits are authored and committed by `Yug-More <yugmore20@gmail.com>`, with no co-author trailer. Collaborators were not changed. Pull request #3 is merged. The course-information commit is not on `main` yet.
 - **Verification:** `swiftc -parse` accepted the Swift sources. The logic runner printed `Passed 32 logic tests`. `xcodebuild test` was not run. No simulator launch and no physical iPhone run.
-- **Next action:** Yug reviews the pull request for `cleanup/project-structure` and does not merge it yet. Tejas runs the editor on an iPhone, including one prompt, a slider change, and **Save to this photo**. Do not mark M1 done from the logic tests. The full iOS target has not been rebuilt after the file move because Xcode is not installed on this Mac.
+- **Next action:** This course-information commit is on `cleanup/project-structure` after pull request #3 had already merged, so it is not part of that pull request. Tejas runs the editor on an iPhone, including one prompt, a slider change, and **Save to this photo**. Do not mark M1 done from the logic tests. The full iOS target has not been rebuilt after the file move because Xcode is not installed on this Mac.
 - **Open decisions:** see “Main risks and decisions still open” in `docs/PROJECT_PLAN.md`.
 
 ## Working agreement
@@ -99,6 +99,15 @@ Keep this document factual. A completed acceptance check needs a reproducible re
 - **Verification and result:** `plutil -lint PixelSense.xcodeproj/project.pbxproj` passed. `swiftc -parse` on the moved sources and tests passed. The logic runner, using `PixelSense/Editor/EditRecipe.swift` and `PixelSense/Editor/PromptInterpreter.swift`, printed `Passed 32 logic tests`. `git diff --check` passed. Xcode is still not installed here, so the project was not opened or built.
 - **Blockers or risks:** a group path mistake would show up only when someone opens the project in Xcode. Device save is still unverified.
 - **Exact next action and owner:** Yug reviews the pull request and does not merge it yet. Tejas still owns the iPhone save check.
+
+### 2026-10-13 — Course information in the README
+
+- **Who / branch / commit:** Agent session assisting Yug / `cleanup/project-structure` / this commit. Author and committer are `Yug-More <yugmore20@gmail.com>`. No co-author trailer. Pull request #3 had already merged before this commit.
+- **Work and files:** compared the README on `main` (`9980d3a`) with the shortened README. Restored a Course Information section, a short Programming Paradigms section, contributor roles, and the note that assisted work is recorded in this handoff. No Swift files, tests, folders, or Xcode settings were changed.
+- **Decisions and sources:** the professor line keeps the “Dr.” title from the earlier README. The paradigm wording matches `docs/ARCHITECTURE.md` and `docs/FIRST_CHECKIN.md`: reference types for editor state, a value recipe and image transform, and a deterministic phrase interpreter. The interpreter is not described as a trained model.
+- **Verification and result:** documentation only. `git diff --check` passed. README links resolve to `docs/ARCHITECTURE.md`, `docs/PROJECT_PLAN.md`, `docs/HANDOFF.md`, and `docs/FIRST_CHECKIN.md`. The logic tests were not rerun because no Swift file changed.
+- **Blockers or risks:** none in the app. Because pull request #3 is already merged, this commit stays on the branch until a later review.
+- **Exact next action and owner:** Yug decides how to review this commit. Tejas still owns the iPhone save check.
 
 ## Template for the next entry
 

@@ -2,7 +2,20 @@
 
 PixelSense is an iPhone app that adjusts the color and tone of a photo already in Apple Photos.
 
-It is a CS 152 project at San José State University, Fall 2026. The first check-in is October 20.
+## Course Information
+
+- **University:** San José State University
+- **Course:** CS 152 — Programming Paradigms, Fall 2026
+- **Professor:** Dr. Saptarshi Sengupta
+- **Project:** PixelSense
+- **Team Members:** Yug More and Tejas
+- **First Project Check-in:** October 20, 2026
+
+## Programming Paradigms
+
+- **Object-oriented programming** through Swift types and application state. `PhotoLibraryStore` and `PhotoEditorModel` hold library access and the editing session. SwiftUI observes that state and does not call PhotoKit itself.
+- **Functional programming** through image adjustment transformations and recipe-based processing. `EditRecipe` is a value. `AdjustmentRenderer.apply` takes that recipe and an image and returns a new image for both preview and save.
+- **Parsing and interpretation** through the deterministic prompt interpreter. `PromptInterpreter` matches a fixed phrase list and returns recipe numbers or an error. It is not a trained model. A sentence it does not accept changes nothing.
 
 ## Overview
 
@@ -97,8 +110,10 @@ Still to do: device check of save, reopen, and revert; presets; region edits.
 
 ## Contributors
 
-- Yug More — [Yug-More](https://github.com/Yug-More)
-- Tejas — [Tejasvid29](https://github.com/Tejasvid29)
+- Yug More — [Yug-More](https://github.com/Yug-More) — documentation, prompt rules, and the prompt field
+- Tejas — [Tejasvid29](https://github.com/Tejasvid29) — project plan, iPhone prototype, and device checks of the Photos save path
+
+Assisted work is recorded in the [handoff](docs/HANDOFF.md). Commits stay on the student accounts. This is a university project: do not commit personal photos, signing certificates, or provisioning profiles.
 
 ## Documentation
 
