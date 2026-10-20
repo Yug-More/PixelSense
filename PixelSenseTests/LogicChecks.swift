@@ -57,7 +57,11 @@ enum PromptLogicChecks {
         LogicCheck(name: "auto enhance ignores prior recipe", run: autoEnhanceIgnoresPriorRecipe),
         LogicCheck(name: "preset catalog", run: presetCatalog),
         LogicCheck(name: "preset application replaces", run: presetApplicationReplaces),
-        LogicCheck(name: "natural preset is neutral", run: naturalPresetIsNeutral)
+        LogicCheck(name: "natural preset is neutral", run: naturalPresetIsNeutral),
+        LogicCheck(name: "auto enhance low saturation", run: autoEnhanceLowSaturation),
+        LogicCheck(name: "cinematic preset values", run: cinematicPresetValues),
+        LogicCheck(name: "preset lookup by id", run: presetLookupById),
+        LogicCheck(name: "prompt warm up with vibrance", run: promptWarmUpWithVibrance)
     ]
 
     static func brightnessIncrease() -> String? {
@@ -470,6 +474,40 @@ enum PromptLogicChecks {
             return "Natural preset must be a neutral recipe"
         }
         return nil
+    }
+
+    static func autoEnhanceLowSaturation() -> String? {
+        let stats = ImageStatistics(averageLuminance: 0.50, contrastRange: 0.40, averageSaturation: 0.10)
+        guard case .success(let recipe) = AutoEnhance.recommend(from: stats) else {
+            return "low saturation should recommend a recipe"
+        }
+        guard recipe.saturation == AutoEnhance.lowSaturationBoost, recipe.exposureEV == 0 else {
+            return "low saturation mismatch: \(recipe)"
+        }
+        return nil
+    }
+
+    static func cinematicPresetValues() -> String? {
+        let recipe = EditPresets.cinematic.recipe
+        guard recipe.exposureEV == -0.15,
+              recipe.contrast == 0.25,
+              recipe.saturation == -0.2,
+              recipe.warmth == -0.1 else {
+            return "cinematic preset drifted: \(recipe)"
+        }
+        return nil
+    }
+
+    static func presetLookupById() -> String? {
+        guard EditPresets.preset(id: "warm") == EditPresets.warm,
+              EditPresets.preset(id: "missing") == nil else {
+            return "preset lookup by id failed"
+        }
+        return nil
+    }
+
+    static func promptWarmUpWithVibrance() -> String? {
+        expect(.success(saturation: 0.5, warmth: 0.5), from: "Warm up the image and increase vibrance.")
     }
 }
 
