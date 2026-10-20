@@ -54,7 +54,10 @@ enum PromptLogicChecks {
         LogicCheck(name: "auto enhance invalid statistics", run: autoEnhanceInvalidStatistics),
         LogicCheck(name: "auto enhance clamps recommendations", run: autoEnhanceClampsRecommendations),
         LogicCheck(name: "auto enhance repeatability", run: autoEnhanceRepeatability),
-        LogicCheck(name: "auto enhance ignores prior recipe", run: autoEnhanceIgnoresPriorRecipe)
+        LogicCheck(name: "auto enhance ignores prior recipe", run: autoEnhanceIgnoresPriorRecipe),
+        LogicCheck(name: "preset catalog", run: presetCatalog),
+        LogicCheck(name: "preset application replaces", run: presetApplicationReplaces),
+        LogicCheck(name: "natural preset is neutral", run: naturalPresetIsNeutral)
     ]
 
     static func brightnessIncrease() -> String? {
@@ -431,6 +434,43 @@ enum PromptLogicChecks {
         return nil
     }
 
+    static func presetCatalog() -> String? {
+        let expectedIDs = ["natural", "portrait", "vibrant", "warm", "cinematic"]
+        guard EditPresets.all.map(\.id) == expectedIDs else {
+            return "preset catalog order or ids drifted"
+        }
+        for preset in EditPresets.all {
+            guard preset.isWithinLimits else {
+                return "preset \(preset.id) is outside recipe limits"
+            }
+            guard !preset.name.isEmpty, !preset.description.isEmpty else {
+                return "preset \(preset.id) is missing display text"
+            }
+        }
+        return nil
+    }
+
+    static func presetApplicationReplaces() -> String? {
+        var session = PromptApplication(recipe: EditRecipe(exposureEV: 1, contrast: 0.25, saturation: -0.5, warmth: 0.5))
+        session.recipe = EditPresets.vibrant.recipe
+        session.errorMessage = nil
+        guard session.recipe == EditPresets.vibrant.recipe else {
+            return "applying a preset should replace the current recipe"
+        }
+        session.recipe = EditPresets.warm.recipe
+        guard session.recipe == EditPresets.warm.recipe,
+              session.recipe != EditPresets.vibrant.recipe else {
+            return "switching presets should replace, not combine"
+        }
+        return nil
+    }
+
+    static func naturalPresetIsNeutral() -> String? {
+        guard EditPresets.natural.recipe == EditRecipe() else {
+            return "Natural preset must be a neutral recipe"
+        }
+        return nil
+    }
 }
 
 private enum Expected {
