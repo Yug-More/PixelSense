@@ -41,7 +41,11 @@ final class PhotoEditorModel: ObservableObject {
     @Published private(set) var isEnhancing = false
 
     private var sourceImage: CIImage?
-    private let context = CIContext()
+    /// Downscaled source used for interactive previews so sliders do not reprocess full resolution.
+    private var previewSourceImage: CIImage?
+    private var lastPreviewRecipe: EditRecipe?
+    private let context = CIContext(options: [.workingColorSpace: NSNull()])
+    private let previewColorSpace = CGColorSpace(name: CGColorSpace.sRGB)!
 
     init(asset: PHAsset) {
         self.asset = asset
@@ -68,17 +72,25 @@ final class PhotoEditorModel: ObservableObject {
         beforePreview = nil
         editedPreview = nil
         sourceImage = nil
+        previewSourceImage = nil
+        lastPreviewRecipe = nil
 
         do {
             let input = try await requestEditingInput()
             let source = try image(from: input)
+            guard AdjustmentRenderer.isRenderable(source) else {
+                throw PhotoEditError.renderingFailed
+            }
             sourceImage = source
+            // Build the preview pyramid once per load; slider updates reuse this CIImage.
+            let previewSource = PreviewScaling.scaled(source)
+            previewSourceImage = previewSource
             let savedRecipe = EditRecipe.decode(input.adjustmentData) ?? EditRecipe()
             exposureEV = savedRecipe.exposureEV
             contrast = savedRecipe.contrast
             saturation = savedRecipe.saturation
             warmth = savedRecipe.warmth
-            beforePreview = try renderPreview(source)
+            beforePreview = try renderPreviewBitmap(previewSource)
             updatePreview()
         } catch {
             errorMessage = error.localizedDescription
@@ -86,9 +98,18 @@ final class PhotoEditorModel: ObservableObject {
     }
 
     func updatePreview() {
-        guard let sourceImage else { return }
+        guard let previewSourceImage else { return }
+        let prepared = AdjustmentRenderer.prepare(recipe)
+        if prepared == lastPreviewRecipe { return }
+
         do {
-            editedPreview = try renderPreview(AdjustmentRenderer.apply(recipe, to: sourceImage))
+            if AdjustmentRenderer.isNeutral(prepared) {
+                editedPreview = beforePreview
+            } else {
+                let adjusted = AdjustmentRenderer.apply(prepared, to: previewSourceImage)
+                editedPreview = try renderPreviewBitmap(adjusted)
+            }
+            lastPreviewRecipe = prepared
         } catch {
             errorMessage = error.localizedDescription
         }
@@ -191,7 +212,11 @@ final class PhotoEditorModel: ObservableObject {
                 data: try JSONEncoder().encode(recipe)
             )
 
+            guard AdjustmentRenderer.isRenderable(source) else {
+                throw PhotoEditError.renderingFailed
+            }
             let colorSpace = CGColorSpace(name: CGColorSpace.sRGB)!
+            // Save always renders full resolution from a fresh Photos input, not the preview pyramid.
             try context.writeJPEGRepresentation(
                 of: AdjustmentRenderer.apply(recipe, to: source),
                 to: outputURL,
@@ -241,11 +266,18 @@ final class PhotoEditorModel: ObservableObject {
         return image.oriented(forExifOrientation: input.fullSizeImageOrientation)
     }
 
-    private func renderPreview(_ image: CIImage) throws -> UIImage {
-        let maxDimension = max(image.extent.width, image.extent.height)
-        let scale = min(1, 1400 / maxDimension)
-        let scaled = image.transformed(by: CGAffineTransform(scaleX: scale, y: scale))
-        guard let output = context.createCGImage(scaled, from: scaled.extent) else {
+    /// Renders a bitmap for an image that is already at preview scale.
+    private func renderPreviewBitmap(_ image: CIImage) throws -> UIImage {
+        guard AdjustmentRenderer.isRenderable(image) else {
+            throw PhotoEditError.renderingFailed
+        }
+        let extent = image.extent.integral
+        guard let output = context.createCGImage(
+            image,
+            from: extent,
+            format: .RGBA8,
+            colorSpace: previewColorSpace
+        ) else {
             throw PhotoEditError.renderingFailed
         }
         return UIImage(cgImage: output)
