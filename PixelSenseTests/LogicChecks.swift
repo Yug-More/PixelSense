@@ -71,7 +71,10 @@ enum PromptLogicChecks {
         LogicCheck(name: "renderer rejects invalid extent", run: rendererRejectsInvalidExtent),
         LogicCheck(name: "preview scale factor", run: previewScaleFactor),
         LogicCheck(name: "preview scale leaves small images", run: previewScaleLeavesSmallImages),
-        LogicCheck(name: "renderer filter order constant", run: rendererFilterOrderConstant)
+        LogicCheck(name: "renderer filter order constant", run: rendererFilterOrderConstant),
+        LogicCheck(name: "statistics sample rejects infinite", run: statisticsSampleRejectsInfinite),
+        LogicCheck(name: "statistics sample finite image", run: statisticsSampleFiniteImage),
+        LogicCheck(name: "prepared recipe matches save encoding", run: preparedRecipeMatchesSaveEncoding)
     ]
 
     static func brightnessIncrease() -> String? {
@@ -616,6 +619,47 @@ enum PromptLogicChecks {
               AdjustmentRenderer.filterOrderDescription.contains("warmth"),
               AdjustmentRenderer.filterOrderDescription.contains("colorControls") else {
             return "filter order documentation drifted"
+        }
+        return nil
+    }
+
+    static func statisticsSampleRejectsInfinite() -> String? {
+        let infinite = CIImage(color: CIColor(red: 0.4, green: 0.4, blue: 0.4))
+        guard infinite.extent.isInfinite else {
+            return "expected infinite color image"
+        }
+        if ImageStatistics.sample(from: infinite) != nil {
+            return "infinite images should not produce statistics"
+        }
+        return nil
+    }
+
+    static func statisticsSampleFiniteImage() -> String? {
+        let image = solidTestImage(red: 0.1, green: 0.1, blue: 0.1, size: 48)
+        guard let stats = ImageStatistics.sample(from: image) else {
+            return "finite dark image should produce statistics"
+        }
+        guard stats.isValid, stats.averageLuminance < 0.35 else {
+            return "dark sample luminance unexpected: \(stats)"
+        }
+        guard case .success(let recipe) = AutoEnhance.recommend(from: stats),
+              recipe.exposureEV == AutoEnhance.darkExposureBoost else {
+            return "dark sample should recommend exposure boost: \(String(describing: AutoEnhance.recommend(from: stats)))"
+        }
+        return nil
+    }
+
+    static func preparedRecipeMatchesSaveEncoding() -> String? {
+        // PhotoEditorModel.save encodes AdjustmentRenderer.prepare(recipe) so reopen matches pixels.
+        let wild = EditRecipe(exposureEV: 8, contrast: -2, saturation: .nan, warmth: 4)
+        let prepared = AdjustmentRenderer.prepare(wild)
+        guard prepared == EditRecipe(exposureEV: 2, contrast: -0.5, saturation: 0, warmth: 1) else {
+            return "prepared save recipe mismatch: \(prepared)"
+        }
+        guard let data = try? JSONEncoder().encode(prepared),
+              let decoded = try? JSONDecoder().decode(EditRecipe.self, from: data),
+              decoded == prepared else {
+            return "prepared recipe should round-trip for PhotoKit adjustment data"
         }
         return nil
     }

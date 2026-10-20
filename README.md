@@ -184,12 +184,13 @@ swiftc -parse-as-library -D LOGIC_TEST_RUNNER -o /tmp/pixelsense-logic-tests \
   PixelSense/Editor/AutoEnhance.swift \
   PixelSense/Editor/EditPreset.swift \
   PixelSense/Editor/AdjustmentRenderer.swift \
+  PixelSense/Editor/ImageStatisticsSampler.swift \
   PixelSenseTests/LogicChecks.swift \
   PixelSenseTests/LogicTestMain.swift
 /tmp/pixelsense-logic-tests
 ```
 
-**Latest result on the authoring machine:** `Passed 61 logic tests` (prompts, recipes, presets, auto-enhance rules, and renderer/preview scaling regressions).
+**Latest result on the authoring machine:** `Passed 64 logic tests` (prompts, recipes, presets, auto-enhance rules, renderer/preview scaling, and statistics sampling regressions).
 
 ### What each kind of test covers
 

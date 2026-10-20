@@ -93,6 +93,12 @@ final class PhotoEditorModel: ObservableObject {
             beforePreview = try renderPreviewBitmap(previewSource)
             updatePreview()
         } catch {
+            // Drop partial session state so a failed load cannot drive preview/save.
+            sourceImage = nil
+            previewSourceImage = nil
+            lastPreviewRecipe = nil
+            beforePreview = nil
+            editedPreview = nil
             errorMessage = error.localizedDescription
         }
     }
@@ -148,10 +154,11 @@ final class PhotoEditorModel: ObservableObject {
         updatePreview()
     }
 
-    /// Samples the loaded source image and replaces the recipe with a conservative recommendation.
-    /// Uses the original source statistics so repeated taps do not compound adjustments.
+    /// Samples the loaded photo and replaces the recipe with a conservative recommendation.
+    /// Uses the unedited preview-scaled source (not the current slider recipe) so repeats do not compound.
     func applyAutoEnhance() {
-        guard let sourceImage else {
+        // Prefer the cached preview pyramid so large library assets are not re-measured at full resolution.
+        guard let sampleSource = previewSourceImage ?? sourceImage else {
             enhanceMessage = nil
             enhanceError = AutoEnhanceFailure.invalidStatistics.message
             return
@@ -160,7 +167,7 @@ final class PhotoEditorModel: ObservableObject {
         defer { isEnhancing = false }
         promptError = nil
         enhanceError = nil
-        guard let stats = ImageStatistics.sample(from: sourceImage, context: context) else {
+        guard let stats = ImageStatistics.sample(from: sampleSource, context: context) else {
             enhanceMessage = nil
             enhanceError = AutoEnhanceFailure.invalidStatistics.message
             return
@@ -183,10 +190,11 @@ final class PhotoEditorModel: ObservableObject {
     }
 
     private func applyRecipeToSliders(_ recipe: EditRecipe) {
-        exposureEV = recipe.exposureEV
-        contrast = recipe.contrast
-        saturation = recipe.saturation
-        warmth = recipe.warmth
+        let prepared = AdjustmentRenderer.prepare(recipe)
+        exposureEV = prepared.exposureEV
+        contrast = prepared.contrast
+        saturation = prepared.saturation
+        warmth = prepared.warmth
     }
 
     func save() async {
@@ -205,7 +213,8 @@ final class PhotoEditorModel: ObservableObject {
                 throw PhotoEditError.unsupportedOutput
             }
             let outputURL = try output.renderedContentURL(for: .jpeg)
-            let recipe = self.recipe
+            // Clamp before encode so PHAdjustmentData matches the rendered pixels Tejas reopens later.
+            let recipe = AdjustmentRenderer.prepare(self.recipe)
             output.adjustmentData = PHAdjustmentData(
                 formatIdentifier: EditRecipe.formatIdentifier,
                 formatVersion: EditRecipe.formatVersion,
