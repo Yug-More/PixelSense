@@ -2,18 +2,17 @@
 
 This is the shared, human-readable state of the project for Tejas, Yug, and any agents helping them. Read it with `README.md`, `docs/PROJECT_PLAN.md`, and `AGENTS.md` before starting work. Update the current-state summary and append a work-log entry before every handoff.
 
-## Current state — 2026-10-13
+## Current state — 2026-10-20
 
-- **Repository:** `Yug-More/PixelSense`. `origin/main` is `e69671a`, the merge of pull request #3. That pull request contains `e7d877f` (Swift files in `App`, `Editor`, and `Photos`) and `8bfebf1` (shorter README and doc paths). This commit adds the course section to the README on `cleanup/project-structure` after that merge. Behavior was not changed. `PhotoLibraryStore.swift` and the PhotoKit `save()` body were not edited.
-- **Shared documentation:** `README.md`, `docs/ARCHITECTURE.md`, `docs/PROJECT_PLAN.md`, and `docs/FIRST_CHECKIN.md` describe the prompt rules as implemented on `main` and region detection as design only. Path names in those docs match the new folders.
+- **Repository:** `Yug-More/PixelSense`. `origin/main` is `c094ca5` (includes course README info via PR #4). Active development branch for smart editing: `feature/yug-smart-editing`.
+- **Team work plan:** `docs/TEAM_WORK_PLAN.md` defines Yug vs Tejas ownership, contracts, milestones, and October 22 check-in responsibilities. Remaining smart-editing work is Yug’s; PhotoKit/device verification remains Tejas’s.
 - **Agreed product direction:** native iPhone app, Apple Photos library access, color/tone adjustment of an existing photo, save to the same visible Photos item, no added gallery item in the normal flow, no generated or reshaped content.
-- **Platform constraint:** Apple Photos manages original and edited data internally. The app cannot overwrite the library's original file byte-for-byte or promise zero extra storage. This distinction must remain clear in code, docs, and demos.
-- **Cost decision:** build and test on the students' own iPhones with Xcode and free Apple Accounts. No App Store or TestFlight distribution is planned for the class prototype. Free personal-team installations expire after seven days and require reinstalling.
-- **Environment checked:** Xcode 15.4 was recorded on Tejas's Mac on 2026-10-12. Yug's current Mac has Swift 6.0.2 command-line tools; `xcodebuild` is not available because the active developer directory is Command Line Tools, and no Xcode.app was found. Device iOS versions are still unrecorded.
-- **Implementation status:** M0 is partial. M1's save path is unchanged and is not accepted on a physical iPhone. M2 has centralized limits, clamp-on-decode, and logic tests; device appearance is open. M3 phrase rules and the prompt field are in this working tree; presets are not. M4 remains design-only. M5 and M6 are untouched.
-- **Identity:** GitHub login `Yug-More`. These commits are authored and committed by `Yug-More <yugmore20@gmail.com>`, with no co-author trailer. Collaborators were not changed. Pull request #3 is merged. The course-information commit is not on `main` yet.
-- **Verification:** `swiftc -parse` accepted the Swift sources. The logic runner printed `Passed 32 logic tests`. `xcodebuild test` was not run. No simulator launch and no physical iPhone run.
-- **Next action:** This course-information commit is on `cleanup/project-structure` after pull request #3 had already merged, so it is not part of that pull request. Tejas runs the editor on an iPhone, including one prompt, a slider change, and **Save to this photo**. Do not mark M1 done from the logic tests. The full iOS target has not been rebuilt after the file move because Xcode is not installed on this Mac.
+- **Platform constraint:** Apple Photos manages original and edited data internally. The app cannot overwrite the library's original file byte-for-byte or promise zero extra storage.
+- **Environment checked:** Yug’s Mac has Swift 6.0.2 command-line tools; `xcodebuild` is unavailable (Command Line Tools only). Xcode 15.4 was recorded on Tejas's Mac on 2026-10-12. Device iOS versions are still unrecorded.
+- **Implementation status:** M1 save path is still not accepted on a physical iPhone. M2 recipe/renderer exist with logic tests. M3 on `feature/yug-smart-editing`: expanded prompts, presets, automatic enhancement, and editor smart tools (52 logic tests). M4 remains design-only.
+- **Identity:** GitHub login `Yug-More`. Commits use `Yug-More <yugmore20@gmail.com>`, with no co-author trailer. Collaborators unchanged.
+- **Verification:** `Passed 52 logic tests` on this Mac. No simulator or iPhone run (`xcodebuild` unavailable).
+- **Next action:** Push `feature/yug-smart-editing` and open a PR. Tejas runs the device save/reopen/revert checklist in `docs/TEAM_WORK_PLAN.md` (TEJ-8). Do not mark M1 done from logic tests alone.
 - **Open decisions:** see “Main risks and decisions still open” in `docs/PROJECT_PLAN.md`.
 
 ## Working agreement
@@ -108,6 +107,24 @@ Keep this document factual. A completed acceptance check needs a reproducible re
 - **Verification and result:** documentation only. `git diff --check` passed. README links resolve to `docs/ARCHITECTURE.md`, `docs/PROJECT_PLAN.md`, `docs/HANDOFF.md`, and `docs/FIRST_CHECKIN.md`. The logic tests were not rerun because no Swift file changed.
 - **Blockers or risks:** none in the app. Because pull request #3 is already merged, this commit stays on the branch until a later review.
 - **Exact next action and owner:** Yug decides how to review this commit. Tejas still owns the iPhone save check.
+
+### 2026-10-20 — Team work plan and smart-editing sprint start
+
+- **Who / branch / commit:** Yug More / `feature/yug-smart-editing` / `e0f3fe0`. Author and committer `Yug-More <yugmore20@gmail.com>`. No co-author trailer.
+- **Work and files:** Added `docs/TEAM_WORK_PLAN.md` with ownership matrix, Yug/Tejas task specs, integration contracts, October 22 milestone checklist, and contribution tracking. Updated this current-state section. No Swift behavior change in the plan-only commit.
+- **Decisions and sources:** Yug owns prompt improvements, auto-enhance, presets, editor UX, and related tests/docs. Tejas owns PhotoKit, renderer reliability, and device verification. Shared: `EditRecipe.swift`, `PhotoEditorModel.swift` (additive APIs only).
+- **Verification and result:** Document review against existing sources on `main`. Logic tests not rerun for docs-only commit.
+- **Blockers or risks:** `xcodebuild` unavailable here; M1 still needs Tejas’s iPhone pass.
+- **Exact next action and owner:** Yug implements YUG-1 through YUG-6 on this branch. Tejas starts TEJ-8 when ready.
+
+### 2026-10-20 — Yug smart editing implementation
+
+- **Who / branch / commits:** Yug More / `feature/yug-smart-editing` / `235dbf4`, `88734a1`, `7e0e348`, `64c7c28`, `f9cefcc`, plus documentation commit. Author and committer `Yug-More <yugmore20@gmail.com>`. No co-author trailer.
+- **Work and files:** Extended `PromptInterpreter.swift`; added `ImageStatistics.swift`, `AutoEnhance.swift`, `ImageStatisticsSampler.swift`, `EditPreset.swift`; additive methods on `PhotoEditorModel.swift`; smart tools UI in `ContentView.swift`; expanded `LogicChecks.swift`. Did not change `PhotoLibraryStore.swift`, `AdjustmentRenderer.swift`, or the body of `save()`.
+- **Decisions and sources:** Presets and auto-enhance replace the current recipe; auto-enhance measures the source image so repeats do not compound. Prompt word “cinematic” stays blocked; Cinematic is a UI preset only. Enhancement thresholds are documented in `AutoEnhance.swift` and `docs/ARCHITECTURE.md`.
+- **Verification and result:** Logic runner: `Passed 52 logic tests`. `plutil -lint` on the Xcode project passed earlier in the sprint. `xcodebuild` / simulator / iPhone: not run (Command Line Tools only).
+- **Blockers or risks:** Full app build and Photos save still need Tejas’s Mac and iPhone.
+- **Exact next action and owner:** Open PR for review. Tejas runs TEJ-8 device checklist after merge or on this branch.
 
 ## Template for the next entry
 

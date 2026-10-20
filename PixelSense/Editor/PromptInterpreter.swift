@@ -185,7 +185,9 @@ enum PromptInterpreter {
         matches: [InstructionMatch],
         clauses: [Range<String.Index>]
     ) -> Result<[Operation], PromptFailure> {
-        guard let expression = try? NSRegularExpression(pattern: #"\b(exposure|brightness|contrast|saturation|warmth)\b"#) else {
+        guard let expression = try? NSRegularExpression(
+            pattern: #"\b(exposure|brightness|contrast|saturation|vibrance|warmth)\b"#
+        ) else {
             return .success([])
         }
         var extra: [Operation] = []
@@ -314,7 +316,7 @@ enum PromptInterpreter {
             Rule(expression: regex(pattern)) { _, _ in [(control, direction)] }
         }
         built.append(Rule(expression: regex(
-            #"\b(increase|decrease|reduce|lower|add|raise)\s+and\s+(increase|decrease|reduce|lower|add|raise)\s+(?:the\s+)?(exposure|brightness|contrast|saturation|warmth)\b"#
+            #"\b(increase|decrease|reduce|lower|add|raise|boost)\s+and\s+(increase|decrease|reduce|lower|add|raise|boost)\s+(?:the\s+)?(exposure|brightness|contrast|saturation|vibrance|warmth)\b"#
         )) { match, text in
             guard let first = substring(match, group: 1, in: text),
                   let second = substring(match, group: 2, in: text),
@@ -340,30 +342,33 @@ enum PromptInterpreter {
         (#"\b(darken|darker)\b"#, .exposure, .decrease),
 
         (#"\badd\s+more\s+warmth\b"#, .warmth, .increase),
-        (#"\b(increase|raise|add)\s+(?:the\s+)?warmth\b"#, .warmth, .increase),
+        (#"\b(increase|raise|add|boost)\s+(?:the\s+)?warmth\b"#, .warmth, .increase),
         (#"\bmore\s+warmth\b"#, .warmth, .increase),
+        (#"\bwarm\s+up\b"#, .warmth, .increase),
         (#"\bwarmer\b"#, .warmth, .increase),
         (#"\bwarm\b"#, .warmth, .increase),
         (#"\b(decrease|reduce|lower)\s+(?:the\s+)?warmth\b"#, .warmth, .decrease),
         (#"\bless\s+warmth\b"#, .warmth, .decrease),
+        (#"\bcool\s+down\b"#, .warmth, .decrease),
         (#"\bcooler\b"#, .warmth, .decrease),
         (#"\bcool\b"#, .warmth, .decrease),
 
         (#"\badd\s+more\s+contrast\b"#, .contrast, .increase),
-        (#"\b(increase|raise|add)\s+(?:the\s+)?contrast\b"#, .contrast, .increase),
+        (#"\b(increase|raise|add|boost)\s+(?:the\s+)?contrast\b"#, .contrast, .increase),
         (#"\bmore\s+contrast(?:y)?\b"#, .contrast, .increase),
         (#"\b(decrease|reduce|lower)\s+(?:the\s+)?contrast\b"#, .contrast, .decrease),
         (#"\bless\s+contrast(?:y)?\b"#, .contrast, .decrease),
 
-        (#"\badd\s+more\s+saturation\b"#, .saturation, .increase),
-        (#"\b(increase|raise|add)\s+(?:the\s+)?saturation\b"#, .saturation, .increase),
-        (#"\bmore\s+saturation\b"#, .saturation, .increase),
-        (#"\bmore\s+colorful\b"#, .saturation, .increase),
-        (#"\b(?:make\s+)?colors\s+stronger\b"#, .saturation, .increase),
-        (#"\bstronger\s+colors\b"#, .saturation, .increase),
-        (#"\b(decrease|reduce|lower)\s+(?:the\s+)?saturation\b"#, .saturation, .decrease),
-        (#"\bless\s+saturation\b"#, .saturation, .decrease),
-        (#"\bless\s+colorful\b"#, .saturation, .decrease),
+        (#"\badd\s+more\s+(saturation|vibrance)\b"#, .saturation, .increase),
+        (#"\b(increase|raise|add|boost)\s+(?:the\s+)?(saturation|vibrance)\b"#, .saturation, .increase),
+        (#"\bmore\s+(saturation|vibrance)\b"#, .saturation, .increase),
+        (#"\bmore\s+(?:colorful|vibrant)\b"#, .saturation, .increase),
+        (#"\b(?:make\s+)?(?:the\s+)?colors\s+(?:more\s+)?(?:stronger|vibrant|colorful)\b"#, .saturation, .increase),
+        (#"\b(?:stronger|vibrant|colorful)\s+colors\b"#, .saturation, .increase),
+        (#"\bvibrant\b"#, .saturation, .increase),
+        (#"\b(decrease|reduce|lower)\s+(?:the\s+)?(saturation|vibrance)\b"#, .saturation, .decrease),
+        (#"\bless\s+(saturation|vibrance)\b"#, .saturation, .decrease),
+        (#"\bless\s+(?:colorful|vibrant)\b"#, .saturation, .decrease),
         (#"\bdesaturate\b"#, .saturation, .decrease)
     ]
 
@@ -420,7 +425,7 @@ private extension AdjustmentControl {
         switch noun {
         case "exposure", "brightness": self = .exposure
         case "contrast": self = .contrast
-        case "saturation": self = .saturation
+        case "saturation", "vibrance": self = .saturation
         case "warmth": self = .warmth
         default: return nil
         }

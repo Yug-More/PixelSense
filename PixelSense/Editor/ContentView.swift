@@ -133,8 +133,10 @@ private struct PhotoEditorView: View {
                     showBefore.toggle()
                 }
                 .disabled(model.beforePreview == nil)
+                .accessibilityHint("Toggle between the original photo and the current edit.")
 
                 promptSection
+                smartToolsSection
 
                 VStack(spacing: 14) {
                     adjustmentControl("Exposure", value: $model.exposureEV, range: EditRecipe.exposureRange, step: 0.1, format: "%+.1f EV")
@@ -142,10 +144,11 @@ private struct PhotoEditorView: View {
                     adjustmentControl("Saturation", value: $model.saturation, range: EditRecipe.saturationRange, step: 0.05, format: "%+.0f%%", multiplier: 100)
                     adjustmentControl("Warmth", value: $model.warmth, range: EditRecipe.warmthRange, step: 0.05, format: "%+.0f%%", multiplier: 100)
                 }
-                .disabled(model.isLoading || model.isSaving)
+                .disabled(model.isLoading || model.isSaving || model.isEnhancing)
 
                 Button("Reset settings") { model.resetAdjustments() }
-                    .disabled(model.isLoading || model.isSaving || model.editedPreview == nil)
+                    .disabled(model.isLoading || model.isSaving || model.isEnhancing || model.editedPreview == nil)
+                    .accessibilityHint("Return all adjustments to zero.")
 
                 Button {
                     Task { await model.save() }
@@ -159,10 +162,18 @@ private struct PhotoEditorView: View {
                     }
                 }
                 .buttonStyle(.borderedProminent)
-                .disabled(model.isLoading || model.isSaving || model.editedPreview == nil)
+                .disabled(model.isLoading || model.isSaving || model.isEnhancing || model.editedPreview == nil)
+                .accessibilityHint("Updates this Photos library item. Does not create a second photo.")
 
                 if let message = model.message {
                     Text(message).foregroundStyle(.green)
+                }
+                if let enhanceMessage = model.enhanceMessage {
+                    Text(enhanceMessage)
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .accessibilityLabel("Smart edit status")
                 }
                 if let error = model.errorMessage {
                     Text(error).foregroundStyle(.red)
@@ -185,7 +196,7 @@ private struct PhotoEditorView: View {
         VStack(alignment: .leading, spacing: 8) {
             Text("Describe a change")
                 .font(.headline)
-            Text("Exposure, contrast, saturation, and warmth. You can still move the sliders before saving.")
+            Text("Try brightness, contrast, vibrance, or warm up. Unsupported requests leave the photo unchanged.")
                 .font(.footnote)
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
@@ -193,20 +204,92 @@ private struct PhotoEditorView: View {
                 .lineLimit(1...3)
                 .textFieldStyle(.roundedBorder)
                 .textInputAutocapitalization(.sentences)
-                .disabled(model.isLoading || model.isSaving)
+                .disabled(model.isLoading || model.isSaving || model.isEnhancing)
+                .accessibilityLabel("Photo edit instruction")
                 .onSubmit { applyPrompt() }
             Button { applyPrompt() } label: {
-                Text("Apply")
+                Text("Apply instruction")
                     .frame(maxWidth: .infinity)
             }
             .buttonStyle(.bordered)
-            .disabled(promptIsEmpty || model.isLoading || model.isSaving)
+            .disabled(promptIsEmpty || model.isLoading || model.isSaving || model.isEnhancing)
+            .accessibilityHint("Fills the sliders from a supported sentence without saving.")
             if let promptError = model.promptError {
                 Text(promptError)
                     .font(.footnote)
                     .foregroundStyle(.red)
                     .fixedSize(horizontal: false, vertical: true)
                     .accessibilityLabel("Prompt error")
+            } else if !promptIsEmpty {
+                Text("Tap Apply instruction to update the sliders. You can still refine them by hand.")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        }
+    }
+
+    private var smartToolsSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("Smart tools")
+                .font(.headline)
+            Text("Presets and automatic enhancement replace the current settings. They do not save until you tap Save to this photo.")
+                .font(.footnote)
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+
+            Button {
+                model.applyAutoEnhance()
+                showBefore = false
+            } label: {
+                if model.isEnhancing {
+                    ProgressView()
+                        .frame(maxWidth: .infinity)
+                } else {
+                    Text("Auto enhance")
+                        .frame(maxWidth: .infinity)
+                }
+            }
+            .buttonStyle(.bordered)
+            .disabled(model.isLoading || model.isSaving || model.isEnhancing || model.editedPreview == nil)
+            .accessibilityHint("Measure the photo and apply a conservative color and tone recommendation.")
+
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 8) {
+                    ForEach(EditPresets.all) { preset in
+                        Button {
+                            model.applyPreset(preset)
+                            showBefore = false
+                        } label: {
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(preset.name)
+                                    .font(.subheadline.weight(.semibold))
+                                Text(preset.description)
+                                    .font(.caption2)
+                                    .foregroundStyle(.secondary)
+                                    .lineLimit(2)
+                                    .frame(width: 120, alignment: .leading)
+                            }
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 10)
+                            .background(Color.secondary.opacity(0.12), in: RoundedRectangle(cornerRadius: 10))
+                        }
+                        .buttonStyle(.plain)
+                        .disabled(model.isLoading || model.isSaving || model.isEnhancing || model.editedPreview == nil)
+                        .accessibilityLabel("\(preset.name) preset")
+                        .accessibilityHint(preset.description)
+                    }
+                }
+            }
+            .accessibilityElement(children: .contain)
+            .accessibilityLabel("Editing presets")
+
+            if let enhanceError = model.enhanceError {
+                Text(enhanceError)
+                    .font(.footnote)
+                    .foregroundStyle(.red)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .accessibilityLabel("Automatic enhancement error")
             }
         }
     }

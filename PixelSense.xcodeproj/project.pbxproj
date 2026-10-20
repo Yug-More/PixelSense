@@ -15,6 +15,10 @@
 		A10000000000000000000006 /* AdjustmentRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000008 /* AdjustmentRenderer.swift */; };
 		A10000000000000000000007 /* PromptInterpreter.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000009 /* PromptInterpreter.swift */; };
 		A10000000000000000000008 /* EditRecipePhotoKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000000000000000000000A /* EditRecipePhotoKit.swift */; };
+		A10000000000000000000009 /* ImageStatistics.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000000000000000000000B /* ImageStatistics.swift */; };
+		A1000000000000000000000A /* AutoEnhance.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000000000000000000000C /* AutoEnhance.swift */; };
+		A1000000000000000000000B /* ImageStatisticsSampler.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000000000000000000000D /* ImageStatisticsSampler.swift */; };
+		A1000000000000000000000C /* EditPreset.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000000000000000000000E /* EditPreset.swift */; };
 		B10000000000000000000001 /* LogicChecks.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000001 /* LogicChecks.swift */; };
 		B10000000000000000000002 /* PixelSenseLogicTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000002 /* PixelSenseLogicTests.swift */; };
 		B10000000000000000000003 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B20000000000000000000004 /* XCTest.framework */; };
@@ -31,6 +35,10 @@
 		A20000000000000000000008 /* AdjustmentRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdjustmentRenderer.swift; sourceTree = "<group>"; };
 		A20000000000000000000009 /* PromptInterpreter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PromptInterpreter.swift; sourceTree = "<group>"; };
 		A2000000000000000000000A /* EditRecipePhotoKit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditRecipePhotoKit.swift; sourceTree = "<group>"; };
+		A2000000000000000000000B /* ImageStatistics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageStatistics.swift; sourceTree = "<group>"; };
+		A2000000000000000000000C /* AutoEnhance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutoEnhance.swift; sourceTree = "<group>"; };
+		A2000000000000000000000D /* ImageStatisticsSampler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageStatisticsSampler.swift; sourceTree = "<group>"; };
+		A2000000000000000000000E /* EditPreset.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditPreset.swift; sourceTree = "<group>"; };
 		B20000000000000000000001 /* LogicChecks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogicChecks.swift; sourceTree = "<group>"; };
 		B20000000000000000000002 /* PixelSenseLogicTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PixelSenseLogicTests.swift; sourceTree = "<group>"; };
 		B20000000000000000000003 /* PixelSenseTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PixelSenseTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -88,8 +96,12 @@
 			isa = PBXGroup;
 			children = (
 				A20000000000000000000008 /* AdjustmentRenderer.swift */,
+				A2000000000000000000000C /* AutoEnhance.swift */,
 				A20000000000000000000002 /* ContentView.swift */,
+				A2000000000000000000000E /* EditPreset.swift */,
 				A20000000000000000000007 /* EditRecipe.swift */,
+				A2000000000000000000000B /* ImageStatistics.swift */,
+				A2000000000000000000000D /* ImageStatisticsSampler.swift */,
 				A20000000000000000000004 /* PhotoEditorModel.swift */,
 				A20000000000000000000009 /* PromptInterpreter.swift */,
 			);
@@ -218,6 +230,10 @@
 				A10000000000000000000004 /* PhotoEditorModel.swift in Sources */,
 				A10000000000000000000005 /* EditRecipe.swift in Sources */,
 				A10000000000000000000008 /* EditRecipePhotoKit.swift in Sources */,
+				A10000000000000000000009 /* ImageStatistics.swift in Sources */,
+				A1000000000000000000000A /* AutoEnhance.swift in Sources */,
+				A1000000000000000000000B /* ImageStatisticsSampler.swift in Sources */,
+				A1000000000000000000000C /* EditPreset.swift in Sources */,
 				A10000000000000000000007 /* PromptInterpreter.swift in Sources */,
 				A10000000000000000000006 /* AdjustmentRenderer.swift in Sources */,
 			);

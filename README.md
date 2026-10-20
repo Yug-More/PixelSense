@@ -9,17 +9,18 @@ PixelSense is an iPhone app that adjusts the color and tone of a photo already i
 - **Professor:** Dr. Saptarshi Sengupta
 - **Project:** PixelSense
 - **Team Members:** Yug More and Tejas
-- **First Project Check-in:** October 20, 2026
+- **First Project Check-in:** October 22, 2026
 
 ## Programming Paradigms
 
 - **Object-oriented programming** through Swift types and application state. `PhotoLibraryStore` and `PhotoEditorModel` hold library access and the editing session. SwiftUI observes that state and does not call PhotoKit itself.
 - **Functional programming** through image adjustment transformations and recipe-based processing. `EditRecipe` is a value. `AdjustmentRenderer.apply` takes that recipe and an image and returns a new image for both preview and save.
 - **Parsing and interpretation** through the deterministic prompt interpreter. `PromptInterpreter` matches a fixed phrase list and returns recipe numbers or an error. It is not a trained model. A sentence it does not accept changes nothing.
+- **Rule-based recommendation** through `AutoEnhance`, which maps measured image statistics to a conservative recipe using documented thresholds.
 
 ## Overview
 
-You pick a still photo, change exposure, contrast, saturation, and warmth, and can save that look back to the same library item. A short sentence can fill those same sliders. The app does not generate a new picture or move objects. Apple Photos keeps its own original and edited versions.
+You pick a still photo, change exposure, contrast, saturation, and warmth, and can save that look back to the same library item. A short sentence, a named preset, or automatic enhancement can fill those same sliders. The app does not generate a new picture or move objects. Apple Photos keeps its own original and edited versions.
 
 ## Features
 
@@ -29,12 +30,14 @@ Working in the current code:
 - Adjust exposure, contrast, saturation, and warmth
 - Compare before and after
 - Reset the sliders
-- Type a supported sentence and tap Apply
+- Type a supported sentence and tap Apply instruction
+- Choose Natural, Portrait, Vibrant, Warm, or Cinematic presets
+- Run automatic enhancement from downsampled image statistics
 - Save a JPEG and the adjustment recipe onto the selected photo
 
-The save path and the prompt screen have not been checked on a physical iPhone yet. Logic tests cover the recipe and the sentence rules.
+The save path and the editor screen have not been checked on a physical iPhone yet. Logic tests cover the recipe, prompts, presets, and enhancement rules.
 
-Not in the app yet: named presets, region-specific edits, and a Photos editing extension.
+Not in the app yet: region-specific edits and a Photos editing extension.
 
 ## Tech Stack
 
@@ -56,25 +59,29 @@ flowchart TD
     ui[SwiftUI screens] --> library[PhotoLibraryStore]
     ui --> editor[PhotoEditorModel]
     ui --> prompt[PromptInterpreter]
+    ui --> presets[EditPresets]
+    ui --> enhance[AutoEnhance]
     prompt --> recipe[EditRecipe]
+    presets --> recipe
+    enhance --> recipe
     editor --> recipe
     recipe --> renderer[AdjustmentRenderer]
     editor --> photos[PhotoKit save]
     library --> photos
 ```
 
-The prompt interpreter only returns recipe numbers. Rendering and saving stay on the existing path. Region masks are planned and are not in this diagram.
+Prompt, preset, and enhancement paths only produce recipe numbers. Rendering and saving stay on the existing path. Region masks are planned and are not in this diagram.
 
 ## Project Structure
 
 ```text
 PixelSense/
 ├── App/          PixelSenseApp.swift
-├── Editor/       screen, editor state, recipe, prompts, rendering
+├── Editor/       screen, editor state, recipe, prompts, presets, auto-enhance, rendering
 ├── Photos/       library access and PhotoKit recipe storage
 ├── Info.plist
-PixelSenseTests/  recipe and prompt checks
-docs/             design, plan, handoff, check-in notes
+PixelSenseTests/  recipe, prompt, preset, and enhancement checks
+docs/             design, plan, handoff, team work plan, check-in notes
 ```
 
 ## Getting Started
@@ -93,6 +100,9 @@ The logic tests do not need the iOS app. From the repo root:
 swiftc -parse-as-library -D LOGIC_TEST_RUNNER -o /tmp/pixelsense-logic-tests \
   PixelSense/Editor/EditRecipe.swift \
   PixelSense/Editor/PromptInterpreter.swift \
+  PixelSense/Editor/ImageStatistics.swift \
+  PixelSense/Editor/AutoEnhance.swift \
+  PixelSense/Editor/EditPreset.swift \
   PixelSenseTests/LogicChecks.swift \
   PixelSenseTests/LogicTestMain.swift
 /tmp/pixelsense-logic-tests
@@ -102,15 +112,15 @@ On a Mac with Xcode selected, the shared PixelSense scheme also has a `PixelSens
 
 ## Current Progress
 
-Done in code: library browsing, four controls, before/after, reset, rule-based prompts, and a save request for the same Photos item.
+Done in code: library browsing, four controls, before/after, reset, expanded rule-based prompts, named presets, automatic enhancement, and a save request for the same Photos item.
 
-Checked here: 32 logic tests for prompts and recipes. The full iOS app has not been rebuilt in this cleanup, and no iPhone run is recorded.
+Checked here: 52 logic tests for prompts, recipes, presets, and enhancement rules. The full iOS app has not been rebuilt on this Mac (`xcodebuild` unavailable), and no iPhone run is recorded.
 
-Still to do: device check of save, reopen, and revert; presets; region edits.
+Still to do: device check of save, reopen, and revert (Tejas); region edits.
 
 ## Contributors
 
-- Yug More — [Yug-More](https://github.com/Yug-More) — documentation, prompt rules, and the prompt field
+- Yug More — [Yug-More](https://github.com/Yug-More) — documentation, prompt rules, presets, automatic enhancement, and editor UI for smart editing
 - Tejas — [Tejasvid29](https://github.com/Tejasvid29) — project plan, iPhone prototype, and device checks of the Photos save path
 
 Assisted work is recorded in the [handoff](docs/HANDOFF.md). Commits stay on the student accounts. This is a university project: do not commit personal photos, signing certificates, or provisioning profiles.
@@ -119,5 +129,6 @@ Assisted work is recorded in the [handoff](docs/HANDOFF.md). Commits stay on the
 
 - [Architecture](docs/ARCHITECTURE.md) — how the pieces fit together
 - [Project plan](docs/PROJECT_PLAN.md) — milestones and who owns what
+- [Team work plan](docs/TEAM_WORK_PLAN.md) — detailed Yug/Tejas ownership and contracts
 - [Handoff](docs/HANDOFF.md) — what was done, what was tested, what is left
-- [First check-in](docs/FIRST_CHECKIN.md) — notes for the October 20 presentation
+- [First check-in](docs/FIRST_CHECKIN.md) — notes for the October check-in presentation

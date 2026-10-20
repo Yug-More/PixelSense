@@ -41,7 +41,27 @@ enum PromptLogicChecks {
         LogicCheck(name: "json missing keys", run: jsonMissingKeys),
         LogicCheck(name: "json rejects wrong type", run: jsonRejectsWrongType),
         LogicCheck(name: "version constants", run: versionConstants),
-        LogicCheck(name: "spec demo prompts", run: specDemoPrompts)
+        LogicCheck(name: "spec demo prompts", run: specDemoPrompts),
+        LogicCheck(name: "vibrance synonyms", run: vibranceSynonyms),
+        LogicCheck(name: "warm up and cool down", run: warmUpAndCoolDown),
+        LogicCheck(name: "sprint example prompts", run: sprintExamplePrompts),
+        LogicCheck(name: "boost synonyms", run: boostSynonyms),
+        LogicCheck(name: "auto enhance dark image", run: autoEnhanceDarkImage),
+        LogicCheck(name: "auto enhance bright image", run: autoEnhanceBrightImage),
+        LogicCheck(name: "auto enhance low contrast", run: autoEnhanceLowContrast),
+        LogicCheck(name: "auto enhance high saturation", run: autoEnhanceHighSaturation),
+        LogicCheck(name: "auto enhance balanced image", run: autoEnhanceBalancedImage),
+        LogicCheck(name: "auto enhance invalid statistics", run: autoEnhanceInvalidStatistics),
+        LogicCheck(name: "auto enhance clamps recommendations", run: autoEnhanceClampsRecommendations),
+        LogicCheck(name: "auto enhance repeatability", run: autoEnhanceRepeatability),
+        LogicCheck(name: "auto enhance ignores prior recipe", run: autoEnhanceIgnoresPriorRecipe),
+        LogicCheck(name: "preset catalog", run: presetCatalog),
+        LogicCheck(name: "preset application replaces", run: presetApplicationReplaces),
+        LogicCheck(name: "natural preset is neutral", run: naturalPresetIsNeutral),
+        LogicCheck(name: "auto enhance low saturation", run: autoEnhanceLowSaturation),
+        LogicCheck(name: "cinematic preset values", run: cinematicPresetValues),
+        LogicCheck(name: "preset lookup by id", run: presetLookupById),
+        LogicCheck(name: "prompt warm up with vibrance", run: promptWarmUpWithVibrance)
     ]
 
     static func brightnessIncrease() -> String? {
@@ -283,6 +303,211 @@ enum PromptLogicChecks {
             ?? expect(.success(exposure: 0.5), from: "Increase brightness slightly.")
             ?? expect(.success(saturation: -0.5), from: "Reduce saturation.")
             ?? expect(.success(contrast: 0.25, warmth: -0.5), from: "Make the photo cooler and increase contrast.")
+    }
+
+    static func vibranceSynonyms() -> String? {
+        expect(.success(saturation: 0.5), from: "Make the colors more vibrant.")
+            ?? expect(.success(saturation: 0.5), from: "Increase vibrance")
+            ?? expect(.success(saturation: 0.5), from: "Make it more vibrant")
+            ?? expect(.success(saturation: -0.5), from: "Reduce vibrance")
+            ?? expect(.success(saturation: -0.5), from: "Make it less vibrant")
+    }
+
+    static func warmUpAndCoolDown() -> String? {
+        expect(.success(warmth: 0.5), from: "Warm up the image.")
+            ?? expect(.success(warmth: 0.5), from: "Warm up this photo")
+            ?? expect(.success(warmth: -0.5), from: "Cool down the photo")
+            ?? expect(.success(warmth: 0.25), from: "Warm up the image a little")
+    }
+
+    static func sprintExamplePrompts() -> String? {
+        expect(.success(exposure: 1), from: "Make this photo brighter.")
+            ?? expect(.success(contrast: -0.125), from: "Reduce contrast slightly.")
+            ?? expect(.success(exposure: 1, saturation: -0.5), from: "Increase brightness and reduce saturation.")
+            ?? expect(.success(saturation: 0.5, warmth: 0.25), from: "Make the photo a little warmer and more colorful.")
+    }
+
+    static func boostSynonyms() -> String? {
+        expect(.success(contrast: 0.25), from: "Boost contrast")
+            ?? expect(.success(saturation: 0.5), from: "Boost vibrance")
+            ?? expect(.success(warmth: 0.5), from: "Boost warmth")
+    }
+
+    static func autoEnhanceDarkImage() -> String? {
+        let stats = ImageStatistics(averageLuminance: 0.20, contrastRange: 0.40, averageSaturation: 0.35)
+        guard case .success(let recipe) = AutoEnhance.recommend(from: stats) else {
+            return "dark image should recommend a recipe"
+        }
+        guard recipe.exposureEV == AutoEnhance.darkExposureBoost, recipe.warmth == 0 else {
+            return "dark image exposure mismatch: \(recipe)"
+        }
+        return nil
+    }
+
+    static func autoEnhanceBrightImage() -> String? {
+        let stats = ImageStatistics(averageLuminance: 0.85, contrastRange: 0.40, averageSaturation: 0.35)
+        guard case .success(let recipe) = AutoEnhance.recommend(from: stats) else {
+            return "bright image should recommend a recipe"
+        }
+        guard recipe.exposureEV == AutoEnhance.brightExposureCut else {
+            return "bright image exposure mismatch: \(recipe)"
+        }
+        return nil
+    }
+
+    static func autoEnhanceLowContrast() -> String? {
+        let stats = ImageStatistics(averageLuminance: 0.50, contrastRange: 0.15, averageSaturation: 0.35)
+        guard case .success(let recipe) = AutoEnhance.recommend(from: stats) else {
+            return "low contrast should recommend a recipe"
+        }
+        guard recipe.contrast == AutoEnhance.lowContrastBoost, recipe.exposureEV == 0 else {
+            return "low contrast mismatch: \(recipe)"
+        }
+        return nil
+    }
+
+    static func autoEnhanceHighSaturation() -> String? {
+        let stats = ImageStatistics(averageLuminance: 0.50, contrastRange: 0.40, averageSaturation: 0.80)
+        guard case .success(let recipe) = AutoEnhance.recommend(from: stats) else {
+            return "high saturation should recommend a recipe"
+        }
+        guard recipe.saturation == AutoEnhance.highSaturationCut else {
+            return "high saturation mismatch: \(recipe)"
+        }
+        return nil
+    }
+
+    static func autoEnhanceBalancedImage() -> String? {
+        let stats = ImageStatistics(averageLuminance: 0.50, contrastRange: 0.45, averageSaturation: 0.40)
+        guard case .success(let recipe) = AutoEnhance.recommend(from: stats) else {
+            return "balanced image should succeed"
+        }
+        guard recipe == EditRecipe() else {
+            return "balanced image should stay near neutral: \(recipe)"
+        }
+        return nil
+    }
+
+    static func autoEnhanceInvalidStatistics() -> String? {
+        let invalid = [
+            ImageStatistics(averageLuminance: .nan, contrastRange: 0.4, averageSaturation: 0.3),
+            ImageStatistics(averageLuminance: 0.4, contrastRange: 1.5, averageSaturation: 0.3),
+            ImageStatistics(averageLuminance: -0.1, contrastRange: 0.4, averageSaturation: 0.3)
+        ]
+        for stats in invalid {
+            guard case .failure(.invalidStatistics) = AutoEnhance.recommend(from: stats) else {
+                return "invalid statistics should fail: \(stats)"
+            }
+        }
+        return nil
+    }
+
+    static func autoEnhanceClampsRecommendations() -> String? {
+        guard case .success(let recipe) = AutoEnhance.recommend(
+            from: ImageStatistics(averageLuminance: 0.10, contrastRange: 0.10, averageSaturation: 0.05)
+        ) else {
+            return "combined dark/low-contrast/low-sat should succeed"
+        }
+        guard recipe.isWithinLimits, recipe == recipe.clamped() else {
+            return "recommendation escaped limits: \(recipe)"
+        }
+        return nil
+    }
+
+    static func autoEnhanceRepeatability() -> String? {
+        let stats = ImageStatistics(averageLuminance: 0.22, contrastRange: 0.18, averageSaturation: 0.12)
+        guard case .success(let first) = AutoEnhance.recommend(from: stats),
+              case .success(let second) = AutoEnhance.recommend(from: stats),
+              first == second else {
+            return "same statistics must produce the same recipe"
+        }
+        return nil
+    }
+
+    static func autoEnhanceIgnoresPriorRecipe() -> String? {
+        // Recommendations are derived only from statistics, so prior slider values
+        // cannot compound into the suggestion itself.
+        let stats = ImageStatistics(averageLuminance: 0.25, contrastRange: 0.40, averageSaturation: 0.35)
+        guard case .success(let recipe) = AutoEnhance.recommend(from: stats) else {
+            return "expected a recommendation"
+        }
+        let prior = EditRecipe(exposureEV: 1.5, contrast: 0.4, saturation: 0.8, warmth: 0.9)
+        guard recipe != prior, recipe.exposureEV == AutoEnhance.darkExposureBoost else {
+            return "recommendation unexpectedly depended on a prior recipe"
+        }
+        return nil
+    }
+
+    static func presetCatalog() -> String? {
+        let expectedIDs = ["natural", "portrait", "vibrant", "warm", "cinematic"]
+        guard EditPresets.all.map(\.id) == expectedIDs else {
+            return "preset catalog order or ids drifted"
+        }
+        for preset in EditPresets.all {
+            guard preset.isWithinLimits else {
+                return "preset \(preset.id) is outside recipe limits"
+            }
+            guard !preset.name.isEmpty, !preset.description.isEmpty else {
+                return "preset \(preset.id) is missing display text"
+            }
+        }
+        return nil
+    }
+
+    static func presetApplicationReplaces() -> String? {
+        var session = PromptApplication(recipe: EditRecipe(exposureEV: 1, contrast: 0.25, saturation: -0.5, warmth: 0.5))
+        session.recipe = EditPresets.vibrant.recipe
+        session.errorMessage = nil
+        guard session.recipe == EditPresets.vibrant.recipe else {
+            return "applying a preset should replace the current recipe"
+        }
+        session.recipe = EditPresets.warm.recipe
+        guard session.recipe == EditPresets.warm.recipe,
+              session.recipe != EditPresets.vibrant.recipe else {
+            return "switching presets should replace, not combine"
+        }
+        return nil
+    }
+
+    static func naturalPresetIsNeutral() -> String? {
+        guard EditPresets.natural.recipe == EditRecipe() else {
+            return "Natural preset must be a neutral recipe"
+        }
+        return nil
+    }
+
+    static func autoEnhanceLowSaturation() -> String? {
+        let stats = ImageStatistics(averageLuminance: 0.50, contrastRange: 0.40, averageSaturation: 0.10)
+        guard case .success(let recipe) = AutoEnhance.recommend(from: stats) else {
+            return "low saturation should recommend a recipe"
+        }
+        guard recipe.saturation == AutoEnhance.lowSaturationBoost, recipe.exposureEV == 0 else {
+            return "low saturation mismatch: \(recipe)"
+        }
+        return nil
+    }
+
+    static func cinematicPresetValues() -> String? {
+        let recipe = EditPresets.cinematic.recipe
+        guard recipe.exposureEV == -0.15,
+              recipe.contrast == 0.25,
+              recipe.saturation == -0.2,
+              recipe.warmth == -0.1 else {
+            return "cinematic preset drifted: \(recipe)"
+        }
+        return nil
+    }
+
+    static func presetLookupById() -> String? {
+        guard EditPresets.preset(id: "warm") == EditPresets.warm,
+              EditPresets.preset(id: "missing") == nil else {
+            return "preset lookup by id failed"
+        }
+        return nil
+    }
+
+    static func promptWarmUpWithVibrance() -> String? {
+        expect(.success(saturation: 0.5, warmth: 0.5), from: "Warm up the image and increase vibrance.")
     }
 }
 

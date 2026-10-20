@@ -1,8 +1,8 @@
 # PixelSense architecture
 
-Last updated: 2026-10-13
+Last updated: 2026-10-20
 
-This document describes the check-in tree: library selection, four global controls, a deterministic prompt interpreter, and the PhotoKit save path. Region masks are specified and not implemented. Physical-device save behavior is still unverified.
+This document describes the current tree: library selection, four global controls, a deterministic prompt interpreter, named presets, automatic enhancement, and the PhotoKit save path. Region masks are specified and not implemented. Physical-device save behavior is still unverified.
 
 ## Layers
 
@@ -10,11 +10,13 @@ The app is a single iOS target. Processing stays on device. There is no backend,
 
 | Layer | Type | Responsibility |
 | --- | --- | --- |
-| Interface | `Editor/ContentView.swift` | Permission prompt, photo grid, prompt field, sliders, save button, and error text |
+| Interface | `Editor/ContentView.swift` | Permission prompt, photo grid, prompt field, presets, auto-enhance, sliders, save button, and error text |
 | Library | `PhotoLibraryStore` | Read/write or limited Photos authorization, and a list of recent still images |
-| Editor | `PhotoEditorModel` | Load one asset, hold slider state, apply a prompt, render previews, and submit a content edit |
+| Editor | `PhotoEditorModel` | Load one asset, hold slider state, apply prompt/preset/enhance, render previews, and submit a content edit |
 | Recipe | `Editor/EditRecipe.swift` | Versioned adjustment values and the shared numeric limits |
 | Prompt | `Editor/PromptInterpreter.swift` | Map a supported sentence to a recipe, or return an error |
+| Presets | `Editor/EditPreset.swift` | Named recipes that replace the current edit values |
+| Auto enhance | `Editor/ImageStatistics.swift`, `AutoEnhance.swift`, `ImageStatisticsSampler.swift` | Measure a downsampled image and recommend a conservative recipe |
 | Rendering | `Editor/AdjustmentRenderer.swift` | Core Image transforms from a recipe and an image to a new image |
 | Region targeting | Planned, after global edits are reliable | Build a mask that selects where the renderer applies a recipe |
 
@@ -65,6 +67,33 @@ A finite value outside its range is clamped when the recipe is decoded or when `
 
 Syntax is the matched words. Semantics are the numbers those words write. "Increase brightness slightly" is recognized as an exposure increase at 25 percent, which means `exposureEV = 0.5` because the exposure limit is 2. The same 25 percent on warmth means `warmth = 0.25` because that limit is 1. The parser is not a compiler and not a model.
 
+Synonyms added for broader demo language: vibrance/vibrant map to saturation; “warm up” / “cool down” map to warmth; “boost” is accepted as an increase verb. The word “cinematic” remains blocked in prompts so style-name requests fail clearly. A **Cinematic preset** in the UI is separate and does not go through the parser.
+
+### EditPresets
+
+`EditPreset` holds an id, display name, short description, and an `EditRecipe`. `EditPresets.all` is the ordered catalog:
+
+| Preset | Exposure | Contrast | Saturation | Warmth |
+| --- | ---: | ---: | ---: | ---: |
+| Natural | 0 | 0 | 0 | 0 |
+| Portrait | 0.3 | 0.05 | −0.1 | 0.15 |
+| Vibrant | 0.1 | 0.15 | 0.45 | 0.05 |
+| Warm | 0.1 | 0.05 | 0.1 | 0.55 |
+| Cinematic | −0.15 | 0.25 | −0.2 | −0.1 |
+
+Applying a preset **replaces** the current recipe. Reset returns to neutral zeros, not to the previous preset. Presets never call PhotoKit.
+
+### Automatic enhancement
+
+Pipeline:
+
+1. `ImageStatisticsSampler.sample(from:)` downscales so the longest side is at most 64 points and samples a coarse grid.
+2. `ImageStatistics` stores average luminance, contrast range (max−min luminance), and average saturation, each in 0...1.
+3. `AutoEnhance.recommend(from:)` applies documented thresholds (see `AutoEnhance.swift`) and returns a clamped `EditRecipe` or `invalidStatistics`.
+4. `PhotoEditorModel.applyAutoEnhance()` always measures the **source** image, so repeating the action does not compound prior slider values.
+
+Warmth is left at zero by the default rules so recommendations stay conservative. Visual improvement on device has not been verified; logic tests cover the rules with synthetic statistics.
+
 ### AdjustmentRenderer
 
 `apply(_:to:)` is the only render path.
@@ -82,7 +111,7 @@ Preview rendering scales the longest side to at most 1400 points. Save renders t
 
 ### ContentView
 
-`ContentView` shows the library. `PhotoEditorView` shows the preview, before/after toggle, prompt field, four sliders, reset, and save. The contrast slider steps by 0.025 so the 25 percent contrast value, 0.125, lands on a detent. Thumbnail requests are cancelled when a cell disappears. The prompt field does not upload text.
+`ContentView` shows the library. `PhotoEditorView` shows the preview, before/after toggle, prompt field, smart tools (auto enhance and preset chips), four sliders, reset, and save. The contrast slider steps by 0.025 so the 25 percent contrast value, 0.125, lands on a detent. Thumbnail requests are cancelled when a cell disappears. The prompt field does not upload text.
 
 ## Data flow
 
@@ -170,7 +199,7 @@ Prompt failures use `promptError`, separate from `errorMessage`. A sentence Pixe
 
 **Functional.** The recipe is a value. `AdjustmentRenderer.apply` and `PromptInterpreter.interpret` take values in and return values out. They do not write slider state or start a save. `PromptApplication.apply` is the explicit state transition from a sentence to the next recipe.
 
-**Rule-based, syntax, and semantics.** The match list is the syntax: which phrases are legal. The intensity table and the per-control limits are the semantics: what number a legal phrase writes. A conflict is a sentence that is syntactically recognizable and still has no meaning the editor will apply. A statistical model is not part of this design. The project plan allows a later review only if the agreed demo phrases cannot be handled by rules.
+**Rule-based, syntax, and semantics.** The match list is the syntax: which phrases are legal. The intensity table and the per-control limits are the semantics: what number a legal phrase writes. A conflict is a sentence that is syntactically recognizable and still has no meaning the editor will apply. Automatic enhancement is a second rule table over image statistics, not a trained model. A statistical learning model is not part of this design.
 
 ## Planned region integration
 
