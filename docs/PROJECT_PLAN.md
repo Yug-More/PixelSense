@@ -1,20 +1,20 @@
 # PixelSense project plan
 
-Last updated: 2026-10-13
+Last updated: 2026-10-20
 
-## Status — 2026-10-13
+## Status — 2026-10-20
 
 | Milestone | In the repository | Acceptance |
 | --- | --- | --- |
-| M0 Requirements and environment | Plan, handoff, and agent guidelines are on `main`. Check-in scope is documented on the documentation branch. | Partial. Student iPhone and Xcode versions are not both recorded, and the first shared device test is still open. |
+| M0 Requirements and environment | Plan, handoff, guidelines, and `docs/TEAM_WORK_PLAN.md` define ownership. | Partial. Student iPhone and Xcode versions are not both recorded, and the first shared device test is still open. |
 | M1 Library access and same-asset save | PhotoKit browse, content editing, and same-asset save code are on `main`. | Not accepted. No physical iPhone result is recorded. |
 | M2 Reversible adjustment engine | Exposure, contrast, saturation, and warmth share one versioned recipe and renderer. Limits are centralized, and decode clamps finite out-of-range values. | Partial. Logic tests cover bounds, JSON, and reset. Device appearance is open. |
-| M3 Prompt interpretation and presets | The four-control phrase rules and the editor prompt field are in the check-in tree. Presets are not. | Partial. 32 logic tests passed on a Mac. The prompt screen has not been run on an iPhone. |
+| M3 Prompt interpretation and presets | Expanded prompt rules, named presets, automatic enhancement, and editor smart tools are on `feature/yug-smart-editing`. | Partial. 52 logic tests passed on a Mac. Editor UI and Photos save have not been run on an iPhone. |
 | M4 Region-aware adjustments | Proposed integration is written in `docs/ARCHITECTURE.md`. | Not started. Design only for the first check-in. |
-| M5 Usable editor and class demo | Basic selection, sliders, comparison, and save exist. | Not started as a milestone. |
+| M5 Usable editor and class demo | Selection, sliders, comparison, prompts, presets, enhance, and save exist in code. | In progress. Device demo still required. |
 | M6 Photos editing extension | Described as later work. | Out of scope. |
 
-## First check-in — October 20, 2026
+## First check-in — October 22, 2026
 
 The check-in demonstrates a maintained project and a working slice of the editor. It does not finish the product.
 
@@ -34,10 +34,10 @@ The check-in demonstrates a maintained project and a working slice of the editor
 
 **Ownership for this check-in**
 
-- **Yug More** (`Yug-More`): check-in documentation, recipe validation tests, the prompt interpreter, and the prompt field. Avoid drive-by edits to the save path.
-- **Tejas** (`Tejasvid29`): run the current editor on a physical iPhone and record whether save updates one gallery item, whether a saved recipe reopens, and whether Photos can revert. Follow-up fixes in `PhotoLibraryStore` and `PhotoEditorModel` stay with that device pass unless the two students agree otherwise.
+- **Yug More** (`Yug-More`): check-in documentation, recipe validation tests, the prompt interpreter, presets, automatic enhancement, and editor smart-tools UI. Avoid drive-by edits to the PhotoKit save path. See `docs/TEAM_WORK_PLAN.md`.
+- **Tejas** (`Tejasvid29`): run the current editor on a physical iPhone and record whether save updates one gallery item, whether a saved recipe reopens, and whether Photos can revert. Follow-up fixes in `PhotoLibraryStore`, `AdjustmentRenderer`, and the save body stay with that device pass unless the two students agree otherwise.
 
-The prompt rules below are the written M0 demo mapping. The interpreter and prompt field now follow them. Presets are still not part of the check-in. The iPhone screen has not been run.
+The prompt rules below remain the written demo mapping. Presets and automatic enhancement are implemented in code and logic-tested; they are not device-verified.
 
 ## Product decision
 
@@ -117,7 +117,7 @@ The first prototype targets iOS 17 or later and standard still photos. It began 
 | Reduce saturation. | `saturation = -0.5` |
 | Make the photo cooler and increase contrast. | `warmth = -0.5`, `contrast = 0.25` |
 
-Phrases that name different controls combine. Two moves on the same control in the same direction keep the stronger intensity. Opposite directions for one control, such as warmer and cooler, return an error and do not change the recipe. Region words, style names such as "cinematic", and any unsupported phrase return an error. The interpreter does not call a model. Named presets remain a later part of M3 and are not required for the check-in.
+Phrases that name different controls combine. Two moves on the same control in the same direction keep the stronger intensity. Opposite directions for one control, such as warmer and cooler, return an error and do not change the recipe. Region words, style names such as "cinematic" in a **prompt**, and any unsupported phrase return an error. The interpreter does not call a model. Named presets and automatic enhancement are implemented as separate M3 paths that write the same `EditRecipe`.
 
 **Done when:** the agreed demo prompts produce documented settings, users can refine them manually, and no prompt changes image content or geometry.
 

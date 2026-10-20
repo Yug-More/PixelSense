@@ -86,7 +86,7 @@ Statuses are from repository inspection on 2026-10-20. “Logic-tested” means 
 | Photo library access | `PhotoLibraryStore.swift`, `ContentView.swift` | Implemented | Code present; not device-verified | Auth edge cases, Settings deep link check on device | Tejas |
 | Photo selection / loading | `PhotoLibraryStore.swift`, `PhotoEditorModel.swift` | Implemented | Not device-verified | Large/iCloud photos, orientation | Tejas |
 | Manual editing sliders | `ContentView.swift`, `PhotoEditorModel.swift`, `EditRecipe.swift` | Implemented | Logic limits tested; UI not device-verified | Visual tuning of warmth scale | Tejas (visual), shared model |
-| Prompt interpretation | `PromptInterpreter.swift` | Implemented (four controls + intensity + conflicts) | 32 logic tests passed | Synonyms (vibrance, warm up), more phrases, expanded tests | **Yug** |
+| Prompt interpretation | `PromptInterpreter.swift` | Implemented (four controls + intensity + conflicts + synonyms) | 52 logic tests on branch (includes prompts/presets/enhance) | Device UI check of prompt field | **Yug** |
 | Edit recipes | `EditRecipe.swift` | Implemented (v1, clamp-on-decode) | Logic-tested | Keep format stable; no breaking schema without agreement | Shared (careful) |
 | Image rendering | `AdjustmentRenderer.swift` | Implemented | Not device-verified | Consistency, performance, large images | **Tejas** |
 | Before/after comparison | `ContentView.swift` | Implemented | Not device-verified | Accessibility / clarity polish | Yug (UI), Tejas (device) |
@@ -94,9 +94,9 @@ Statuses are from repository inspection on 2026-10-20. “Logic-tested” means 
 | Photo saving | `PhotoEditorModel.save` | Implemented in code | **Not accepted** — no iPhone result | Full device checklist | **Tejas** |
 | Reopening saved edits | `EditRecipe.decode`, `load()` | Implemented in code | Not device-verified | Confirm sliders restore after save | **Tejas** |
 | Reverting to originals | Photos app revert (system) | Relies on Photos; app does not custom-revert | Not verified | Confirm Photos Edit → Revert | **Tejas** |
-| Automatic enhancement | — | **Not started** | — | Stats → rules → recipe → UI | **Yug** |
-| Smart presets | — | **Not started** | — | Named recipes + UI | **Yug** |
-| Editor UX polish | `ContentView.swift` | Basic usable layout | Not device-verified | Prompt feedback, presets, auto-enhance, a11y | **Yug** |
+| Automatic enhancement | `ImageStatistics.swift`, `AutoEnhance.swift`, `ImageStatisticsSampler.swift` | Implemented on `feature/yug-smart-editing` | Logic-tested (synthetic stats); not device-verified visually | Device visual review | **Yug** (logic), Tejas (device look) |
+| Smart presets | `EditPreset.swift` | Implemented on `feature/yug-smart-editing` | Logic-tested | Device UI check | **Yug** |
+| Editor UX polish | `ContentView.swift` | Smart tools integrated | Not device-verified | Device layout check | **Yug** (UI), Tejas (device) |
 | Region edits / Photos extension | Architecture notes only | Planned / out of scope for check-in | — | After M1 save is believable | Later (shared decision) |
 
 ---
@@ -863,13 +863,13 @@ Use this table going forward. Do not invent past history; earlier commits alread
 
 | Task ID | Owner | Completion date | PR | Test evidence | Review status |
 | --- | --- | --- | --- | --- | --- |
-| TEAM plan document | Yug | 2026-10-20 | (this branch) | Doc review | Pending |
-| YUG-1 | Yug | | | | |
-| YUG-2 | Yug | | | | |
-| YUG-3 | Yug | | | | |
-| YUG-4 | Yug | | | | |
-| YUG-5 | Yug | | | | |
-| YUG-6 | Yug | | | | |
+| TEAM plan document | Yug | 2026-10-20 | `feature/yug-smart-editing` | Doc review | Pending merge |
+| YUG-1 | Yug | 2026-10-20 | `feature/yug-smart-editing` | Prompt cases in 52 logic tests | Pending merge |
+| YUG-2 | Yug | 2026-10-20 | `feature/yug-smart-editing` | Auto-enhance logic tests | Pending merge |
+| YUG-3 | Yug | 2026-10-20 | `feature/yug-smart-editing` | Preset catalog tests | Pending merge |
+| YUG-4 | Yug | 2026-10-20 | `feature/yug-smart-editing` | Code review; no device UI yet | Pending merge |
+| YUG-5 | Yug | 2026-10-20 | `feature/yug-smart-editing` | `Passed 52 logic tests` | Pending merge |
+| YUG-6 | Yug | 2026-10-20 | `feature/yug-smart-editing` | Docs updated | Pending merge |
 | TEJ-1 | Tejas | | | | |
 | TEJ-2 | Tejas | | | | |
 | TEJ-3 | Tejas | | | | |
