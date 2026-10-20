@@ -3,12 +3,12 @@
 **Course:** CS 152 — Programming Paradigms, Fall 2026  
 **University:** San José State University  
 **Instructors / team:** Yug More (`Yug-More`), Tejas (`Tejasvid29`)  
-**Document date:** October 20, 2026  
+**Document date:** October 20, 2026 (updated same day after PR #5 merge and rendering ownership rebalance)  
 **Project check-in deadline:** October 22, 2026, 11:59 PM  
 **Repository:** `Yug-More/PixelSense`  
-**Base branch for remaining work:** `main` at `c094ca5` (as of this document)
+**Base branch for remaining work:** `main` at `8101bc4` (merge of PR #5), then `feature/yug-rendering-improvements`
 
-This document is the official internal engineering handoff for remaining development. It defines ownership, interfaces, milestones, and acceptance criteria so Yug and Tejas can work independently without conflicting edits. Status statements below are based on inspection of the repository on October 20, 2026.
+This document is the official internal engineering handoff for remaining development. It defines ownership, interfaces, milestones, and acceptance criteria so Yug and Tejas can work independently without conflicting edits. Status statements below reflect the repository after PR #5 and the transfer of Core Image reliability and preview-performance work from Tejas to Yug.
 
 ---
 
@@ -79,7 +79,7 @@ No third-party packages.
 
 ## 2. Current Implementation Status
 
-Statuses are from repository inspection on 2026-10-20. “Logic-tested” means the Swift CLI runner (`Passed 32 logic tests`). “Device-tested” means a recorded physical iPhone result — **none recorded yet**.
+Statuses are from repository inspection on 2026-10-20 after PR #5. “Logic-tested” means the Swift CLI runner (52 tests after smart editing; rendering regression tests added on the rendering branch). “Device-tested” means a recorded physical iPhone result — **none recorded yet**.
 
 | Feature | Relevant files | Implementation status | Verification status | Remaining work | Assigned owner |
 | --- | --- | --- | --- | --- | --- |
@@ -88,7 +88,7 @@ Statuses are from repository inspection on 2026-10-20. “Logic-tested” means 
 | Manual editing sliders | `ContentView.swift`, `PhotoEditorModel.swift`, `EditRecipe.swift` | Implemented | Logic limits tested; UI not device-verified | Visual tuning of warmth scale | Tejas (visual), shared model |
 | Prompt interpretation | `PromptInterpreter.swift` | Implemented (four controls + intensity + conflicts + synonyms) | 52 logic tests on branch (includes prompts/presets/enhance) | Device UI check of prompt field | **Yug** |
 | Edit recipes | `EditRecipe.swift` | Implemented (v1, clamp-on-decode) | Logic-tested | Keep format stable; no breaking schema without agreement | Shared (careful) |
-| Image rendering | `AdjustmentRenderer.swift` | Implemented | Not device-verified | Consistency, performance, large images | **Tejas** |
+| Image rendering | `AdjustmentRenderer.swift`, preview path in `PhotoEditorModel.swift` | Implemented; reliability/perf owned by Yug | Logic-tested for clamp/identity/scale; not device-verified | Device visual check of warmth direction | **Yug** (renderer), Tejas (device look) |
 | Before/after comparison | `ContentView.swift` | Implemented | Not device-verified | Accessibility / clarity polish | Yug (UI), Tejas (device) |
 | Reset functionality | `PhotoEditorModel.resetAdjustments`, `PromptApplication.reset` | Implemented | Logic-tested for prompt session | Ensure presets/auto-enhance reset cleanly | **Yug** |
 | Photo saving | `PhotoEditorModel.save` | Implemented in code | **Not accepted** — no iPhone result | Full device checklist | **Tejas** |
@@ -105,38 +105,42 @@ Statuses are from repository inspection on 2026-10-20. “Logic-tested” means 
 
 Work is split by **component ownership**, not by equal task counts. Effort estimates include design, implementation, tests, and integration.
 
-### Yug More — Smart Editing and User Experience
+### Yug More — Smart Editing, Rendering Reliability, and Preview Performance
 
-Estimated remaining effort for Yug’s scope: **~18–24 hours** (implementation + tests + docs + check-in prep share).
+| # | Responsibility | Effort (est.) | Status |
+| ---: | --- | --- | --- |
+| 1 | Natural-language editing improvements (YUG-1) | 4–5 h | **Completed** (PR #5) |
+| 2 | Rule-based automatic image enhancement (YUG-2) | 6–8 h | **Completed** (PR #5) |
+| 3 | Smart editing presets (YUG-3) | 3–4 h | **Completed** (PR #5) |
+| 4 | SwiftUI editor improvements (YUG-4) | 3–4 h | **Completed** (PR #5) |
+| 5 | Unit tests for smart editing (YUG-5) | 2–3 h | **Completed** (PR #5) |
+| 6 | Documentation for smart editing (YUG-6) | 2 h | **Completed** (PR #5) |
+| 7 | Core Image rendering reliability (YUG-7; transferred from TEJ-3) | 4–5 h | In progress on rendering branch |
+| 8 | Image preview / processing performance (YUG-8; transferred from TEJ-7) | 3–4 h | In progress on rendering branch |
+| — | Check-in presentation / Career-Connect share (with Tejas) | 3–4 h | Outstanding |
 
-| # | Responsibility | Effort (est.) |
-| ---: | --- | --- |
-| 1 | Natural-language editing improvements | 4–5 h |
-| 2 | Rule-based automatic image enhancement | 6–8 h |
-| 3 | Smart editing presets | 3–4 h |
-| 4 | SwiftUI editor improvements (integration) | 3–4 h |
-| 5 | Unit tests for Yug’s components | 2–3 h |
-| 6 | Documentation for smart editing | 2 h |
-| — | Check-in presentation / Career-Connect share (with Tejas) | 3–4 h |
+Estimated **remaining** effort for Yug after PR #5: **~7–9 hours** of rendering work plus shared presentation prep.
 
-### Tejas — Image Processing and Photo Integration
+### Tejas — PhotoKit Integration and Device Verification
 
-Estimated remaining effort for Tejas’s scope: **~18–26 hours** (device work dominates).
+Tejas **no longer owns** Core Image renderer reliability or preview-performance engineering. Those are YUG-7 and YUG-8.
 
-| # | Responsibility | Effort (est.) |
-| ---: | --- | --- |
-| 1 | PhotoKit authorization and browsing hardening | 2–3 h |
-| 2 | Photo selection and loading reliability | 2–3 h |
-| 3 | Core Image rendering reliability / performance | 4–5 h |
-| 4 | Non-destructive photo saving verification + fixes | 5–7 h |
-| 5 | Reopening saved edits | 2–3 h |
-| 6 | Reverting edited photos (Photos revert check) | 1–2 h |
-| 7 | Image-processing reliability and performance | Included above |
-| 8 | Full Xcode and device integration verification | 3–4 h |
-| 9 | Tests for photo persistence and rendering behavior | 3–4 h |
-| — | Check-in presentation / Career-Connect share (with Yug) | 3–4 h |
+| # | Responsibility | Effort (est.) | Status |
+| ---: | --- | --- | --- |
+| 1 | PhotoKit authorization and browsing hardening (TEJ-1) | 2–3 h | Outstanding |
+| 2 | Photo selection and loading reliability (TEJ-2) | 2–3 h | Outstanding |
+| 3 | ~~Core Image rendering reliability / performance~~ | — | **Transferred to YUG-7 / YUG-8** |
+| 4 | Non-destructive photo saving verification + fixes (TEJ-4) | 5–7 h | Outstanding (P0) |
+| 5 | Reopening saved edits (TEJ-5) | 2–3 h | Outstanding |
+| 6 | Reverting edited photos (TEJ-6) | 1–2 h | Outstanding |
+| 7 | ~~Image-processing reliability and performance~~ | — | **Transferred to YUG-8** |
+| 8 | Full Xcode and device integration verification (TEJ-8) | 3–4 h | Outstanding (P0) |
+| 9 | Tests for photo persistence behavior (TEJ-9; rendering tests now Yug) | 2–3 h | Outstanding |
+| — | Check-in presentation / Career-Connect share (with Yug) | 3–4 h | Outstanding |
 
-**Balance note:** Tejas’s path is heavier on hardware risk and debugging. Yug’s path is heavier on new logic features. Neither side should edit the other’s owned files without coordination.
+Estimated **remaining** effort for Tejas: **~15–22 hours**, dominated by hardware save verification and Xcode/device checklist work.
+
+**Balance note:** Yug completed the smart-editing feature set and now owns the renderer. Tejas owns Photos integration risk. Neither side should edit the other’s owned files without coordination.
 
 ---
 
@@ -255,7 +259,7 @@ Add synonyms such as: vibrance/vibrant → saturation; “warm up” / “cool d
 
 **Definition of done:** Logic tests pass; UI entry point present; architecture documented.
 
-**Integration notes:** Tejas continues owning renderer performance; Yug only feeds recipes.
+**Integration notes:** Yug now also owns renderer reliability and preview performance (YUG-7 / YUG-8). Auto-enhance still only feeds recipes into that shared path.
 
 ---
 
@@ -363,6 +367,89 @@ Do not claim trained AI or unverified device success.
 
 ---
 
+
+### YUG-7 — Core Image rendering reliability
+
+| Field | Detail |
+| --- | --- |
+| **Task ID** | YUG-7 |
+| **Title** | Core Image rendering reliability |
+| **Objective** | Make `AdjustmentRenderer` clamp inputs, reject invalid extents, keep deterministic filter order, and share the same transform path for preview and save. |
+| **Current status** | Baseline renderer existed on `main`. Reliability improvements owned by Yug after rebalance (transferred from TEJ-3). |
+| **Priority** | P0 |
+| **Estimated effort** | 4–5 hours |
+| **Relevant files** | `PixelSense/Editor/AdjustmentRenderer.swift`; additive preview helpers; logic tests |
+| **Dependencies** | Stable `EditRecipe` v1; do not change PhotoKit save body |
+
+**Implementation requirements**
+
+1. Clamp every recipe through `EditRecipe.clamped()` / `AdjustmentRenderer.prepare` before Core Image parameters are set.  
+2. Treat non-finite recipe values as neutral via existing clamp rules.  
+3. Validate image extents (finite, non-empty, non-infinite) before filtering.  
+4. Keep filter order: exposure → warmth → colorControls.  
+5. Map warmth with documented Kelvin constants; keep positive warmth warmer.  
+6. Provide `applyValidated` for explicit failure reporting without breaking `apply`.  
+7. Do not change recipe JSON format or PhotoKit adjustment identifiers.
+
+**Expected behavior:** Same prepared recipe yields the same CIImage graph for preview and save. Invalid images fail safely.
+
+**Edge cases:** Neutral recipe is identity; out-of-range values clamp; infinite extent images are rejected or left unchanged by `apply`.
+
+**Acceptance criteria**
+
+- Logic tests cover clamp, parameter mapping, neutral identity, invalid extent, and filter-order documentation.  
+- `PhotoEditorModel.save` still calls `AdjustmentRenderer.apply` on full-resolution input.  
+- No PhotoKit persistence edits required for this task.
+
+**Required tests:** Renderer regression checks in `PixelSenseTests/LogicChecks.swift`.
+
+**Definition of done:** Tests pass; architecture notes updated if filter constants change.
+
+**Integration notes:** Tejas continues to verify warmth direction on a physical display (TEJ-8). Yug owns the code path.
+
+---
+
+### YUG-8 — Image preview and processing performance
+
+| Field | Detail |
+| --- | --- |
+| **Task ID** | YUG-8 |
+| **Title** | Image preview / processing performance |
+| **Objective** | Avoid full-resolution Core Image work on every slider update; reuse a preview-scaled source and a shared `CIContext`. |
+| **Current status** | Transferred from TEJ-7. Prior preview path scaled the full image on every `updatePreview()`. |
+| **Priority** | P1 |
+| **Estimated effort** | 3–4 hours |
+| **Relevant files** | `PreviewScaling` in `AdjustmentRenderer.swift`, `PhotoEditorModel.swift` preview path |
+| **Dependencies** | YUG-7 prepare/apply behavior |
+
+**Implementation requirements**
+
+1. Downscale once per `load()` into a cached preview `CIImage` (cap longest side, currently 1200).  
+2. Slider / prompt / preset updates render from the cached preview image only.  
+3. Skip re-render when the prepared recipe has not changed.  
+4. Neutral recipes reuse the cached before bitmap when possible.  
+5. Keep a single `CIContext` for the editor session; use sRGB when materializing preview bitmaps.  
+6. **Save must still process full-resolution** Photos input — never the preview pyramid.  
+7. Auto-enhance sampling may continue to use the full source or a separate sampler; do not regress its determinism.
+
+**Expected behavior:** Interactive edits feel responsive on large stills; save quality unchanged in intent.
+
+**Edge cases:** Images already smaller than the preview cap; load failure clears preview caches.
+
+**Acceptance criteria**
+
+- Preview scale factor logic is unit-tested.  
+- Code comments document that save is full resolution.  
+- No fabricated millisecond benchmarks unless measured on simulator/device.
+
+**Required tests:** `PreviewScaling` factor tests; existing renderer tests remain green.
+
+**Definition of done:** Implementation on Yug’s branch; Tejas notes perceived lag on TEJ-8 large-photo row.
+
+**Integration notes:** Tejas does not re-implement preview caching. Device timing belongs in TEJ-8 notes.
+
+---
+
 ## 5. Tejas — Detailed Implementation Specification
 
 ### TEJ-1 — PhotoKit authorization and photo browsing
@@ -428,37 +515,13 @@ Do not claim trained AI or unverified device success.
 
 ---
 
-### TEJ-3 — Core Image rendering infrastructure
+### TEJ-3 — Core Image rendering infrastructure — TRANSFERRED
 
 | Field | Detail |
 | --- | --- |
 | **Task ID** | TEJ-3 |
-| **Title** | Rendering consistency and performance |
-| **Objective** | Same recipe → same look for preview and save; acceptable responsiveness. |
-| **Current status** | `AdjustmentRenderer.apply` implements exposure → warmth → colorControls; neutrals skipped |
-| **Priority** | P1 |
-| **Estimated effort** | 4–5 hours |
-| **Files** | `AdjustmentRenderer.swift` (Tejas-owned); do not change recipe schema without Yug |
-| **Dependencies** | Stable `EditRecipe` |
-
-**Requirements**
-
-- Preserve filter order unless a documented bug requires change; update architecture doc if order changes.  
-- Supported adjustments only: exposureEV, contrast, saturation, warmth within `EditRecipe` ranges.  
-- Preview and save must both call `apply`.  
-- Investigate memory on large photos; avoid unbounded CIContext growth if issues appear.
-
-**Expected behavior:** Slider to X produces consistent preview; save matches preview intent (allowing JPEG encoding differences).
-
-**Edge cases:** All-neutral recipe returns identity; extreme range values; very large dimensions.
-
-**Acceptance criteria:** Visual check on device for warmth direction (positive = warmer). Document findings.
-
-**Required tests:** Logic tests for identity-at-neutral if practical without UIKit; otherwise manual matrix.
-
-**Definition of done:** Notes in handoff; any code fixes on Tejas branch.
-
-**Integration notes:** Yug’s presets/auto-enhance only supply recipes; they must not fork the renderer.
+| **Status** | **Transferred to YUG-7** (reliability) and **YUG-8** (preview performance) on 2026-10-20 |
+| **Tejas action** | Do not implement renderer changes. On TEJ-8, visually confirm warmth direction and note any lag on large photos. |
 
 ---
 
@@ -473,7 +536,7 @@ Do not claim trained AI or unverified device success.
 | **Priority** | **P0 — blocks calling M1 done** |
 | **Estimated effort** | 5–7 hours |
 | **Files** | `PhotoEditorModel.save`, `EditRecipePhotoKit.swift`; avoid drive-by UI rewrites |
-| **Dependencies** | TEJ-2, TEJ-3 |
+| **Dependencies** | TEJ-2; renderer path from YUG-7/YUG-8 on `main` |
 
 **Detailed requirements**
 
@@ -535,18 +598,13 @@ Do not claim trained AI or unverified device success.
 
 ---
 
-### TEJ-7 — Image-processing reliability and performance
+### TEJ-7 — Image-processing reliability and performance — TRANSFERRED
 
 | Field | Detail |
 | --- | --- |
 | **Task ID** | TEJ-7 |
-| **Title** | Reliability pass for rendering under load |
-| **Objective** | No crashes on large photos; preview remains usable. |
-| **Priority** | P1 |
-| **Estimated effort** | Folded into TEJ-3 (~1–2 h extra) |
-| **Files** | `AdjustmentRenderer.swift`, preview scaling in `PhotoEditorModel` |
-
-**Acceptance criteria:** 12+ MP photo opens and slider updates without crash; note lag if any.
+| **Status** | **Transferred to YUG-8** on 2026-10-20 |
+| **Tejas action** | During TEJ-8, open a large still and record whether preview stays usable. File bugs against Yug’s renderer/preview code if crashes appear. |
 
 ---
 
@@ -585,18 +643,18 @@ Simulator-only results do **not** clear M1 save acceptance.
 
 ---
 
-### TEJ-9 — Tests for persistence and rendering
+### TEJ-9 — Tests for photo persistence
 
 | Field | Detail |
 | --- | --- |
 | **Task ID** | TEJ-9 |
-| **Title** | Automated or semi-automated checks for Tejas scope |
-| **Objective** | Add tests where practical (e.g. recipe encode identity, renderer identity-at-neutral with synthetic CIImage if test host allows). |
+| **Title** | Tests for photo persistence behavior |
+| **Objective** | Add automated or semi-automated checks for authorization/save/reopen behavior where practical. Renderer regression tests are Yug’s (YUG-7). |
 | **Priority** | P2 |
-| **Estimated effort** | 3–4 hours |
-| **Files** | New tests under `PixelSenseTests/` owned by Tejas |
+| **Estimated effort** | 2–3 hours |
+| **Files** | New tests under `PixelSenseTests/` owned by Tejas; do not break the CLI logic runner |
 
-Do not break Yug’s CLI logic runner entrypoint.
+**Acceptance criteria:** Persistence-focused tests or a recorded manual matrix for TEJ-4/TEJ-5. Do not duplicate Yug’s renderer logic tests.
 
 ---
 
@@ -610,12 +668,13 @@ Do not break Yug’s CLI logic runner entrypoint.
 | `ContentView.swift` | **Yug** (primary) | Tejas may propose library-screen fixes via PR review |
 | `ImageStatistics.swift` / `AutoEnhance.swift` (new) | **Yug** | |
 | `EditPreset.swift` (new) | **Yug** | |
-| Yug’s unit test additions | **Yug** | |
+| Yug’s unit test additions | **Yug** | Includes renderer regression tests |
+| `AdjustmentRenderer.swift` | **Yug** | Transferred from Tejas |
+| `PreviewScaling` (in renderer file) | **Yug** | Preview cap and scale helpers |
 | `PhotoLibraryStore.swift` | **Tejas** | |
 | `EditRecipePhotoKit.swift` | **Tejas** | |
-| `AdjustmentRenderer.swift` | **Tejas** | |
-| Tejas’s persistence/render tests | **Tejas** | |
-| `PhotoEditorModel.swift` | **Shared** | Additive APIs; announce in PR |
+| Tejas’s persistence tests | **Tejas** | Not renderer tests |
+| `PhotoEditorModel.swift` | **Shared** | Yug owns preview caching; Tejas owns `save()` / load PhotoKit details |
 | `EditRecipe.swift` | **Shared** | No breaking field/format changes without agreement |
 | Xcode project / scheme | **Shared** | Whoever adds a file updates `project.pbxproj` in the same commit |
 | `docs/ARCHITECTURE.md` | **Shared** | Section ownership by topic |
@@ -780,6 +839,8 @@ Do **not** mark auto-enhance or presets “complete” for the check-in unless t
 | Preset application | Replaces recipe | | |
 | Editor state after prompt/preset/enhance | Sliders match | | |
 | Reset | All zeros | | |
+| Renderer clamp / identity / invalid extent | Pass logic tests | | |
+| Preview scale factors | Pass logic tests | | |
 
 **Command (logic tests):**
 
@@ -790,6 +851,7 @@ swiftc -parse-as-library -D LOGIC_TEST_RUNNER -o /tmp/pixelsense-logic-tests \
   PixelSense/Editor/EditPreset.swift \
   PixelSense/Editor/ImageStatistics.swift \
   PixelSense/Editor/AutoEnhance.swift \
+  PixelSense/Editor/AdjustmentRenderer.swift \
   PixelSenseTests/LogicChecks.swift \
   PixelSenseTests/LogicTestMain.swift
 /tmp/pixelsense-logic-tests
@@ -818,20 +880,28 @@ swiftc -parse-as-library -D LOGIC_TEST_RUNNER -o /tmp/pixelsense-logic-tests \
 
 ### Yug must deliver
 
-- [ ] YUG-1 prompt improvements + tests  
-- [ ] YUG-2 auto-enhance + tests  
-- [ ] YUG-3 presets + tests  
-- [ ] YUG-4 editor UI integration  
-- [ ] YUG-5 expanded tests green  
-- [ ] YUG-6 documentation updates  
-- [ ] PR(s) reviewed / merge-ready  
+- [x] YUG-1 prompt improvements + tests  
+- [x] YUG-2 auto-enhance + tests  
+- [x] YUG-3 presets + tests  
+- [x] YUG-4 editor UI integration  
+- [x] YUG-5 expanded tests green  
+- [x] YUG-6 documentation updates  
+- [ ] YUG-7 renderer reliability + tests  
+- [ ] YUG-8 preview performance  
+- [ ] Rendering/README PR merge-ready  
 
 ### Tejas must deliver
 
-- [ ] TEJ-1–TEJ-7 as needed from device findings  
-- [ ] TEJ-8 checklist filled in handoff  
-- [ ] TEJ-9 tests where practical  
+- [ ] TEJ-1 auth/browsing hardening as needed from device findings  
+- [ ] TEJ-2 selection/loading reliability  
+- [ ] TEJ-4 same-asset save verification + fixes (**P0**)  
+- [ ] TEJ-5 reopen verification  
+- [ ] TEJ-6 Photos revert verification  
+- [ ] TEJ-8 checklist filled in handoff (**P0**)  
+- [ ] TEJ-9 persistence tests where practical  
 - [ ] M1 save acceptance only after hardware pass  
+
+Tejas should **not** pick up TEJ-3 or TEJ-7; those are Yug’s.  
 
 ### Shared verification
 
@@ -851,6 +921,17 @@ swiftc -parse-as-library -D LOGIC_TEST_RUNNER -o /tmp/pixelsense-logic-tests \
 2. Full `xcodebuild` may be unavailable on Yug’s machine (Command Line Tools only) — Tejas owns Xcode verification.  
 3. Check-in course artifacts (slides, recording, Career-Connect, event) are outside the repo but owned jointly.
 
+
+### What Tejas should do next
+
+1. Pull latest `main` after Yug’s rendering PR merges.  
+2. Run TEJ-8 on a physical iPhone with a disposable test photo.  
+3. Prioritize TEJ-4 (same-asset save). Record pass/fail in `docs/HANDOFF.md`.  
+4. Complete TEJ-5 and TEJ-6.  
+5. Fix only PhotoKit / load / save issues under Tejas-owned files.  
+6. File renderer visual bugs against Yug; do not rewrite `AdjustmentRenderer`.  
+7. Share check-in slides: Tejas covers Photos/device; Yug covers smart editing and renderer.
+
 ### Completion criteria for “smart editing sprint”
 
 Yug’s features are complete when logic tests pass and UI hooks exist. Product “done” for Photos save still requires Tejas’s TEJ-8.
@@ -869,16 +950,19 @@ Use this table going forward. Do not invent past history; earlier commits alread
 | YUG-3 | Yug | 2026-10-20 | `feature/yug-smart-editing` | Preset catalog tests | Pending merge |
 | YUG-4 | Yug | 2026-10-20 | `feature/yug-smart-editing` | Code review; no device UI yet | Pending merge |
 | YUG-5 | Yug | 2026-10-20 | `feature/yug-smart-editing` | `Passed 52 logic tests` | Pending merge |
-| YUG-6 | Yug | 2026-10-20 | `feature/yug-smart-editing` | Docs updated | Pending merge |
-| TEJ-1 | Tejas | | | | |
-| TEJ-2 | Tejas | | | | |
-| TEJ-3 | Tejas | | | | |
-| TEJ-4 | Tejas | | | | |
-| TEJ-5 | Tejas | | | | |
-| TEJ-6 | Tejas | | | | |
-| TEJ-7 | Tejas | | | | |
-| TEJ-8 | Tejas | | | | |
-| TEJ-9 | Tejas | | | | |
+| YUG-6 | Yug | 2026-10-20 | PR #5 merged | Docs updated | Merged |
+| YUG-1–YUG-5 | Yug | 2026-10-20 | PR #5 merged | 52 logic tests at merge | Merged |
+| YUG-7 | Yug | | `feature/yug-rendering-improvements` | Renderer regression tests | In progress |
+| YUG-8 | Yug | | `feature/yug-rendering-improvements` | Preview scaling tests | In progress |
+| TEJ-1 | Tejas | | | | Outstanding |
+| TEJ-2 | Tejas | | | | Outstanding |
+| TEJ-3 | — | 2026-10-20 | — | Transferred to YUG-7/YUG-8 | Transferred |
+| TEJ-4 | Tejas | | | | Outstanding |
+| TEJ-5 | Tejas | | | | Outstanding |
+| TEJ-6 | Tejas | | | | Outstanding |
+| TEJ-7 | — | 2026-10-20 | — | Transferred to YUG-8 | Transferred |
+| TEJ-8 | Tejas | | | | Outstanding |
+| TEJ-9 | Tejas | | | | Outstanding |
 
 When a task finishes, update the row and append a dated entry in `docs/HANDOFF.md`.
 

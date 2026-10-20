@@ -4,8 +4,8 @@ This is the shared, human-readable state of the project for Tejas, Yug, and any 
 
 ## Current state — 2026-10-20
 
-- **Repository:** `Yug-More/PixelSense`. `origin/main` is `c094ca5` (includes course README info via PR #4). Active development branch for smart editing: `feature/yug-smart-editing`.
-- **Team work plan:** `docs/TEAM_WORK_PLAN.md` defines Yug vs Tejas ownership, contracts, milestones, and October 22 check-in responsibilities. Remaining smart-editing work is Yug’s; PhotoKit/device verification remains Tejas’s.
+- **Repository:** `Yug-More/PixelSense`. `origin/main` is `8101bc4` (PR #5 smart editing merged). Active branch for rendering work: `feature/yug-rendering-improvements`.
+- **Team work plan:** `docs/TEAM_WORK_PLAN.md` rebalanced: Yug owns smart editing plus Core Image reliability (YUG-7) and preview performance (YUG-8). Tejas retains PhotoKit/device verification (TEJ-1/2/4/5/6/8/9). TEJ-3 and TEJ-7 transferred to Yug.
 - **Agreed product direction:** native iPhone app, Apple Photos library access, color/tone adjustment of an existing photo, save to the same visible Photos item, no added gallery item in the normal flow, no generated or reshaped content.
 - **Platform constraint:** Apple Photos manages original and edited data internally. The app cannot overwrite the library's original file byte-for-byte or promise zero extra storage.
 - **Environment checked:** Yug’s Mac has Swift 6.0.2 command-line tools; `xcodebuild` is unavailable (Command Line Tools only). Xcode 15.4 was recorded on Tejas's Mac on 2026-10-12. Device iOS versions are still unrecorded.
