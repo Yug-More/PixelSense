@@ -36,6 +36,9 @@ final class PhotoEditorModel: ObservableObject {
     @Published private(set) var message: String?
     @Published private(set) var errorMessage: String?
     @Published private(set) var promptError: String?
+    @Published private(set) var enhanceMessage: String?
+    @Published private(set) var enhanceError: String?
+    @Published private(set) var isEnhancing = false
 
     private var sourceImage: CIImage?
     private let context = CIContext()
@@ -60,6 +63,8 @@ final class PhotoEditorModel: ObservableObject {
         errorMessage = nil
         message = nil
         promptError = nil
+        enhanceMessage = nil
+        enhanceError = nil
         beforePreview = nil
         editedPreview = nil
         sourceImage = nil
@@ -95,6 +100,8 @@ final class PhotoEditorModel: ObservableObject {
         saturation = 0
         warmth = 0
         promptError = nil
+        enhanceMessage = nil
+        enhanceError = nil
         updatePreview()
     }
 
@@ -104,16 +111,61 @@ final class PhotoEditorModel: ObservableObject {
         var session = PromptApplication(recipe: recipe)
         session.apply(text)
         promptError = session.errorMessage
+        enhanceMessage = nil
+        enhanceError = nil
         guard session.errorMessage == nil else { return }
-        exposureEV = session.recipe.exposureEV
-        contrast = session.recipe.contrast
-        saturation = session.recipe.saturation
-        warmth = session.recipe.warmth
+        applyRecipeToSliders(session.recipe)
         updatePreview()
+    }
+
+    /// Replaces the current recipe with a named preset. Does not save.
+    func applyPreset(_ preset: EditPreset) {
+        promptError = nil
+        enhanceError = nil
+        enhanceMessage = "Applied \(preset.name)."
+        applyRecipeToSliders(preset.recipe.clamped())
+        updatePreview()
+    }
+
+    /// Samples the loaded source image and replaces the recipe with a conservative recommendation.
+    /// Uses the original source statistics so repeated taps do not compound adjustments.
+    func applyAutoEnhance() {
+        guard let sourceImage else {
+            enhanceMessage = nil
+            enhanceError = AutoEnhanceFailure.invalidStatistics.message
+            return
+        }
+        isEnhancing = true
+        defer { isEnhancing = false }
+        promptError = nil
+        enhanceError = nil
+        guard let stats = ImageStatistics.sample(from: sourceImage, context: context) else {
+            enhanceMessage = nil
+            enhanceError = AutoEnhanceFailure.invalidStatistics.message
+            return
+        }
+        switch AutoEnhance.recommend(from: stats) {
+        case .success(let recommended):
+            applyRecipeToSliders(recommended)
+            enhanceMessage = recommended == EditRecipe()
+                ? "Photo already looks balanced. Little or no change applied."
+                : "Applied automatic enhancement from photo measurements."
+            updatePreview()
+        case .failure(let failure):
+            enhanceMessage = nil
+            enhanceError = failure.message
+        }
     }
 
     func clearPromptError() {
         promptError = nil
+    }
+
+    private func applyRecipeToSliders(_ recipe: EditRecipe) {
+        exposureEV = recipe.exposureEV
+        contrast = recipe.contrast
+        saturation = recipe.saturation
+        warmth = recipe.warmth
     }
 
     func save() async {
