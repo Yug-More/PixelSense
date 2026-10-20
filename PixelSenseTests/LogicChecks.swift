@@ -1,3 +1,4 @@
+import CoreImage
 import Foundation
 #if !LOGIC_TEST_RUNNER
 @testable import PixelSense
@@ -61,7 +62,16 @@ enum PromptLogicChecks {
         LogicCheck(name: "auto enhance low saturation", run: autoEnhanceLowSaturation),
         LogicCheck(name: "cinematic preset values", run: cinematicPresetValues),
         LogicCheck(name: "preset lookup by id", run: presetLookupById),
-        LogicCheck(name: "prompt warm up with vibrance", run: promptWarmUpWithVibrance)
+        LogicCheck(name: "prompt warm up with vibrance", run: promptWarmUpWithVibrance),
+        LogicCheck(name: "renderer prepares by clamping", run: rendererPreparesByClamping),
+        LogicCheck(name: "renderer parameter mapping", run: rendererParameterMapping),
+        LogicCheck(name: "renderer warmth temperature mapping", run: rendererWarmthTemperatureMapping),
+        LogicCheck(name: "renderer neutral is identity", run: rendererNeutralIsIdentity),
+        LogicCheck(name: "renderer clamps before apply", run: rendererClampsBeforeApply),
+        LogicCheck(name: "renderer rejects invalid extent", run: rendererRejectsInvalidExtent),
+        LogicCheck(name: "preview scale factor", run: previewScaleFactor),
+        LogicCheck(name: "preview scale leaves small images", run: previewScaleLeavesSmallImages),
+        LogicCheck(name: "renderer filter order constant", run: rendererFilterOrderConstant)
     ]
 
     static func brightnessIncrease() -> String? {
@@ -509,6 +519,111 @@ enum PromptLogicChecks {
     static func promptWarmUpWithVibrance() -> String? {
         expect(.success(saturation: 0.5, warmth: 0.5), from: "Warm up the image and increase vibrance.")
     }
+
+    static func rendererPreparesByClamping() -> String? {
+        let prepared = AdjustmentRenderer.prepare(
+            EditRecipe(exposureEV: 9, contrast: -3, saturation: .nan, warmth: 2)
+        )
+        guard prepared == EditRecipe(exposureEV: 2, contrast: -0.5, saturation: 0, warmth: 1) else {
+            return "prepare did not clamp: \(prepared)"
+        }
+        return nil
+    }
+
+    static func rendererParameterMapping() -> String? {
+        let recipe = EditRecipe(exposureEV: 1, contrast: 0.25, saturation: -0.5, warmth: 0)
+        guard AdjustmentRenderer.exposureParameter(for: recipe) == 1,
+              AdjustmentRenderer.contrastParameter(for: recipe) == 1.25,
+              AdjustmentRenderer.saturationParameter(for: recipe) == 0.5 else {
+            return "Core Image parameter mapping drifted"
+        }
+        return nil
+    }
+
+    static func rendererWarmthTemperatureMapping() -> String? {
+        let warm = AdjustmentRenderer.targetTemperature(for: EditRecipe(warmth: 1))
+        let cool = AdjustmentRenderer.targetTemperature(for: EditRecipe(warmth: -1))
+        let neutral = AdjustmentRenderer.targetTemperature(for: EditRecipe())
+        guard warm == 4000, cool == 9000, neutral == 6500 else {
+            return "warmth Kelvin mapping drifted: warm=\(warm) cool=\(cool) neutral=\(neutral)"
+        }
+        return nil
+    }
+
+    static func rendererNeutralIsIdentity() -> String? {
+        let image = solidTestImage(red: 0.4, green: 0.5, blue: 0.6)
+        let result = AdjustmentRenderer.apply(EditRecipe(), to: image)
+        guard result.extent == image.extent else {
+            return "neutral recipe should keep the image extent"
+        }
+        guard AdjustmentRenderer.isNeutral(EditRecipe()) else {
+            return "empty recipe should be neutral"
+        }
+        return nil
+    }
+
+    static func rendererClampsBeforeApply() -> String? {
+        let image = solidTestImage(red: 0.2, green: 0.3, blue: 0.4)
+        let wild = EditRecipe(exposureEV: 50, contrast: 10, saturation: 10, warmth: 10)
+        let clamped = AdjustmentRenderer.prepare(wild)
+        let fromWild = AdjustmentRenderer.apply(wild, to: image)
+        let fromClamped = AdjustmentRenderer.apply(clamped, to: image)
+        guard fromWild.extent == fromClamped.extent, clamped.isWithinLimits else {
+            return "wild recipes should clamp before rendering"
+        }
+        return nil
+    }
+
+    static func rendererRejectsInvalidExtent() -> String? {
+        // An uncropped color image has an infinite extent.
+        let infinite = CIImage(color: CIColor(red: 0.5, green: 0.5, blue: 0.5))
+        guard infinite.extent.isInfinite else {
+            return "expected an infinite extent test image"
+        }
+        guard case .failure(.invalidImageExtent) = AdjustmentRenderer.applyValidated(EditRecipe(exposureEV: 0.5), to: infinite) else {
+            return "infinite extent should fail validation"
+        }
+        let recovered = AdjustmentRenderer.apply(EditRecipe(exposureEV: 0.5), to: infinite)
+        guard recovered.extent.isInfinite else {
+            return "apply should leave invalid extents unchanged"
+        }
+        return nil
+    }
+
+    static func previewScaleFactor() -> String? {
+        let factor = PreviewScaling.scaleFactor(width: 4000, height: 3000)
+        let expected = PreviewScaling.maxDimension / 4000
+        guard abs(factor - expected) < 0.0001 else {
+            return "large image scale factor mismatch: \(factor)"
+        }
+        return nil
+    }
+
+    static func previewScaleLeavesSmallImages() -> String? {
+        guard PreviewScaling.scaleFactor(width: 800, height: 600) == 1 else {
+            return "images already under the preview cap should not downscale"
+        }
+        let image = solidTestImage(red: 0.1, green: 0.2, blue: 0.3, size: 64)
+        let scaled = PreviewScaling.scaled(image)
+        guard scaled.extent == image.extent else {
+            return "small images should keep their extent after preview scaling"
+        }
+        return nil
+    }
+
+    static func rendererFilterOrderConstant() -> String? {
+        guard AdjustmentRenderer.filterOrderDescription.contains("exposure"),
+              AdjustmentRenderer.filterOrderDescription.contains("warmth"),
+              AdjustmentRenderer.filterOrderDescription.contains("colorControls") else {
+            return "filter order documentation drifted"
+        }
+        return nil
+    }
+}
+
+private func solidTestImage(red: CGFloat, green: CGFloat, blue: CGFloat, size: CGFloat = 32) -> CIImage {
+    CIImage(color: CIColor(red: red, green: green, blue: blue))
+        .cropped(to: CGRect(x: 0, y: 0, width: size, height: size))
 }
 
 private enum Expected {

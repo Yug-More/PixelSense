@@ -4,8 +4,8 @@ This is the shared, human-readable state of the project for Tejas, Yug, and any 
 
 ## Current state — 2026-10-20
 
-- **Repository:** `Yug-More/PixelSense`. `origin/main` is `c094ca5` (includes course README info via PR #4). Active development branch for smart editing: `feature/yug-smart-editing`.
-- **Team work plan:** `docs/TEAM_WORK_PLAN.md` defines Yug vs Tejas ownership, contracts, milestones, and October 22 check-in responsibilities. Remaining smart-editing work is Yug’s; PhotoKit/device verification remains Tejas’s.
+- **Repository:** `Yug-More/PixelSense`. `origin/main` is `8101bc4` (PR #5 smart editing merged). Active branch for rendering work: `feature/yug-rendering-improvements`.
+- **Team work plan:** `docs/TEAM_WORK_PLAN.md` rebalanced: Yug owns smart editing plus Core Image reliability (YUG-7) and preview performance (YUG-8). Tejas retains PhotoKit/device verification (TEJ-1/2/4/5/6/8/9). TEJ-3 and TEJ-7 transferred to Yug.
 - **Agreed product direction:** native iPhone app, Apple Photos library access, color/tone adjustment of an existing photo, save to the same visible Photos item, no added gallery item in the normal flow, no generated or reshaped content.
 - **Platform constraint:** Apple Photos manages original and edited data internally. The app cannot overwrite the library's original file byte-for-byte or promise zero extra storage.
 - **Environment checked:** Yug’s Mac has Swift 6.0.2 command-line tools; `xcodebuild` is unavailable (Command Line Tools only). Xcode 15.4 was recorded on Tejas's Mac on 2026-10-12. Device iOS versions are still unrecorded.
@@ -116,6 +116,15 @@ Keep this document factual. A completed acceptance check needs a reproducible re
 - **Verification and result:** Document review against existing sources on `main`. Logic tests not rerun for docs-only commit.
 - **Blockers or risks:** `xcodebuild` unavailable here; M1 still needs Tejas’s iPhone pass.
 - **Exact next action and owner:** Yug implements YUG-1 through YUG-6 on this branch. Tejas starts TEJ-8 when ready.
+
+### 2026-10-20 — Rendering ownership rebalance and improvements
+
+- **Who / branch / commits:** Yug More / `feature/yug-rendering-improvements`. Author and committer `Yug-More <yugmore20@gmail.com>`. No co-author trailer.
+- **Work and files:** Rebalanced `docs/TEAM_WORK_PLAN.md` (TEJ-3/TEJ-7 → YUG-7/YUG-8). Hardened `AdjustmentRenderer.swift` (clamp, extent validation, documented Kelvin mapping). Cached preview scaling in `PhotoEditorModel.swift`. Expanded logic tests to 61. Rewrote `README.md`.
+- **Decisions and sources:** Preview longest side capped at 1200; save remains full resolution. Filter order unchanged. PhotoKit `save()` body not rewritten beyond renderability guards.
+- **Verification and result:** `Passed 61 logic tests`. `xcodebuild` / simulator / iPhone still unavailable on this Mac.
+- **Blockers or risks:** Device save acceptance still Tejas TEJ-8/TEJ-4.
+- **Exact next action and owner:** Merge rendering PR; Tejas runs device checklist.
 
 ### 2026-10-20 — Yug smart editing implementation
 
