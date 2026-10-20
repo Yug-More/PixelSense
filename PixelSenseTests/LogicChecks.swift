@@ -41,7 +41,11 @@ enum PromptLogicChecks {
         LogicCheck(name: "json missing keys", run: jsonMissingKeys),
         LogicCheck(name: "json rejects wrong type", run: jsonRejectsWrongType),
         LogicCheck(name: "version constants", run: versionConstants),
-        LogicCheck(name: "spec demo prompts", run: specDemoPrompts)
+        LogicCheck(name: "spec demo prompts", run: specDemoPrompts),
+        LogicCheck(name: "vibrance synonyms", run: vibranceSynonyms),
+        LogicCheck(name: "warm up and cool down", run: warmUpAndCoolDown),
+        LogicCheck(name: "sprint example prompts", run: sprintExamplePrompts),
+        LogicCheck(name: "boost synonyms", run: boostSynonyms)
     ]
 
     static func brightnessIncrease() -> String? {
@@ -283,6 +287,34 @@ enum PromptLogicChecks {
             ?? expect(.success(exposure: 0.5), from: "Increase brightness slightly.")
             ?? expect(.success(saturation: -0.5), from: "Reduce saturation.")
             ?? expect(.success(contrast: 0.25, warmth: -0.5), from: "Make the photo cooler and increase contrast.")
+    }
+
+    static func vibranceSynonyms() -> String? {
+        expect(.success(saturation: 0.5), from: "Make the colors more vibrant.")
+            ?? expect(.success(saturation: 0.5), from: "Increase vibrance")
+            ?? expect(.success(saturation: 0.5), from: "Make it more vibrant")
+            ?? expect(.success(saturation: -0.5), from: "Reduce vibrance")
+            ?? expect(.success(saturation: -0.5), from: "Make it less vibrant")
+    }
+
+    static func warmUpAndCoolDown() -> String? {
+        expect(.success(warmth: 0.5), from: "Warm up the image.")
+            ?? expect(.success(warmth: 0.5), from: "Warm up this photo")
+            ?? expect(.success(warmth: -0.5), from: "Cool down the photo")
+            ?? expect(.success(warmth: 0.25), from: "Warm up the image a little")
+    }
+
+    static func sprintExamplePrompts() -> String? {
+        expect(.success(exposure: 1), from: "Make this photo brighter.")
+            ?? expect(.success(contrast: -0.125), from: "Reduce contrast slightly.")
+            ?? expect(.success(exposure: 1, saturation: -0.5), from: "Increase brightness and reduce saturation.")
+            ?? expect(.success(saturation: 0.5, warmth: 0.25), from: "Make the photo a little warmer and more colorful.")
+    }
+
+    static func boostSynonyms() -> String? {
+        expect(.success(contrast: 0.25), from: "Boost contrast")
+            ?? expect(.success(saturation: 0.5), from: "Boost vibrance")
+            ?? expect(.success(warmth: 0.5), from: "Boost warmth")
     }
 }
 
