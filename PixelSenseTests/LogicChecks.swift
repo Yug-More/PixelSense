@@ -45,7 +45,16 @@ enum PromptLogicChecks {
         LogicCheck(name: "vibrance synonyms", run: vibranceSynonyms),
         LogicCheck(name: "warm up and cool down", run: warmUpAndCoolDown),
         LogicCheck(name: "sprint example prompts", run: sprintExamplePrompts),
-        LogicCheck(name: "boost synonyms", run: boostSynonyms)
+        LogicCheck(name: "boost synonyms", run: boostSynonyms),
+        LogicCheck(name: "auto enhance dark image", run: autoEnhanceDarkImage),
+        LogicCheck(name: "auto enhance bright image", run: autoEnhanceBrightImage),
+        LogicCheck(name: "auto enhance low contrast", run: autoEnhanceLowContrast),
+        LogicCheck(name: "auto enhance high saturation", run: autoEnhanceHighSaturation),
+        LogicCheck(name: "auto enhance balanced image", run: autoEnhanceBalancedImage),
+        LogicCheck(name: "auto enhance invalid statistics", run: autoEnhanceInvalidStatistics),
+        LogicCheck(name: "auto enhance clamps recommendations", run: autoEnhanceClampsRecommendations),
+        LogicCheck(name: "auto enhance repeatability", run: autoEnhanceRepeatability),
+        LogicCheck(name: "auto enhance ignores prior recipe", run: autoEnhanceIgnoresPriorRecipe)
     ]
 
     static func brightnessIncrease() -> String? {
@@ -316,6 +325,112 @@ enum PromptLogicChecks {
             ?? expect(.success(saturation: 0.5), from: "Boost vibrance")
             ?? expect(.success(warmth: 0.5), from: "Boost warmth")
     }
+
+    static func autoEnhanceDarkImage() -> String? {
+        let stats = ImageStatistics(averageLuminance: 0.20, contrastRange: 0.40, averageSaturation: 0.35)
+        guard case .success(let recipe) = AutoEnhance.recommend(from: stats) else {
+            return "dark image should recommend a recipe"
+        }
+        guard recipe.exposureEV == AutoEnhance.darkExposureBoost, recipe.warmth == 0 else {
+            return "dark image exposure mismatch: \(recipe)"
+        }
+        return nil
+    }
+
+    static func autoEnhanceBrightImage() -> String? {
+        let stats = ImageStatistics(averageLuminance: 0.85, contrastRange: 0.40, averageSaturation: 0.35)
+        guard case .success(let recipe) = AutoEnhance.recommend(from: stats) else {
+            return "bright image should recommend a recipe"
+        }
+        guard recipe.exposureEV == AutoEnhance.brightExposureCut else {
+            return "bright image exposure mismatch: \(recipe)"
+        }
+        return nil
+    }
+
+    static func autoEnhanceLowContrast() -> String? {
+        let stats = ImageStatistics(averageLuminance: 0.50, contrastRange: 0.15, averageSaturation: 0.35)
+        guard case .success(let recipe) = AutoEnhance.recommend(from: stats) else {
+            return "low contrast should recommend a recipe"
+        }
+        guard recipe.contrast == AutoEnhance.lowContrastBoost, recipe.exposureEV == 0 else {
+            return "low contrast mismatch: \(recipe)"
+        }
+        return nil
+    }
+
+    static func autoEnhanceHighSaturation() -> String? {
+        let stats = ImageStatistics(averageLuminance: 0.50, contrastRange: 0.40, averageSaturation: 0.80)
+        guard case .success(let recipe) = AutoEnhance.recommend(from: stats) else {
+            return "high saturation should recommend a recipe"
+        }
+        guard recipe.saturation == AutoEnhance.highSaturationCut else {
+            return "high saturation mismatch: \(recipe)"
+        }
+        return nil
+    }
+
+    static func autoEnhanceBalancedImage() -> String? {
+        let stats = ImageStatistics(averageLuminance: 0.50, contrastRange: 0.45, averageSaturation: 0.40)
+        guard case .success(let recipe) = AutoEnhance.recommend(from: stats) else {
+            return "balanced image should succeed"
+        }
+        guard recipe == EditRecipe() else {
+            return "balanced image should stay near neutral: \(recipe)"
+        }
+        return nil
+    }
+
+    static func autoEnhanceInvalidStatistics() -> String? {
+        let invalid = [
+            ImageStatistics(averageLuminance: .nan, contrastRange: 0.4, averageSaturation: 0.3),
+            ImageStatistics(averageLuminance: 0.4, contrastRange: 1.5, averageSaturation: 0.3),
+            ImageStatistics(averageLuminance: -0.1, contrastRange: 0.4, averageSaturation: 0.3)
+        ]
+        for stats in invalid {
+            guard case .failure(.invalidStatistics) = AutoEnhance.recommend(from: stats) else {
+                return "invalid statistics should fail: \(stats)"
+            }
+        }
+        return nil
+    }
+
+    static func autoEnhanceClampsRecommendations() -> String? {
+        guard case .success(let recipe) = AutoEnhance.recommend(
+            from: ImageStatistics(averageLuminance: 0.10, contrastRange: 0.10, averageSaturation: 0.05)
+        ) else {
+            return "combined dark/low-contrast/low-sat should succeed"
+        }
+        guard recipe.isWithinLimits, recipe == recipe.clamped() else {
+            return "recommendation escaped limits: \(recipe)"
+        }
+        return nil
+    }
+
+    static func autoEnhanceRepeatability() -> String? {
+        let stats = ImageStatistics(averageLuminance: 0.22, contrastRange: 0.18, averageSaturation: 0.12)
+        guard case .success(let first) = AutoEnhance.recommend(from: stats),
+              case .success(let second) = AutoEnhance.recommend(from: stats),
+              first == second else {
+            return "same statistics must produce the same recipe"
+        }
+        return nil
+    }
+
+    static func autoEnhanceIgnoresPriorRecipe() -> String? {
+        // Recommendations are derived only from statistics, so prior slider values
+        // cannot compound into the suggestion itself.
+        let stats = ImageStatistics(averageLuminance: 0.25, contrastRange: 0.40, averageSaturation: 0.35)
+        guard case .success(let recipe) = AutoEnhance.recommend(from: stats) else {
+            return "expected a recommendation"
+        }
+        let prior = EditRecipe(exposureEV: 1.5, contrast: 0.4, saturation: 0.8, warmth: 0.9)
+        guard recipe != prior, recipe.exposureEV == AutoEnhance.darkExposureBoost else {
+            return "recommendation unexpectedly depended on a prior recipe"
+        }
+        return nil
+    }
+
 }
 
 private enum Expected {
