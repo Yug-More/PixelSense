@@ -117,6 +117,13 @@ Keep this document factual. A completed acceptance check needs a reproducible re
 - **Blockers or risks:** `xcodebuild` unavailable here; M1 still needs Tejas’s iPhone pass.
 - **Exact next action and owner:** Yug implements YUG-1 through YUG-6 on this branch. Tejas starts TEJ-8 when ready.
 
+### 2026-10-20 — Final review hardening for Yug modules
+
+- **Who / branch:** Yug More / `fix/yug-final-review-hardening`. Author/committer `Yug-More <yugmore20@gmail.com>`.
+- **Work:** Cleared partial state on failed `load()`; clamp recipe before PhotoKit encode/save render; reject infinite extents in `ImageStatistics.sample`; auto-enhance samples preview-scaled source; added 3 regression tests (64 total).
+- **Verification:** `Passed 64 logic tests`. No Xcode/simulator/device run.
+- **Next:** Tejas continues TEJ-8/TEJ-4; no renderer rewrite needed for these fixes.
+
 ### 2026-10-20 — Rendering ownership rebalance and improvements
 
 - **Who / branch / commits:** Yug More / `feature/yug-rendering-improvements`. Author and committer `Yug-More <yugmore20@gmail.com>`. No co-author trailer.

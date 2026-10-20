@@ -7,16 +7,19 @@ extension ImageStatistics {
     /// Full-resolution walks are avoided so automatic enhancement stays responsive
     /// on large Photos library assets. Returns nil when the bitmap cannot be read.
     static func sample(from image: CIImage, context: CIContext = CIContext()) -> ImageStatistics? {
-        let maxDimension = max(image.extent.width, image.extent.height)
-        guard maxDimension > 0, image.extent.width.isFinite, image.extent.height.isFinite else {
+        // Match AdjustmentRenderer: reject empty/infinite extents before downsampling.
+        guard AdjustmentRenderer.isRenderable(image) else {
             return nil
         }
 
+        let maxDimension = max(image.extent.width, image.extent.height)
         let target = min(64.0, maxDimension)
         let scale = target / maxDimension
         let scaled = image.transformed(by: CGAffineTransform(scaleX: scale, y: scale))
         let extent = scaled.extent.integral
-        guard extent.width >= 1, extent.height >= 1 else { return nil }
+        guard extent.width >= 1, extent.height >= 1, AdjustmentRenderer.isRenderable(scaled) else {
+            return nil
+        }
 
         guard let cgImage = context.createCGImage(scaled, from: extent) else {
             return nil
