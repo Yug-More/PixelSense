@@ -117,6 +117,15 @@ Keep this document factual. A completed acceptance check needs a reproducible re
 - **Blockers or risks:** `xcodebuild` unavailable here; M1 still needs Tejas’s iPhone pass.
 - **Exact next action and owner:** Yug implements YUG-1 through YUG-6 on this branch. Tejas starts TEJ-8 when ready.
 
+### 2026-10-20 — Rendering ownership rebalance and improvements
+
+- **Who / branch / commits:** Yug More / `feature/yug-rendering-improvements`. Author and committer `Yug-More <yugmore20@gmail.com>`. No co-author trailer.
+- **Work and files:** Rebalanced `docs/TEAM_WORK_PLAN.md` (TEJ-3/TEJ-7 → YUG-7/YUG-8). Hardened `AdjustmentRenderer.swift` (clamp, extent validation, documented Kelvin mapping). Cached preview scaling in `PhotoEditorModel.swift`. Expanded logic tests to 61. Rewrote `README.md`.
+- **Decisions and sources:** Preview longest side capped at 1200; save remains full resolution. Filter order unchanged. PhotoKit `save()` body not rewritten beyond renderability guards.
+- **Verification and result:** `Passed 61 logic tests`. `xcodebuild` / simulator / iPhone still unavailable on this Mac.
+- **Blockers or risks:** Device save acceptance still Tejas TEJ-8/TEJ-4.
+- **Exact next action and owner:** Merge rendering PR; Tejas runs device checklist.
+
 ### 2026-10-20 — Yug smart editing implementation
 
 - **Who / branch / commits:** Yug More / `feature/yug-smart-editing` / `235dbf4`, `88734a1`, `7e0e348`, `64c7c28`, `f9cefcc`, plus documentation commit. Author and committer `Yug-More <yugmore20@gmail.com>`. No co-author trailer.

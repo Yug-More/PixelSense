@@ -886,8 +886,8 @@ swiftc -parse-as-library -D LOGIC_TEST_RUNNER -o /tmp/pixelsense-logic-tests \
 - [x] YUG-4 editor UI integration  
 - [x] YUG-5 expanded tests green  
 - [x] YUG-6 documentation updates  
-- [ ] YUG-7 renderer reliability + tests  
-- [ ] YUG-8 preview performance  
+- [x] YUG-7 renderer reliability + tests  
+- [x] YUG-8 preview performance  
 - [ ] Rendering/README PR merge-ready  
 
 ### Tejas must deliver
@@ -952,8 +952,8 @@ Use this table going forward. Do not invent past history; earlier commits alread
 | YUG-5 | Yug | 2026-10-20 | `feature/yug-smart-editing` | `Passed 52 logic tests` | Pending merge |
 | YUG-6 | Yug | 2026-10-20 | PR #5 merged | Docs updated | Merged |
 | YUG-1–YUG-5 | Yug | 2026-10-20 | PR #5 merged | 52 logic tests at merge | Merged |
-| YUG-7 | Yug | | `feature/yug-rendering-improvements` | Renderer regression tests | In progress |
-| YUG-8 | Yug | | `feature/yug-rendering-improvements` | Preview scaling tests | In progress |
+| YUG-7 | Yug | 2026-10-20 | `feature/yug-rendering-improvements` | Renderer regression tests in 61 logic tests | Pending merge |
+| YUG-8 | Yug | 2026-10-20 | `feature/yug-rendering-improvements` | Preview scaling + cache path | Pending merge |
 | TEJ-1 | Tejas | | | | Outstanding |
 | TEJ-2 | Tejas | | | | Outstanding |
 | TEJ-3 | — | 2026-10-20 | — | Transferred to YUG-7/YUG-8 | Transferred |

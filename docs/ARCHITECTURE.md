@@ -96,18 +96,18 @@ Warmth is left at zero by the default rules so recommendations stay conservative
 
 ### AdjustmentRenderer
 
-`apply(_:to:)` is the only render path.
+`apply(_:to:)` is the render path for both preview and save. Recipes are prepared with `prepare` (clamp) first. Invalid extents (non-finite, empty, or infinite) are rejected by `applyValidated` and left unchanged by `apply`.
 
 | Control | Neutral | Core Image filter | Mapping |
 | --- | --- | --- | --- |
-| Exposure | 0 | `CIExposureAdjust` | `ev` equals `exposureEV` |
+| Exposure | 0 | `CIExposureAdjust` | `ev` equals clamped `exposureEV` |
 | Warmth | 0 | `CITemperatureAndTint` | Neutral 6500K; target is `6500 - warmth * 2500` |
 | Contrast | 0 | `CIColorControls` | Contrast is `1 + contrast` |
 | Saturation | 0 | `CIColorControls` | Saturation is `1 + saturation` |
 
-A neutral control is skipped. Warmth uses color temperature: a positive value moves the target below 6500K, which reads warmer; a negative value moves it above 6500K, which reads cooler. The scale is a fixed choice and still needs a visual check on hardware.
+Filter order is fixed: exposure → warmth → colorControls. A fully neutral prepared recipe is identity. Warmth direction still needs a visual check on hardware.
 
-Preview rendering scales the longest side to at most 1400 points. Save renders the oriented full-size image to JPEG in sRGB. Both call `apply`.
+`PreviewScaling` caps the longest preview side at 1200 points. `PhotoEditorModel` caches that downscaled source after `load()` so slider updates do not reprocess full resolution. Save still renders the oriented full-size image to JPEG in sRGB via `apply`.
 
 ### ContentView
 
