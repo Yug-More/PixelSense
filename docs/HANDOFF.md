@@ -2,7 +2,15 @@
 
 This is the shared, human-readable state of the project for Tejas, Yug, and any agents helping them. Read it with `README.md`, `docs/PROJECT_PLAN.md`, and `AGENTS.md` before starting work. Update the current-state summary and append a work-log entry before every handoff.
 
-## Current state — 2026-10-20
+## Current state — 2026-10-22
+
+- **Repository:** Tejas fast-forwarded local `main` from `31267ce` to `3a574f4`; the teammate's prompt, preset, automatic enhancement, rendering, and test work is now present locally. Work is in progress on `feature/tejas-photos-verification`.
+- **Owner and task:** Codex assisting Tejas reviewed TEJ-4 and started TEJ-8 on `feature/tejas-photos-verification`. Save now checks read/write or limited Photos access before requesting input and again before committing. Yug owns renderer and preview performance; those files were not changed.
+- **Verification:** Swift source parsing, Xcode project/Info.plist lint, and `git diff --check` passed. The 64-check CLI runner compiled with the MacOSX14.0 SDK, then reported one failure in an existing test: `statistics sample finite image` (63 other checks passed). This failure is in Yug-owned statistics sampling and is not evidence about PhotoKit save.
+- **Verification gap:** This Mac currently selects Command Line Tools and has no Xcode app found. Physical iPhone save, reopen, revert, and the TEJ-8 device checklist remain unverified. Tejas has been asked for his iPhone model/iOS version and a device-testing environment.
+- **Next action:** Tejas runs TEJ-8 on an iPhone with full Xcode, starting with same-item save, then reopen and Photos revert. Record actual pass/fail results before accepting M1. Yug investigates the CLI statistics test if it also fails in his environment.
+
+## Previous state — 2026-10-20
 
 - **Repository:** `Yug-More/PixelSense`. `origin/main` is `8101bc4` (PR #5 smart editing merged). Active branch for rendering work: `feature/yug-rendering-improvements`.
 - **Team work plan:** `docs/TEAM_WORK_PLAN.md` rebalanced: Yug owns smart editing plus Core Image reliability (YUG-7) and preview performance (YUG-8). Tejas retains PhotoKit/device verification (TEJ-1/2/4/5/6/8/9). TEJ-3 and TEJ-7 transferred to Yug.
@@ -141,6 +149,35 @@ Keep this document factual. A completed acceptance check needs a reproducible re
 - **Verification and result:** Logic runner: `Passed 52 logic tests`. `plutil -lint` on the Xcode project passed earlier in the sprint. `xcodebuild` / simulator / iPhone: not run (Command Line Tools only).
 - **Blockers or risks:** Full app build and Photos save still need Tejas’s Mac and iPhone.
 - **Exact next action and owner:** Open PR for review. Tejas runs TEJ-8 device checklist after merge or on this branch.
+
+### 2026-10-22 — Sync teammate work and start Tejas Photos verification
+
+- **Who / branch / commit:** Codex assisting Tejas / `feature/tejas-photos-verification`, based on `main` at `3a574f4`; the commit containing this entry records the save-access change and documentation.
+- **Work and files:** Fetched and fast-forwarded local `main` from `31267ce` to `3a574f4`, bringing in Yug's prompt, preset, auto-enhance, rendering, performance, tests, and documentation work. In `PixelSense/Editor/PhotoEditorModel.swift`, added a clear Photos-access error and checked current authorization before image work and just before PhotoKit commit. This follows TEJ-4's revoked-access requirement and leaves the same-asset `PHAssetChangeRequest(for:)` save mechanism intact. Updated `docs/HANDOFF.md` with current state and this checklist; corrected merged-branch status in `README.md` and `docs/PROJECT_PLAN.md`. No collaborator, Git identity, remote, renderer, or recipe-format changes.
+- **Decisions and sources:** `.authorized` and `.limited` permit the existing read/write workflow; other current statuses stop save before commit. PhotoKit can still report an error if permission changes after the final check. Apple references: [enhanced Photos privacy](https://developer.apple.com/documentation/photokit/delivering-an-enhanced-privacy-experience-in-your-photos-app), [editing asset content](https://developer.apple.com/documentation/photokit/editing-asset-content), [content editing output](https://developer.apple.com/documentation/photos/phcontenteditingoutput).
+- **Verification and result:** `swiftc -parse` passed for all app/test Swift files; `plutil -lint` passed for the project and Info.plist; `git diff --check` passed. `xcodebuild` could not start because `/Library/Developer/CommandLineTools` is selected and no Xcode app was found. The CLI logic runner initially hit a non-writable module cache and SDK mismatch; with a `/tmp` cache and MacOSX14.0 SDK it compiled and ran all 64 checks, reporting one failure: `statistics sample finite image: finite dark image should produce statistics`. The other 63 checks reported no failure. The statistics code and test were not changed in this branch.
+- **Blockers or risks:** The new PhotoKit guard has source-parse verification only, not an iOS build or device run. The iPhone model/iOS version and full Xcode environment are pending from Tejas. No same-item save, reopen, revert, or permission-revocation behavior has been observed on hardware.
+- **Exact next action and owner:** Tejas uses full Xcode and a test still photo to fill the TEJ-8 checklist below, prioritizing steps 11–13 (same-item save, reopen, revert). Codex assists with PhotoKit/load/save fixes based on those observations. Yug owns any reproduction of the statistics-sampler failure and renderer visual issues.
+
+#### TEJ-8 device checklist status (2026-10-22)
+
+| # | Step | Actual | Result |
+| ---: | --- | --- | --- |
+| 1 | Build for Tejas's iPhone | Full Xcode unavailable on this Mac | Blocked |
+| 2 | Run on device | Not run | Pending |
+| 3 | Deny Photos then allow | Not run | Pending |
+| 4 | Browse still-photo grid | Not run | Pending |
+| 5 | Open photo | Not run | Pending |
+| 6 | Move all four sliders | Not run | Pending |
+| 7 | Before/after toggle | Not run | Pending |
+| 8 | Reset | Not run | Pending |
+| 9 | Apply demo prompt | Not run | Pending |
+| 10 | Apply unsupported prompt | Not run | Pending |
+| 11 | Save to this photo; confirm one item | Not run | Pending |
+| 12 | Reopen; confirm recipe restored | Not run | Pending |
+| 13 | Revert in Photos | Not run | Pending |
+| 14 | Open large photo | Not run | Pending |
+| 15 | Force-quit mid-edit before save | Not run | Pending |
 
 ## Template for the next entry
 

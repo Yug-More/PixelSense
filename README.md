@@ -208,7 +208,7 @@ swiftc -parse-as-library -D LOGIC_TEST_RUNNER -o /tmp/pixelsense-logic-tests \
 | Area | Status |
 | --- | --- |
 | Smart editing (prompt, presets, auto-enhance, editor UI) | Implemented; logic-tested; merged via PR #5 |
-| Renderer reliability and preview caching | Implemented on Yug’s rendering branch; logic-tested |
+| Renderer reliability and preview caching | On `main`; logic-tested, with one image-statistics CLI check failing in the current Tejas environment |
 | PhotoKit same-asset save / reopen / revert | Implemented in code; **awaiting Tejas device verification** |
 | Region-aware edits | Design only |
 | Photos editing extension | Out of scope for the class check-in |

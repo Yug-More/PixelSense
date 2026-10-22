@@ -4,6 +4,7 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 enum PhotoEditError: LocalizedError {
+    case photoAccessUnavailable
     case noEditingInput
     case noImageData
     case unsupportedOutput
@@ -12,6 +13,7 @@ enum PhotoEditError: LocalizedError {
 
     var errorDescription: String? {
         switch self {
+        case .photoAccessUnavailable: return "PixelSense no longer has access to this photo. Allow Photos access in Settings, then try again."
         case .noEditingInput: return "Photos could not open this item for editing. Check access and try another still photo."
         case .noImageData: return "This photo has no supported full-size image data. Try a standard JPEG or HEIC photo."
         case .unsupportedOutput: return "Photos cannot accept a JPEG edit for this item. Try another still photo."
@@ -205,6 +207,7 @@ final class PhotoEditorModel: ObservableObject {
         errorMessage = nil
 
         do {
+            try requirePhotoLibraryAccess()
             // Always request fresh input: Photos may have changed since the preview was loaded.
             let input = try await requestEditingInput()
             let source = try image(from: input)
@@ -233,6 +236,8 @@ final class PhotoEditorModel: ObservableObject {
                 options: [:]
             )
 
+            // Access can be revoked while a large image is rendering.
+            try requirePhotoLibraryAccess()
             try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
                 PHPhotoLibrary.shared().performChanges {
                     let request = PHAssetChangeRequest(for: self.asset)
@@ -248,6 +253,13 @@ final class PhotoEditorModel: ObservableObject {
             message = "Saved to the same photo in your library."
         } catch {
             errorMessage = error.localizedDescription
+        }
+    }
+
+    private func requirePhotoLibraryAccess() throws {
+        let status = PHPhotoLibrary.authorizationStatus(for: .readWrite)
+        guard status == .authorized || status == .limited else {
+            throw PhotoEditError.photoAccessUnavailable
         }
     }
 

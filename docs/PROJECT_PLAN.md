@@ -1,15 +1,15 @@
 # PixelSense project plan
 
-Last updated: 2026-10-20
+Last updated: 2026-10-22
 
-## Status — 2026-10-20
+## Status — 2026-10-22
 
 | Milestone | In the repository | Acceptance |
 | --- | --- | --- |
 | M0 Requirements and environment | Plan, handoff, guidelines, and `docs/TEAM_WORK_PLAN.md` define ownership. | Partial. Student iPhone and Xcode versions are not both recorded, and the first shared device test is still open. |
 | M1 Library access and same-asset save | PhotoKit browse, content editing, and same-asset save code are on `main`. | Not accepted. No physical iPhone result is recorded. |
 | M2 Reversible adjustment engine | Exposure, contrast, saturation, and warmth share one versioned recipe and renderer. Limits are centralized, and decode clamps finite out-of-range values. | Partial. Logic tests cover bounds, JSON, and reset. Device appearance is open. |
-| M3 Prompt interpretation and presets | Expanded prompt rules, named presets, automatic enhancement, and editor smart tools are on `feature/yug-smart-editing`. | Partial. 52 logic tests passed on a Mac. Editor UI and Photos save have not been run on an iPhone. |
+| M3 Prompt interpretation and presets | Expanded prompt rules, named presets, automatic enhancement, and editor smart tools are on `main`. | Partial. The 64-check CLI suite had one image-statistics failure on Tejas's current Mac; editor UI and Photos save have not been run on an iPhone. |
 | M4 Region-aware adjustments | Proposed integration is written in `docs/ARCHITECTURE.md`. | Not started. Design only for the first check-in. |
 | M5 Usable editor and class demo | Selection, sliders, comparison, prompts, presets, enhance, and save exist in code. | In progress. Device demo still required. |
 | M6 Photos editing extension | Described as later work. | Out of scope. |
