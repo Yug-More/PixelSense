@@ -4,6 +4,8 @@ These instructions apply to all work in this repository. Read `README.md`, `docs
 
 ## Project boundaries
 
+The browser edition is the active final-project deliverable. Keep its React, TypeScript, Vite, and Canvas workflow local. Adjust color and tone on an uploaded JPEG or PNG, keep the source and adjustment recipe separate during editing, and download the full-resolution result as a new PNG. Preserve dimensions and aspect ratio. The iPhone-specific boundaries below apply to the retained native prototype.
+
 - Build a native iPhone photo editor that changes color and tone settings on an existing Photos library item. Do not create or replace scene content, move objects, change geometry, or add a second visible photo as the default save behavior.
 - Treat “same photo” as the same visible Photos asset. PhotoKit manages the original and edited rendering internally; never claim a literal in-place overwrite or zero additional storage.
 - Keep the first usable version local to the iPhone. Do not require a paid Apple Developer Program membership, cloud account, server, or image upload for the class demo.

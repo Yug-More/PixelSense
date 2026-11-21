@@ -2,18 +2,13 @@
 
 This is the shared, human-readable state of the project for Tejas, Yug, and any agents helping them. Read it with `README.md`, `docs/PROJECT_PLAN.md`, and `AGENTS.md` before starting work. Update the current-state summary and append a work-log entry before every handoff.
 
-## Current state — 2026-10-20
+## Current state — 2026-11-20
 
-- **Repository:** `Yug-More/PixelSense`. `origin/main` is `8101bc4` (PR #5 smart editing merged). Active branch for rendering work: `feature/yug-rendering-improvements`.
-- **Team work plan:** `docs/TEAM_WORK_PLAN.md` rebalanced: Yug owns smart editing plus Core Image reliability (YUG-7) and preview performance (YUG-8). Tejas retains PhotoKit/device verification (TEJ-1/2/4/5/6/8/9). TEJ-3 and TEJ-7 transferred to Yug.
-- **Agreed product direction:** native iPhone app, Apple Photos library access, color/tone adjustment of an existing photo, save to the same visible Photos item, no added gallery item in the normal flow, no generated or reshaped content.
-- **Platform constraint:** Apple Photos manages original and edited data internally. The app cannot overwrite the library's original file byte-for-byte or promise zero extra storage.
-- **Environment checked:** Yug’s Mac has Swift 6.0.2 command-line tools; `xcodebuild` is unavailable (Command Line Tools only). Xcode 15.4 was recorded on Tejas's Mac on 2026-10-12. Device iOS versions are still unrecorded.
-- **Implementation status:** M1 save path is still not accepted on a physical iPhone. M2 recipe/renderer exist with logic tests. M3 on `feature/yug-smart-editing`: expanded prompts, presets, automatic enhancement, and editor smart tools (52 logic tests). M4 remains design-only.
-- **Identity:** GitHub login `Yug-More`. Commits use `Yug-More <yugmore20@gmail.com>`, with no co-author trailer. Collaborators unchanged.
-- **Verification:** `Passed 52 logic tests` on this Mac. No simulator or iPhone run (`xcodebuild` unavailable).
-- **Next action:** Push `feature/yug-smart-editing` and open a PR. Tejas runs the device save/reopen/revert checklist in `docs/TEAM_WORK_PLAN.md` (TEJ-8). Do not mark M1 done from logic tests alone.
-- **Open decisions:** see “Main risks and decisions still open” in `docs/PROJECT_PLAN.md`.
+- **Course demo:** the browser editor is the active deliverable. Use the default branch, `main`. Run `npm ci` and `npm start` from the repository root.
+- **Ownership:** The assisted release session prepared the verified browser release on `main`. Yug and Tejas own the class demo rehearsal and repository review.
+- **Browser behavior:** local JPEG and PNG import with drag and drop, adaptive Auto Enhance, four sliders, five presets, typed instructions, Before/After and split comparison, undo and redo, reset, and full-resolution PNG export.
+- **Verification:** 23 Vitest checks, a clean install, the production build, and three production Chrome runs passed. The studio adds a bundled sample, paste import, Auto Enhance strengths, a live histogram and clipping overlay, zoom and pan, and editing shortcuts.
+- **Native prototype:** the Swift app remains available. Tejas owns any future iPhone save/reopen/revert verification. The browser demo has no dependency on that device check.
 
 ## Working agreement
 
@@ -25,21 +20,21 @@ Keep this document factual. A completed acceptance check needs a reproducible re
 
 ### 2026-10-12 — Repository import and initial review
 
-- **Who / branch:** Codex assisting Tejas / `main`.
+- **Who / branch:** Assisted session for Tejas / `main`.
 - **Work:** cloned `https://github.com/Yug-More/PixelSense` into the local PixelSense workspace and read the complete initial README. At import, `README.md` was the only tracked file.
 - **Result:** identified the original goal of prompt-driven, region-aware photo enhancement and the absence of implementation/setup details.
 - **Verification:** checked repository status, remote, tracked files, and README content. No application tests existed.
 
 ### 2026-10-12 — Scope clarification and README update
 
-- **Who / branch / commit:** Codex assisting Tejas / `main` / `e6fd8af` (pushed).
+- **Who / branch / commit:** Assisted session for Tejas / `main` / `e6fd8af` (pushed).
 - **Work:** rewrote `README.md` to focus on reversible exposure and color/tone settings, manual refinement, and preservation of scene content and geometry. Removed language that could imply generation or object editing.
 - **Decision:** region detection may choose where adjustment settings apply, but never changes an object or scene itself.
 - **Verification:** reviewed the README diff and ran `git diff --check`. The working tree was clean after push.
 
 ### 2026-10-12 — iPhone deployment decision
 
-- **Who / branch:** Codex assisting Tejas / planning only.
+- **Who / branch:** Assisted session for Tejas / planning only.
 - **Work:** checked Apple PhotoKit, Core Image, editing extension, and developer-account documentation. No files changed during this discussion.
 - **Decision:** target the same visible Photos asset through PhotoKit and use a native iOS app. Use Xcode's free personal-device testing for the class prototype. An extension inside Photos is optional later work.
 - **Constraint:** PhotoKit requires an edited rendering plus adjustment data to commit a content edit; Photos controls its internal versions. A literal overwrite of the original file is unavailable.
@@ -47,7 +42,7 @@ Keep this document factual. A completed acceptance check needs a reproducible re
 
 ### 2026-10-12 — Planning and agent handoff documents
 
-- **Who / branch / commit:** Codex assisting Tejas / `main` / `6906e3b` (pushed).
+- **Who / branch / commit:** Assisted session for Tejas / `main` / `6906e3b` (pushed).
 - **Work:** updated `README.md` for the same-item Photos save flow; created `docs/PROJECT_PLAN.md` with architecture, milestones M0–M6, acceptance checks, coordination, and risks; created `AGENTS.md` with documentation, verification, Git, and account rules; created this handoff.
 - **Reason:** ensure both students and their agents can resume from one written state and avoid conflicting interpretations of “no duplicate.”
 - **Verification:** reviewed the documentation diff and ran `git diff --check`; both passed. No app or device test is possible yet because the iOS project has not been created.
@@ -55,22 +50,22 @@ Keep this document factual. A completed acceptance check needs a reproducible re
 
 ### 2026-10-12 — First iPhone Photos editing prototype
 
-- **Who / branch / commit:** Codex assisting Tejas / `feature/ios-photo-editing-proof` / `5c43098` (published and fast-forwarded to `main`).
+- **Who / branch / commit:** Assisted session for Tejas / `feature/ios-photo-editing-proof` / `5c43098` (published and fast-forwarded to `main`).
 - **Work and files:** added `PixelSense.xcodeproj` and the `PixelSense/` SwiftUI app; added `.gitignore`; updated `README.md` with current behavior and free-device setup; updated `docs/PROJECT_PLAN.md` with the initial iOS 17/still-photo/exposure choices. `PhotoLibraryStore` handles read/write or limited Photos authorization and browses still assets. `PhotoEditorModel` loads a content editing input, renders an exposure preview with Core Image, stores a versioned recipe, and asks PhotoKit to update the selected asset. `ContentView` provides the gallery, before/edit comparison, slider, and save action.
 - **Decisions and sources:** use `PHContentEditingOutput.renderedContentURL(for: .jpeg)` for the first still-photo proof; this API is available on iOS 17+. Use `PHAdjustmentData` for the exposure recipe and no asset-creation request in the save path. Apple references: [content editing](https://developer.apple.com/documentation/photokit/editing-asset-content), [editing output](https://developer.apple.com/documentation/photos/phcontenteditingoutput), [color filters](https://developer.apple.com/documentation/coreimage/color-adjustment-filters).
 - **Attempts and fixes:** the first build rejected a nonexistent `CIImageRepresentationOption.lossyCompressionQuality` member; removed that option and rebuilt successfully. Added required bundle keys to `Info.plist` after inspecting the built app metadata. The simulator service could not be used for a launch test in this tool session.
 - **Verification and result:** `plutil` accepted the project and Info.plist. Generic simulator build passed. Generic iPhone build passed with signing disabled. The built Info.plist contains the bundle identifier, version, iOS 17 minimum, and Photos usage description. No physical iPhone run, save-back, iCloud, metadata, orientation, or repeat-edit test has passed yet.
 - **Blockers or risks:** device/iOS version and free Personal Team signing are pending Tejas's input. JPEG rendering may change format or color characteristics; save behavior and Photos revert remain unverified on hardware. Live Photos are excluded, and prompts and region edits are not implemented yet.
-- **Exact next action and owner:** Tejas tests the flow on his iPhone using a still photo set aside for testing, records the observed Photos behavior, and sends any errors or screenshots. Codex then fixes device findings and continues M1/M2. Yug and Tejas assign ownership of later workstreams.
+- **Exact next action and owner:** Tejas tests the flow on his iPhone using a still photo set aside for testing, records the observed Photos behavior, and sends any errors or screenshots. The assisting session then fixes device findings and continues M1/M2. Yug and Tejas assign ownership of later workstreams.
 
 ### 2026-10-12 — Basic color and tone controls
 
-- **Who / branch / commit:** Codex assisting Tejas / `feature/color-controls` / `23f2967` (published and fast-forwarded to `main`).
+- **Who / branch / commit:** Assisted session for Tejas / `feature/color-controls` / `23f2967` (published and fast-forwarded to `main`).
 - **Work and files:** added `PixelSense/EditRecipe.swift` and `PixelSense/AdjustmentRenderer.swift`; updated `PixelSense/PhotoEditorModel.swift`, `PixelSense/ContentView.swift`, and the Xcode project. The editor now exposes exposure, contrast, saturation, warmth, and reset controls in a scrollable layout. The same recipe drives both preview and full-resolution save. Updated `README.md` and `docs/PROJECT_PLAN.md` to reflect the added controls.
 - **Decisions and sources:** kept recipe format version 1 and decode missing new fields as zero, so exposure-only recipes remain readable. The renderer skips controls at their neutral value. Contrast and saturation use Core Image color controls; warmth uses temperature and tint. [Apple Core Image color adjustment filters](https://developer.apple.com/documentation/coreimage/color-adjustment-filters).
 - **Verification and result:** generic iPhone and simulator builds passed with signing disabled. A temporary compatibility check decoded the earlier exposure-only JSON with all new controls at zero and round-tripped a four-control recipe. No on-device color, format, save-back, or performance check has been completed.
 - **Blockers or risks:** Core Image warmth direction and strength, color fidelity, and large-photo responsiveness require visual review on a real device. M1 same-asset save remains unverified on hardware.
-- **Exact next action and owner:** Tejas runs the README device flow and reports save behavior and appearance; Codex fixes any findings.
+- **Exact next action and owner:** Tejas runs the README device flow and reports save behavior and appearance; The assisting session fixes any findings.
 
 ### 2026-10-13 — October 20 documentation pass
 
@@ -141,6 +136,62 @@ Keep this document factual. A completed acceptance check needs a reproducible re
 - **Verification and result:** Logic runner: `Passed 52 logic tests`. `plutil -lint` on the Xcode project passed earlier in the sprint. `xcodebuild` / simulator / iPhone: not run (Command Line Tools only).
 - **Blockers or risks:** Full app build and Photos save still need Tejas’s Mac and iPhone.
 - **Exact next action and owner:** Open PR for review. Tejas runs TEJ-8 device checklist after merge or on this branch.
+
+### 2026-11-20 — Browser final project
+
+- **Who / branch / commit:** Assisted session for the student maintainers on the prior web release branch. Implementation and tests are in `30f53cf`. This handoff ships with the documentation commit.
+- **Work and files:** added the React editor in `web/main.tsx` and `web/style.css`, Canvas import/render/export in `web/photo.ts`, pure image analysis and adjustments in `web/adjustments.ts`, and presets and typed instructions in `web/smart-tools.ts`. Added npm/Vite setup and `web/adjustments.test.ts`. Updated `README.md`, `AGENTS.md`, and `docs/PROJECT_PLAN.md` for the browser scope.
+- **Decisions:** carried over the native adjustment ranges, preset recipes, and the analysis-to-recipe architecture. The browser version uses a percentile histogram and proportional recommendations. Browser QA exposed a case where a contrast boost offset the exposure lift for a flat dark image. The revised algorithm skips the boost on flat samples, and a regression test covers it. Export replaces PhotoKit save for the web demo. The web instruction parser supports a smaller set of phrases than the Swift parser.
+- **Verification:** Vitest passed 12 tests and the production build passed. Chrome automation checked unsupported and corrupt inputs, JPEG and PNG upload, different dark/well-exposed recommendations, non-stacking enhancement, each slider, comparison, presets, accepted and rejected instructions, reset, PNG download name/dimensions/pixels, replacement, and narrow viewport overflow. A 1600 × 2400 portrait fixture displayed at reduced resolution and exported at its original dimensions. A clean npm install from the lockfile passed using the local package cache. The retained Swift CLI suite passed 64 logic checks. No iPhone run was performed.
+- **Remaining checks and owner:** Yug and Tejas should rehearse with their chosen classroom photos on the presentation laptop. Tejas still owns iPhone PhotoKit checks if the native branch of work resumes. Browser exports are subject to canvas memory limits and omit EXIF metadata.
+
+### 2026-11-20 — Auto Enhance follow-up
+
+- **Who / branch / commit:** Assisted session on the prior web release branch, in the Auto Enhance fix commit.
+- **Work and files:** `web/adjustments.ts` now weights the median more heavily than the mean to detect dark subjects against bright backgrounds. The shared renderer tapers positive exposure per pixel near white. `web/main.tsx` clarifies zero-change recommendations. `web/adjustments.test.ts` adds backlit and neutral regressions. `README.md` documents the actual algorithm, slider behavior, and local server setup.
+- **Findings:** The previous highlight check could zero out exposure for a dark photo with a bright background. The earlier preview server had also been stopped, leaving the existing URL unavailable. Restarted Vite on port 5173.
+- **Verification:** Ran 13 passing Vitest tests and the TypeScript/Vite build. Repeated the Chrome upload-to-export workflow, including invalid files, all sliders, comparison, presets, typed instructions, reset, and PNG pixel and dimension checks. On the macOS Mojave night JPEG, mean preview luminance rose from 44 to 58 on a 0–255 scale. The day JPEG had a smaller change, from 96 to 99. No device verification is required for the web changes.
+- **Remaining checks and owner:** Yug and Tejas can check the specific classroom photos on the demo laptop. Tejas owns any separate native iPhone acceptance pass.
+
+### 2026-11-20 — Browser editing workflow polish
+
+- **Who / branch / commit:** Assisted session on the prior web release branch, in the editing-tools commit.
+- **Work and files:** `web/main.tsx` adds drag-and-drop import, history controls, and a movable split comparison. `web/history.ts` and `web/history.test.ts` implement and cover recipe history. `web/style.css` refines the desktop toolbar and narrow layout. `README.md` and `docs/PROJECT_PLAN.md` explain the workflow and acceptance checks.
+- **Decisions:** Kept Before and After as separate views alongside Split. Coalesced pointer-driven slider changes into one undo step. Kept up to 50 steps per photo and cleared history after a successful replacement. Split uses complementary clips to keep translucent PNG pixels from stacking. Export uses the current recipe regardless of comparison mode.
+- **Verification:** All 16 Vitest tests and the production build passed. Chrome verified valid and invalid import, drag-and-drop, Auto Enhance, all sliders, whole-drag undo, redo, split position, Before/After, presets, instructions, undoable reset, PNG pixel and dimension checks, fresh history after import, and narrow-width layout. Reviewed a desktop screenshot with a sample JPEG. No native changes or device tests.
+- **Remaining checks and owner:** Yug and Tejas own rehearsal with their chosen photos on the presentation laptop. Tejas owns any separate native iPhone acceptance pass.
+
+### 2026-11-20 — Photo editing studio
+
+- **Who / branch / commit:** Assisted session on the prior web release branch, in the studio redesign commit.
+- **Work and files:** `web/main.tsx` and `web/style.css` redesign the studio and add sample and clipboard import, histogram and clipping controls, three Auto Enhance strengths, per-control reset, zoom and pan, and shortcuts. `web/diagnostics.ts` and `web/diagnostics.test.ts` handle diagnostic calculations and coverage. `web/photo.ts` applies warning colors to preview pixels, while the export uses unmarked pixels. `web/assets/alpine-lake.jpg` is the bundled demo JPEG. `README.md` and `docs/PROJECT_PLAN.md` describe behavior and acceptance.
+- **Decisions:** The live histogram uses the small analysis sample and weights partially transparent pixels by opacity. The warning uses near-black and near-white RGB thresholds. Split shows the edited histogram. Zoom and pan apply to the preview only. Cmd/Ctrl+Z, Cmd/Ctrl+Shift+Z, and B preserve standard typing behavior in form fields.
+- **Sample asset:** Created with the built-in image generation tool. Prompt: “Photorealistic landscape sample for a professional photo editing workspace. Wide cinematic landscape photograph of a rugged alpine lake at dawn, prominent jagged peaks, still teal water reflecting the mountains, a small band of pale warm sky, dark evergreen trees and shaded foreground rocks. Naturally somewhat underexposed foreground with recoverable shadow detail and varied color. Fine photographic detail, believable exposure, no people, no text, no borders, no logos.”
+- **Verification:** All 19 Vitest tests and the production build passed. Chrome checked the sample, strength differences, individual reset, keyboard undo and redo, comparison shortcut, zoom and drag panning, histogram, paste import via a browser clipboard event, clipping colors, and clean PNG export with warnings active. The original import-to-export checks passed. Reviewed screenshots of both studio states and checked narrow-width overflow. No native changes or device tests.
+- **Remaining checks and owner:** Yug and Tejas own the classroom rehearsal. App-level browser verification used Chrome. Tejas owns any separate native iPhone acceptance pass.
+
+### 2026-11-20 — Auto Enhance on open
+
+- **Who / branch / commit:** Assisted session on the prior web release branch, in the enhancement follow-up commit.
+- **Work and files:** `web/adjustments.ts` targets a representative midtone with a stronger highlight-preserving curve, estimates warm and cool casts from muted midtones, and bases contrast on the corrected sample. `web/main.tsx` and `web/style.css` add the default-on import option and visible correction summary. `web/adjustments.test.ts`, `README.md`, and `docs/PROJECT_PLAN.md` cover and document the new behavior.
+- **Decisions:** The earlier recommendation always set warmth to zero and required a button press. Import now records any applied recipe as an undoable first edit. The chosen strength and opt-out apply across imports in the open page. Temperature estimates are bounded because deliberate color grading can resemble a cast.
+- **Verification:** All 22 Vitest tests and the TypeScript/Vite build passed. Chrome checked that the first import of a dim cool fixture changed real preview pixels, displayed the correction summary, and could be undone and redone. Chrome also checked disabled automatic import, manual enhancement switching Split to After, and the existing file import, editor, and PNG export flows. No native changes or device tests.
+- **Remaining checks and owner:** The reported photo was unavailable for testing. Yug and Tejas can check the specific classroom photos. Tejas owns the separate native iPhone acceptance pass.
+
+### 2026-11-20 — Verify and publish the browser edition
+
+- **Who / branch / commit:** Assisted session on the prior web release branch, in the verified browser release commit. GitHub `main` was the Swift prototype at the pre-push fetch.
+- **Work and files:** `web/adjustments.ts` strengthens the exposure response and looks for temperature evidence after lifting dark tones. `web/main.tsx` reports measured brightness changes, `web/photo.ts` improves HEIC and unsupported-file feedback, and `README.md` documents setup, use, architecture, tests, and limitations. `scripts/check-browser.mjs` adds repeatable browser checks. `package.json` provides a fixed-port production command, `vite.config.ts` builds relative asset URLs, and the lockfile includes test tooling and audit fixes.
+- **Decisions and troubleshooting:** An initial sandboxed check could not reach port 5173. An unrestricted check found the earlier Vite development server occupying it. Replaced that server with the verified production build at the same URL. Initially published the browser release on a separate branch. The native prototype remained on the default branch at that point.
+- **Verification:** Online clean install, 23 unit tests, build, and npm audit passed. The full production Chrome suite passed three times. It covered dark and backlit photos, temperature correction, invalid and unsupported files, local import, automatic and manual edit flows, and full-resolution PNG pixels, transparency, and dimensions. The supplied macOS night fixture consistently measured 17% before and 32% after. No private images, generated build files, or screenshots were committed.
+- **Remaining checks and owner:** The reported photo was unavailable. Yug and Tejas own testing their chosen classroom photos. Tejas owns separate physical-iPhone acceptance for the native prototype.
+
+### 2026-11-20 — Publish PixelSense web on main
+
+- **Who / branch / commit:** Assisted release session / `main` / `Release PixelSense web`. Used the repository’s existing Yug-More author and committer settings.
+- **Work and files:** Published the browser editor, bundled sample, and tests as one release commit. Updated `README.md` for a standard clone of the default branch and `docs/HANDOFF.md` for the current ownership and release history. Preserved the Swift project.
+- **Verification:** Unit tests, production build, and production Chrome checks passed on the release contents. Checked the staged diff before committing. This release does not require a physical iPhone test.
+- **Remaining checks and owner:** Yug and Tejas own classroom rehearsal. Tejas owns any separate native PhotoKit acceptance pass.
 
 ## Template for the next entry
 

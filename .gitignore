@@ -6,3 +6,7 @@ xcuserdata/
 *.mobileprovision
 *.p12
 *.cer
+
+# Web build
+node_modules/
+dist/

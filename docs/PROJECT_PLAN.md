@@ -1,6 +1,12 @@
 # PixelSense project plan
 
-Last updated: 2026-10-20
+Last updated 2026-11-20
+
+## Final project — browser edition
+
+The final CS 152 demo runs locally in a browser using React, TypeScript, Vite, and Canvas. It retains local color and tone editing, automatic enhancement, manual controls, presets, typed adjustments, comparison, and reset. Downloading a separate full-resolution PNG replaces direct Apple Photos editing for the browser edition. The original iPhone plan and implementation are preserved below for reference.
+
+Acceptance requires JPEG and PNG import with clear invalid-file handling, automatic enhancement on open with an opt-out, adaptive analysis with different results for dark and well-exposed images, bounded warm and cool cast correction, shared slider and Auto Enhance rendering, reversible preview edits, a dimension-preserving PNG export, drag-and-drop import, reversible edit history, a movable split comparison, preview zoom and pan, and diagnostic overlays excluded from export. A fresh install, unit tests, a production build, and the checked-in browser upload-to-download suite verify the local production demo.
 
 ## Status — 2026-10-20
 
