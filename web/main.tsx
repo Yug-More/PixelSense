@@ -6,9 +6,19 @@ import { interpretInstruction, presets } from './smart-tools';
 import { newHistory, recordEdit, stepHistory } from './history';
 import { measureTones } from './diagnostics';
 import sampleUrl from './assets/alpine-lake.jpg';
+import { decodeRecipe, encodeRecipe, maxPresetName, maxPresets, maxRecipeBytes, presetStorageKey, readPresets, type SavedPreset } from './recipes';
 import './style.css';
 
 const labels = { exposure: 'Exposure', contrast: 'Contrast', saturation: 'Saturation', warmth: 'Warmth' };
+
+function saveDownload(blob: Blob, name: string) {
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = name;
+  link.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
 
 function App() {
   const [photo, setPhoto] = useState<Photo | null>(null);
@@ -27,6 +37,11 @@ function App() {
   const [error, setError] = useState('');
   const [status, setStatus] = useState('');
   const [instruction, setInstruction] = useState('');
+  const [presetName, setPresetName] = useState('');
+  const [savedPresets, setSavedPresets] = useState(() => {
+    try { return readPresets(localStorage); } catch { return []; }
+  });
+  const recipeInput = useRef<HTMLInputElement>(null);
   const input = useRef<HTMLInputElement>(null);
   const preview = useRef<HTMLCanvasElement>(null);
   const original = useRef<HTMLCanvasElement>(null);
@@ -183,6 +198,50 @@ function App() {
     }
   }
 
+  function savePreset(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const name = presetName.trim();
+    if (!photo || !name) return;
+    if (savedPresets.some(entry => entry.name.toLowerCase() === name.toLowerCase())) {
+      setError('A saved preset already uses that name.');
+      return;
+    }
+    if (savedPresets.length >= maxPresets) {
+      setError('Remove a saved preset to make room for a new one.');
+      return;
+    }
+    if (storePresets([...savedPresets, { name, recipe }], `Saved “${name}” to this browser.`)) setPresetName('');
+  }
+
+  function storePresets(next: SavedPreset[], message: string) {
+    try {
+      localStorage.setItem(presetStorageKey, JSON.stringify(next));
+      setSavedPresets(next);
+      setError('');
+      setStatus(message);
+      return true;
+    } catch {
+      setError('This browser could not save your presets. You can download a recipe instead.');
+      return false;
+    }
+  }
+
+  async function importRecipe(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.currentTarget.files?.[0];
+    event.currentTarget.value = '';
+    if (!photo || !file || busy) return;
+    setBusy('open');
+    try {
+      if (file.size > maxRecipeBytes) throw new Error('This file is too large to be a PixelSense recipe.');
+      apply(decodeRecipe(await file.text()), 'Recipe applied to this photo.');
+      setView('after');
+    } catch (failure) {
+      setError(failure instanceof Error ? failure.message : 'Could not open the recipe.');
+    } finally {
+      setBusy(null);
+    }
+  }
+
   async function download() {
     if (!photo) return;
     setBusy('export');
@@ -192,12 +251,7 @@ function App() {
       // Give the browser a frame to display the export state before rendering at full resolution.
       await new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
       const blob = await exportPhoto(photo, recipe);
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = exportName(photo.name);
-      link.click();
-      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      saveDownload(blob, exportName(photo.name));
       setStatus('PNG download started.');
     } catch {
       setError('This photo could not be exported. Try a smaller image.');
@@ -421,6 +475,33 @@ function App() {
                 onChange={event => setInstruction(event.currentTarget.value)} disabled={disabled} required />
               <button className="secondary" disabled={disabled}>Apply instruction</button>
             </form>
+          </details>
+          <details className="panel-section">
+            <summary>Saved looks and recipes</summary>
+            {savedPresets.length > 0 && <ul className="saved-presets">
+              {savedPresets.map(entry => <li key={entry.name}>
+                <button className="secondary preset-name" disabled={disabled}
+                  onClick={() => apply(entry.recipe, `Applied “${entry.name}”.`)}>{entry.name}</button>
+                <button className="text-button" aria-label={`Remove ${entry.name}`}
+                  onClick={() => storePresets(savedPresets.filter(preset => preset !== entry), `Removed “${entry.name}”.`)}>Remove</button>
+              </li>)}
+            </ul>}
+            <form className="preset-form" onSubmit={savePreset}>
+              <label htmlFor="preset-name">Preset name</label>
+              <div className="recipe-actions">
+                <input id="preset-name" value={presetName} maxLength={maxPresetName} disabled={disabled}
+                  onChange={event => setPresetName(event.currentTarget.value)} placeholder="e.g. Warm afternoon" required />
+                <button className="secondary" disabled={disabled || !presetName.trim()}>Save preset</button>
+              </div>
+            </form>
+            <div className="recipe-actions">
+              <button className="secondary" disabled={disabled} onClick={() => recipeInput.current?.click()}>Import recipe</button>
+              <button className="secondary" disabled={disabled} onClick={() => {
+                if (photo) saveDownload(new Blob([encodeRecipe(recipe)], { type: 'application/json' }),
+                  exportName(photo.name).replace(/\.png$/, '.json'));
+              }}>Download recipe</button>
+              <input ref={recipeInput} aria-label="Open recipe file" type="file" accept=".json,application/json" onChange={importRecipe} hidden />
+            </div>
           </details>
         </aside>
       </main>

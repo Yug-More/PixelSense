@@ -35,7 +35,7 @@ async function checkEditor(browser, url) {
     canvas.evaluate((c) => [
       ...c.getContext('2d').getImageData(40, 20, 1, 1).data,
     ]);
-  const upload = page.locator('input[type=file]');
+  const upload = page.getByLabel('Open photo file');
   assert(await page.getByLabel('Enhance on open').isChecked());
   const coolFixture = await page.evaluate(() => {
     const c = document.createElement('canvas');
@@ -213,7 +213,7 @@ async function checkEditor(browser, url) {
     assert.notDeepEqual(await pixel(), previous, name);
     await button('Undo').click();
   }
-  await page.locator('summary').click();
+  await page.getByText('Presets and instructions', { exact: true }).click();
   await button('Portrait').click();
   await page
     .getByLabel('Editing instruction')
@@ -357,6 +357,41 @@ async function checkEditor(browser, url) {
   }
 
   await button('Split').click();
+  const savedExposure = await exposure.inputValue();
+  await page.getByText('Saved looks and recipes', { exact: true }).click();
+  await page.getByLabel('Preset name').fill('Night lift');
+  await button('Save preset').click();
+  const [recipeDownload] = await Promise.all([
+    page.waitForEvent('download'),
+    button('Download recipe').click(),
+  ]);
+  assert.match(recipeDownload.suggestedFilename(), /-pixelsense\.json$/);
+  const recipeLocation = await recipeDownload.path();
+  const recipeFile = JSON.parse(await readFile(recipeLocation, 'utf8'));
+  assert.equal(recipeFile.adjustments.exposure, Number(savedExposure));
+
+  await page.reload();
+  await page.getByLabel('Enhance on open').uncheck();
+  await button('Try sample').click();
+  await page.getByRole('heading', { name: 'Alpine Lake.jpg' }).waitFor();
+  await page.getByText('Saved looks and recipes', { exact: true }).click();
+  await button('Night lift').click();
+  assert.equal(await exposure.inputValue(), savedExposure);
+  await button('Reset all').click();
+  await page.getByLabel('Open recipe file').setInputFiles(recipeLocation);
+  await page.getByRole('status').getByText('Recipe applied to this photo.').waitFor();
+  assert.equal(await exposure.inputValue(), savedExposure);
+  await button('Undo').click();
+  assert.equal(await exposure.inputValue(), '0');
+  await page.getByLabel('Open recipe file').setInputFiles({
+    name: 'broken.json',
+    mimeType: 'application/json',
+    buffer: Buffer.from('{'),
+  });
+  await page.getByRole('alert').getByText('Choose a valid PixelSense recipe JSON file.').waitFor();
+  assert.equal(await exposure.inputValue(), '0');
+  await button('Remove Night lift').click();
+  assert.equal(await button('Night lift').count(), 0);
   await page.setViewportSize({ width: 390, height: 844 });
   assert(
     await page.evaluate(

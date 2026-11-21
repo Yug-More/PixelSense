@@ -138,3 +138,10 @@ form input {
 .enhance-on-open { display: flex; align-items: center; gap: .45rem; margin-top: .6rem; color: var(--muted); }
 .enhance-on-open input { margin: 0; accent-color: var(--accent); }
 .edit-feedback { margin-top: .55rem; padding: .5rem .6rem; border-left: 2px solid var(--accent); background: var(--well); border-radius: .25rem; }
+.saved-presets { list-style: none; margin: .7rem 0 0; padding: 0; display: grid; gap: .35rem; }
+.saved-presets li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: .35rem; }
+.preset-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: left; }
+.preset-form { margin: .7rem 0 .55rem; }
+.recipe-actions { display: flex; flex-wrap: wrap; gap: .4rem; }
+.recipe-actions input:not([hidden]) { flex: 1 1 8rem; width: 0; }
+.recipe-actions button { flex: 0 0 auto; }

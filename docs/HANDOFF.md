@@ -2,12 +2,12 @@
 
 This is the shared, human-readable state of the project for Tejas, Yug, and any agents helping them. Read it with `README.md`, `docs/PROJECT_PLAN.md`, and `AGENTS.md` before starting work. Update the current-state summary and append a work-log entry before every handoff.
 
-## Current state — 2026-11-20
+## Current state — 2026-11-21
 
 - **Course demo:** the browser editor is the active deliverable. Use the default branch, `main`. Run `npm ci` and `npm start` from the repository root.
 - **Ownership:** The assisted release session prepared the verified browser release on `main`. Yug and Tejas own the class demo rehearsal and repository review.
 - **Browser behavior:** local JPEG and PNG import with drag and drop, adaptive Auto Enhance, four sliders, five presets, typed instructions, Before/After and split comparison, undo and redo, reset, and full-resolution PNG export.
-- **Verification:** 23 Vitest checks, a clean install, the production build, and three production Chrome runs passed. The studio adds a bundled sample, paste import, Auto Enhance strengths, a live histogram and clipping overlay, zoom and pan, and editing shortcuts.
+- **Verification:** 26 Vitest checks, a clean install, the production build, and three production Chrome runs passed. The studio adds a bundled sample, paste import, Auto Enhance strengths, a live histogram and clipping overlay, zoom and pan, and editing shortcuts.
 - **Native prototype:** the Swift app remains available. Tejas owns any future iPhone save/reopen/revert verification. The browser demo has no dependency on that device check.
 
 ## Working agreement
@@ -192,6 +192,14 @@ Keep this document factual. A completed acceptance check needs a reproducible re
 - **Work and files:** Published the browser editor, bundled sample, and tests as one release commit. Updated `README.md` for a standard clone of the default branch and `docs/HANDOFF.md` for the current ownership and release history. Preserved the Swift project.
 - **Verification:** Unit tests, production build, and production Chrome checks passed on the release contents. Checked the staged diff before committing. This release does not require a physical iPhone test.
 - **Remaining checks and owner:** Yug and Tejas own classroom rehearsal. Tejas owns any separate native PhotoKit acceptance pass.
+
+### 2026-11-21 — Reusable photo settings
+
+- **Who / branch / commit:** Assisted implementation session / `main` / `Add reusable photo settings`. Existing Yug-More commit identity used.
+- **Work and files:** `web/recipes.ts` reads and writes versioned adjustment files and validates local presets. `web/main.tsx` and `web/style.css` add named presets and recipe import and download. `web/recipes.test.ts` and `scripts/check-browser.mjs` cover validation, persistence, and reuse. Updated `README.md` and the project plan.
+- **Decisions:** Presets store only adjustment numbers in browser-local storage. Recipe JSON transfers settings without image data. Imported and reapplied settings use the existing undo history.
+- **Verification:** 26 unit tests, the production build, and the Chrome workflow passed. The browser suite checked preset persistence after reload, reuse on a different photo, download and import, undo, and rejection of invalid JSON. The native prototype requires its separate device test.
+- **Next action and owner:** Yug and Tejas can try sharing a recipe during the classroom demo. Tejas owns the separate native PhotoKit acceptance pass.
 
 ## Template for the next entry
 

@@ -25,7 +25,8 @@ Open **http://127.0.0.1:5173/** in Chrome. Keep the terminal running while you u
 2. **Review the first pass.** Enhance on open is enabled by default. The status lists the applied corrections and shows the estimated brightness change when it is measurable. Choose **Before** to see what changed, or turn off **Enhance on open** to start the next image with neutral controls.
 3. **Fine-tune the edit.** Select **Subtle**, **Moderate**, or **Full**, then click **Auto Enhance** to reapply at that strength. Adjust Exposure, Contrast, Saturation, and Warmth individually, click a value to reset that control, or try a preset or a short instruction such as “Make this photo brighter and warmer.”
 4. **Check the details.** Use Split to compare both versions, zoom up to 300%, and drag to pan. The histogram tracks the visible image, or the edited side in Split. Clipping marks near-black pixels in blue and near-white pixels in red.
-5. **Download PNG.** The export uses the current edits and the browser-decoded dimensions of the original. It preserves transparency. Zoom, comparison, and clipping marks apply only to the workspace.
+5. **Save a look.** Open **Saved looks and recipes** to name the current adjustments or download them as a JSON recipe. Open a different photo and apply the saved preset or import the recipe. Both actions are undoable.
+6. **Download PNG.** The export uses the current edits and the browser-decoded dimensions of the original. It preserves transparency. Zoom, comparison, and clipping marks apply only to the workspace.
 
 **Keyboard shortcuts** · Cmd/Ctrl+Z to undo, Cmd/Ctrl+Shift+Z to redo, and B to switch Before/After outside form fields. Automatic enhancement is undoable. A new image starts a fresh history with up to 50 undo steps.
 
@@ -46,6 +47,10 @@ PixelSense uses **React, TypeScript, Vite, and Canvas 2D**. Image decoding, anal
 - **Immutable state** · `web/history.ts` keeps recipe snapshots for undo and redo. Edits do not copy the original photo into history.
 - **Separation of concerns** · `web/photo.ts` handles files and Canvas. `web/main.tsx` handles user interaction. `web/diagnostics.ts` computes the histogram and clipping indicators.
 
+## Reuse an edit
+
+Named presets are stored in the current browser and remain available after a reload. PixelSense supports up to 20 custom presets. A downloaded recipe contains only the four adjustment values and a format version. It can be backed up or opened on another device without sharing the photo.
+
 ## Verify the project
 
 ```bash
@@ -55,7 +60,7 @@ npx playwright-core install chromium
 npm run test:browser
 ```
 
-The unit suite covers adaptive exposure, cast correction, highlight preservation, transparent pixels, history, and file utilities. The browser suite builds the app, starts a temporary local server, and verifies file import, automatic and manual edits, comparison, history, diagnostic overlays, and the pixels and dimensions in a downloaded PNG. To use an existing Chrome installation, set `CHROME_PATH` to its executable when running `npm run test:browser`.
+The unit suite covers adaptive exposure, cast correction, highlight preservation, transparent pixels, history, recipe validation, and file utilities. The browser suite builds the app, starts a temporary local server, and verifies file import, automatic and manual edits, comparison, history, preset persistence, recipe round trips, diagnostic overlays, and the pixels and dimensions in a downloaded PNG. To use an existing Chrome installation, set `CHROME_PATH` to its executable when running `npm run test:browser`.
 
 Large photos are subject to browser memory and Canvas limits. PNG exports omit the original EXIF metadata, and edit history lives in the current session. The bundled sample is a generated demo image.
 
