@@ -1,14 +1,12 @@
 # PixelSense
 
-PixelSense is a local photo editor for making quick, reversible color and lighting adjustments. Open an image to get an automatic first pass, compare it with the original, then fine-tune the result and download a full-resolution PNG.
+PixelSense is a browser-based photo editor for quick, reversible lighting and color adjustments. Open a photo to get an automatic first pass, refine it with familiar controls, compare it with the original, then export a full-resolution image.
 
-**CS 152 · Programming Paradigms · San José State University**
+Photos stay in your browser. PixelSense does not upload them to a server.
 
-Yug More and Tejas · Fall 2026 · Dr. Saptarshi Sengupta
+## Run locally
 
-## Run the demo
-
-Install Node.js 22.18 or a later 22.x release, or Node.js 24 or later.
+Requirements: Node.js 22.18 or later in the 22.x series, or Node.js 24 or later.
 
 ```bash
 git clone https://github.com/Yug-More/PixelSense.git
@@ -17,53 +15,83 @@ npm ci
 npm start
 ```
 
-Open **http://127.0.0.1:5173/** in Chrome. Keep the terminal running while you use the editor. `npm start` builds and serves the production version locally. Use `npm run dev` for hot reload while working on the source. Both commands use the same port and stop with an error if it is already occupied. If the page stops responding, restart the command and reload the tab.
+Open [http://127.0.0.1:5173](http://127.0.0.1:5173). Keep the terminal open while using the app. To stop the local server, press Ctrl+C.
+
+For source development with hot reload, run `npm run dev`. To build and serve the production files separately, run `npm run build` followed by `npm run preview`.
 
 ## Edit a photo
 
-1. **Open, drop, or paste a JPEG or PNG.** Choose **Try sample** for a bundled alpine lake image. For HEIC or another format, export a JPEG or PNG first.
-2. **Review the first pass.** Enhance on open is enabled by default. The status lists the applied corrections and shows the estimated brightness change when it is measurable. Choose **Before** to see what changed, or turn off **Enhance on open** to start the next image with neutral controls.
-3. **Fine-tune the edit.** Select **Subtle**, **Moderate**, or **Full**, then click **Auto Enhance** to reapply at that strength. Adjust Exposure, Contrast, Saturation, and Warmth individually, click a value to reset that control, or try a preset or a short instruction such as “Make this photo brighter and warmer.”
-4. **Check the details.** Use Split to compare both versions, zoom up to 300%, and drag to pan. The histogram tracks the visible image, or the edited side in Split. Clipping marks near-black pixels in blue and near-white pixels in red.
-5. **Save a look.** Open **Saved looks and recipes** to name the current adjustments or download them as a JSON recipe. Open a different photo and apply the saved preset or import the recipe. Both actions are undoable.
-6. **Export your photo.** Choose PNG to preserve transparency or JPEG to create a smaller shareable file. JPEG quality is adjustable. Both formats use the current edits and preserve the browser-decoded dimensions. Zoom, comparison, and clipping marks apply only to the workspace.
+1. Open, drop, or paste a JPEG or PNG. Select **Try sample** to use the included alpine lake photo.
+2. **Enhance on open** automatically analyzes each new photo. Turn it off if you want to start with neutral adjustments.
+3. Choose **Subtle**, **Moderate**, or **Full** and select **Auto Enhance** to apply a fresh recommendation. The status message lists the changes and shows the estimated brightness shift.
+4. Adjust exposure, contrast, saturation, and warmth. Use the named presets or enter a supported instruction, such as “Make this photo brighter and warmer.”
+5. Compare **Before**, **After**, or **Split**. Zoom to inspect details, drag to pan, and check the histogram. **Clipping** marks near-black pixels in blue and near-white pixels in red.
+6. Use **Undo** or **Redo** to revisit edits. Save a named look in this browser, or download and import a recipe JSON file to reuse the settings on another device.
+7. Select **Download PNG** or **Download JPEG**. PNG retains transparency. JPEG offers an adjustable quality setting.
 
-**Keyboard shortcuts** · Cmd/Ctrl+Z to undo, Cmd/Ctrl+Shift+Z to redo, and B to switch Before/After outside form fields. Automatic enhancement is undoable. A new image starts a fresh history with up to 50 undo steps.
+Keyboard shortcuts are **Cmd/Ctrl+Z** to undo, **Cmd/Ctrl+Shift+Z** to redo, and **B** to switch between Before and After when focus is outside a form field.
 
-## How Auto Enhance works
+PixelSense accepts JPEG and PNG files. Convert HEIC, HEIF, WebP, or AVIF files to JPEG or PNG before opening them.
 
-PixelSense analyzes an opacity-weighted sample from the original image, at up to 128 pixels on its longest side. It combines median and mean luminance to estimate a representative midtone. Underexposed images get a bounded lift toward a midtone target. The lift tapers near white to retain detail in bright parts of the image.
+## Automatic enhancement
 
-The editor checks for a warm or cool cast in muted midtones **after adjusting exposure**, which can reveal color evidence that was too dark to measure originally. It then estimates contrast and makes a modest saturation correction where appropriate. Each run uses the original sample and replaces the current slider values. Reapplying the same strength produces the same edit.
+Auto Enhance samples the original photo at up to 128 pixels on its longest side. It measures luminance, tonal range, and saturation. It uses the median and average brightness to estimate a representative midtone, lifts dark images while tapering the lift near white, and slightly lowers exposure for very bright photos.
 
-Auto Enhance is rule-based. A photograph with intentional shadows or warm lighting may look better with a gentler correction. The editor can brighten existing detail, but it cannot reconstruct detail lost in completely black, blown-out, or blurry areas.
+After adjusting exposure, PixelSense checks muted midtones for warm or cool color casts. It then considers a restrained contrast and saturation correction. The recommendation replaces the current slider values and is scaled by the chosen strength. Reapplying the same strength to the same original photo produces the same recipe.
 
-## Architecture and course concepts
+Auto Enhance is a deterministic image-processing rule set, not machine learning. It can improve existing detail, but it cannot recover detail that is completely black, blown out, or out of focus. Compare with Before and tune the sliders when a photo has intentional lighting or color grading.
 
-PixelSense uses **React, TypeScript, Vite, and Canvas 2D**. Image decoding, analysis, preview, and export run on the device. The app has no account requirement or photo upload service.
+## Settings and saved looks
 
-- **Pure transformations** · `web/adjustments.ts` analyzes pixels and returns a recipe or a new pixel buffer. The original pixels stay available for comparison.
-- **Function composition** · Exposure, temperature, contrast, and saturation share one pipeline in preview and export.
-- **Immutable state** · `web/history.ts` keeps recipe snapshots for undo and redo. Edits do not copy the original photo into history.
-- **Separation of concerns** · `web/photo.ts` handles files and Canvas. `web/main.tsx` handles user interaction. `web/diagnostics.ts` computes the histogram and clipping indicators.
+Named presets are stored locally in the current browser, up to 20 presets. They remain available after reload in that browser. Download a recipe JSON file to back up or transfer adjustment values. A recipe contains the four adjustment values and format version, not the photo itself.
 
-## Reuse an edit
+The editing history is session-only and holds up to 50 undo steps. Opening another photo starts a fresh history.
 
-Named presets are stored in the current browser and remain available after a reload. PixelSense supports up to 20 custom presets. A downloaded recipe contains only the four adjustment values and a format version. It can be backed up or opened on another device without sharing the photo.
+## Technology and project structure
 
-## Verify the project
+PixelSense uses React, TypeScript, Vite, and the browser Canvas 2D API.
+
+- `web/adjustments.ts` contains image analysis, automatic recommendations, and pure pixel transformations.
+- `web/photo.ts` handles photo decoding, preview rendering, and PNG/JPEG export.
+- `web/diagnostics.ts` calculates histogram and clipping information.
+- `web/history.ts` provides immutable undo and redo state.
+- `web/recipes.ts` validates portable edit recipes and saved presets.
+- `web/main.tsx` connects the editing interface to those functions.
+
+The project demonstrates pure functions, function composition, higher-order functions, immutable state updates, and separation between image processing and the user interface.
+
+## Tests
+
+Run the unit tests and production build:
 
 ```bash
 npm test
 npm run build
+```
+
+The browser workflow also checks imports, Auto Enhance, editing controls, presets and recipe transfer, diagnostics, and exported image formats:
+
+```bash
 npx playwright-core install chromium
 npm run test:browser
 ```
 
-The unit suite covers adaptive exposure, cast correction, highlight preservation, transparent pixels, history, recipe validation, and file utilities. The browser suite builds the app, starts a temporary local server, and verifies file import, automatic and manual edits, comparison, history, preset persistence, recipe round trips, diagnostic overlays, and the pixels and dimensions in PNG exports and JPEG encoding. To use an existing Chrome installation, set `CHROME_PATH` to its executable when running `npm run test:browser`.
+To use an installed Chrome instead of installing Chromium, set `CHROME_PATH` to the Chrome executable when running `npm run test:browser`.
 
-Large photos are subject to browser memory and Canvas limits. PNG exports omit the original EXIF metadata, and edit history lives in the current session. The bundled sample is a generated demo image.
+## Known limitations
 
-## Original iPhone prototype
+- Editing applies globally to the full image. There are no crop, layer, or local retouch tools.
+- JPEG and PNG are the supported input formats.
+- Large photos depend on browser canvas and memory limits.
+- JPEG output is lossy. PNG preserves transparency.
+- PNG and JPEG exports omit the source image’s EXIF metadata.
+- Named presets stay in the current browser. Transfer them with recipe JSON.
+- The original iPhone prototype remains in `PixelSense/`, `PixelSenseTests/`, and `PixelSense.xcodeproj`. Its Photos save path still needs physical iPhone acceptance.
 
-The SwiftUI, Core Image, and PhotoKit project remains in `PixelSense/`, `PixelSenseTests/`, and `PixelSense.xcodeproj`. See the [original iOS architecture](docs/ARCHITECTURE.md), [project plan](docs/PROJECT_PLAN.md), and [maintainer handoff](docs/HANDOFF.md).
+## Course project
+
+CS 152 · Programming Paradigms · San José State University
+
+Yug More and Tejas · Fall 2026 · Dr. Saptarshi Sengupta
+
+See the [project plan](docs/PROJECT_PLAN.md), [iOS architecture](docs/ARCHITECTURE.md), and [team handoff](docs/HANDOFF.md).
