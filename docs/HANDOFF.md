@@ -193,6 +193,13 @@ Keep this document factual. A completed acceptance check needs a reproducible re
 - **Verification:** Unit tests, production build, and production Chrome checks passed on the release contents. Checked the staged diff before committing. This release does not require a physical iPhone test.
 - **Remaining checks and owner:** Yug and Tejas own classroom rehearsal. Tejas owns any separate native PhotoKit acceptance pass.
 
+### 2026-11-24 — Flexible photo export
+
+- **Who / branch / commit:** Assisted session on `main`.
+- **Work and files:** `web/photo.ts` now exports PNG or quality-adjustable JPEG. `web/main.tsx` and `web/style.css` add export settings and format-aware download controls. The browser check verifies JPEG encoding and filename. Updated the README and project plan.
+- **Verification:** Pending unit, production build, and browser checks before commit.
+- **Next action and owner:** Confirm output pixels and format behavior in Chrome, then publish the verified change.
+
 ### 2026-11-21 — Reusable photo settings
 
 - **Who / branch / commit:** Assisted implementation session / `main` / `Add reusable photo settings`. Existing Yug-More commit identity used.

@@ -31,6 +31,8 @@ function App() {
   const panStart = useRef<{ x: number; y: number } | null>(null);
   const [showClipping, setShowClipping] = useState(false);
   const [strength, setStrength] = useState(100);
+  const [exportFormat, setExportFormat] = useState<'png' | 'jpeg'>('png');
+  const [jpegQuality, setJpegQuality] = useState(92);
   const [enhanceOnOpen, setEnhanceOnOpen] = useState(true);
   const [dragging, setDragging] = useState(false);
   const [busy, setBusy] = useState<'open' | 'export' | null>(null);
@@ -250,9 +252,9 @@ function App() {
     try {
       // Give the browser a frame to display the export state before rendering at full resolution.
       await new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
-      const blob = await exportPhoto(photo, recipe);
-      saveDownload(blob, exportName(photo.name));
-      setStatus('PNG download started.');
+      const blob = await exportPhoto(photo, recipe, exportFormat, jpegQuality / 100);
+      saveDownload(blob, exportName(photo.name, exportFormat));
+      setStatus(`${exportFormat.toUpperCase()} download started.`);
     } catch {
       setError('This photo could not be exported. Try a smaller image.');
     } finally {
@@ -305,7 +307,7 @@ function App() {
         </div>
         <div className="header-actions">
           <button className="secondary" onClick={() => input.current?.click()} disabled={Boolean(busy)}>Open photo</button>
-          <button className="primary export" disabled={disabled} onClick={download}>{busy === 'export' ? 'Exporting…' : 'Download PNG'}</button>
+          <button className="primary export" disabled={disabled} onClick={download}>{busy === 'export' ? 'Exporting…' : `Download ${exportFormat.toUpperCase()}`}</button>
         </div>
       </header>
       <main>
@@ -475,6 +477,21 @@ function App() {
                 onChange={event => setInstruction(event.currentTarget.value)} disabled={disabled} required />
               <button className="secondary" disabled={disabled}>Apply instruction</button>
             </form>
+          </details>
+          <details className="panel-section">
+            <summary>Export settings</summary>
+            <label className="export-setting">
+              File format
+              <select value={exportFormat} onChange={event => setExportFormat(event.currentTarget.value as 'png' | 'jpeg')}>
+                <option value="png">PNG · transparency supported</option>
+                <option value="jpeg">JPEG · smaller file</option>
+              </select>
+            </label>
+            {exportFormat === 'jpeg' && <div className="export-setting">
+              <label htmlFor="jpeg-quality">JPEG quality <output>{jpegQuality}%</output></label>
+              <input id="jpeg-quality" aria-label="JPEG quality" type="range" min="50" max="100" step="1" value={jpegQuality}
+                onChange={event => setJpegQuality(event.currentTarget.valueAsNumber)} />
+            </div>}
           </details>
           <details className="panel-section">
             <summary>Saved looks and recipes</summary>

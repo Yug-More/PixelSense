@@ -68,7 +68,7 @@ export function renderPreview(canvas: HTMLCanvasElement, source: ImageData, reci
   readContext(canvas).putImageData(new ImageData(pixels, source.width, source.height), 0, 0);
 }
 
-export async function exportPhoto(photo: Photo, recipe: Recipe) {
+export async function exportPhoto(photo: Photo, recipe: Recipe, format: ExportFormat = 'png', quality = 0.92) {
   const { image, width, height } = photo;
   const canvas = createCanvas(width, height);
   try {
@@ -80,13 +80,18 @@ export async function exportPhoto(photo: Photo, recipe: Recipe) {
       const pixels = adjustPixels(strip.data, recipe);
       context.putImageData(new ImageData(pixels, width, strip.height), 0, top);
     }
+    const mime = format === 'jpeg' ? 'image/jpeg' : 'image/png';
+    const boundedQuality = Math.max(0.5, Math.min(1, quality));
     return await new Promise<Blob>((resolve, reject) => {
-      canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error('PNG export failed.')), 'image/png');
+      canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error('Image export failed.')), mime,
+        format === 'jpeg' ? boundedQuality : undefined);
     });
   } finally {
     canvas.width = canvas.height = 0;
   }
 }
 
-export const exportName = (name: string) =>
-  (name.replace(/\.[^.]+$/, '').trim() || 'photo') + '-pixelsense.png';
+export type ExportFormat = 'png' | 'jpeg';
+
+export const exportName = (name: string, format: ExportFormat = 'png') =>
+  (name.replace(/\.[^.]+$/, '').trim() || 'photo') + (format === 'jpeg' ? '-pixelsense.jpg' : '-pixelsense.png');

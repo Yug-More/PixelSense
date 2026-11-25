@@ -357,6 +357,17 @@ async function checkEditor(browser, url) {
   }
 
   await button('Split').click();
+  await page.getByText('Export settings', { exact: true }).click();
+  await page.getByLabel('File format').selectOption('jpeg');
+  await page.getByRole('slider', { name: 'JPEG quality' }).fill('70');
+  const [jpegDownload] = await Promise.all([
+    page.waitForEvent('download'),
+    button('Download JPEG').click(),
+  ]);
+  assert.equal(jpegDownload.suggestedFilename(), 'night-pixelsense.jpg');
+  const jpegBuffer = await readFile(await jpegDownload.path());
+  assert.equal(jpegBuffer[0], 0xff);
+  assert.equal(jpegBuffer[1], 0xd8);
   const savedExposure = await exposure.inputValue();
   await page.getByText('Saved looks and recipes', { exact: true }).click();
   await page.getByLabel('Preset name').fill('Night lift');
